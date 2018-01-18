@@ -8,65 +8,126 @@
 #include <iostream>
 #include <string>
 
+#include <WPILib.h>
 #include <LiveWindow/LiveWindow.h>
 #include <SmartDashboard/SendableChooser.h>
 #include <SmartDashboard/SmartDashboard.h>
 #include <TimedRobot.h>
+#include <ctre/Phoenix.h>
+#include <DalekDrive.h>
+#include <Curie.h>
 
-class Robot : public frc::TimedRobot {
+using namespace std;
+using namespace frc;
+
+class Robot : public frc::TimedRobot
+{
 public:
-	void RobotInit() {
-		m_chooser.AddDefault(kAutoNameDefault, kAutoNameDefault);
-		m_chooser.AddObject(kAutoNameCustom, kAutoNameCustom);
-		frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+	Compressor *c;
+	WPI_TalonSRX *leftMotor, *rightMotor, *leftSlave, *rightSlave;
+	Joystick *leftJoystick, *rightJoystick;
+	XboxController *xbox;
+	DalekDrive *d;
+
+	void
+	RobotInit()
+	{
+		leftMotor     = new WPI_TalonSRX(LEFT_DRIVEMOTOR);
+		leftSlave     = new WPI_TalonSRX(LEFT_SLAVEMOTOR);
+		rightMotor    = new WPI_TalonSRX(RIGHT_DRIVEMOTOR);
+		rightSlave    = new WPI_TalonSRX(RIGHT_SLAVEMOTOR);
+
+		leftJoystick  = new Joystick(LEFT_JOYSTICK);
+		rightJoystick = new Joystick(RIGHT_JOYSTICK);
+		xbox          = new XboxController(XBOX_CONTROLS);
+		d             = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
+		c             = new Compressor(PCM_ID);
+
+		autoLocation.AddDefault("Left", LEFT_POSITION);
+		autoLocation.AddObject("Center", CENTER_POSITION);
+		autoLocation.AddObject("Right", RIGHT_POSITION);
+		frc::SmartDashboard::PutData("Autonomous Starting Location",
+				&autoLocation);
+		autoTarget.AddDefault("Switch", TARGET_SWITCH);
+		autoTarget.AddObject("Scale", TARGET_SCALE);
+		autoTarget.AddObject("AutoLine", TARGET_AUTOLINE);
+		frc::SmartDashboard::PutData("Automous Target",
+				&autoTarget);
 	}
 
-	/*
-	 * This autonomous (along with the chooser code above) shows how to
-	 * select between different autonomous modes using the dashboard. The
-	 * sendable chooser code works with the Java SmartDashboard. If you
-	 * prefer the LabVIEW Dashboard, remove all of the chooser code and
-	 * uncomment the GetString line to get the auto name from the text box
-	 * below the Gyro.
-	 *
-	 * You can add additional auto modes by adding additional comparisons to
-	 * the if-else structure below with additional strings. If using the
-	 * SendableChooser make sure to add them to the chooser code above as
-	 * well.
-	 */
-	void AutonomousInit() override {
-		m_autoSelected = m_chooser.GetSelected();
-		// m_autoSelected = SmartDashboard::GetString("Auto Selector",
-		//		 kAutoNameDefault);
-		std::cout << "Auto selected: " << m_autoSelected << std::endl;
 
-		if (m_autoSelected == kAutoNameCustom) {
-			// Custom Auto goes here
-		} else {
-			// Default Auto goes here
+	void
+	AutonomousInit() override
+	{
+		std::string loc = autoLocation.GetSelected();
+		std::string tgt = autoTarget.GetSelected();
+
+		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+
+		// get our starting position
+		if(loc.compare(LEFT_POSITION) == 0)
+			autoloc = 1;
+		else if (loc.compare(CENTER_POSITION) == 0)
+			autoloc = 2;
+		else if (loc.compare(RIGHT_POSITION) == 0)
+			autoloc = 3;
+		else
+			autoloc = 2;
+
+		// compute autonomous objective, based on GameSpecificMessage
+		if(tgt.compare(TARGET_SWITCH) == 0) {
+			if(gameData[0] == 'L')
+				autotgt = 1;
+			else
+				autotgt = 2;
 		}
-	}
-
-	void AutonomousPeriodic() {
-		if (m_autoSelected == kAutoNameCustom) {
-			// Custom Auto goes here
-		} else {
-			// Default Auto goes here
+		else if (tgt.compare(TARGET_SCALE) == 0) {
+			if(gameData[1] == 'L')
+				autotgt = 3;
+			else
+				autotgt = 4;
 		}
+		else
+			autotgt = 0;
 	}
 
-	void TeleopInit() {}
+	void
+	AutonomousPeriodic()
+	{
 
-	void TeleopPeriodic() {}
+	}
 
-	void TestPeriodic() {}
+	void
+	TeleopInit()
+	{
+
+	}
+
+	void TeleopPeriodic()
+	{
+		bool useArcade;
+
+		useArcade = (leftJoystick->GetZ() == -1.0);
+
+		// Drive controls
+		if (useArcade)
+			d->ArcadeDrive(leftJoystick);
+		else
+			d->TankDrive(leftJoystick, rightJoystick);
+	}
+
+	void TestPeriodic()
+	{
+
+	}
 
 private:
 	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
-	frc::SendableChooser<std::string> m_chooser;
-	const std::string kAutoNameDefault = "Default";
-	const std::string kAutoNameCustom = "My Auto";
-	std::string m_autoSelected;
+	frc::SendableChooser<std::string> autoLocation;
+	frc::SendableChooser<std::string> autoTarget;
+	std::string gameData;
+	int autoloc;
+	int autotgt;
 };
 
 START_ROBOT_CLASS(Robot)
