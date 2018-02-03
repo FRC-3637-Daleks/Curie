@@ -23,8 +23,9 @@ using namespace frc;
 class Robot : public frc::TimedRobot
 {
 public:
-	Compressor *c;
-	WPI_TalonSRX *leftMotor, *rightMotor, *leftSlave, *rightSlave;
+	WPI_TalonSRX *leftMotor, *rightMotor;
+ 	WPI_TalonSRX *leftSlave, *rightSlave;
+	WPI_TalonSRX *wristMotor, *rollerMotor;
 	Joystick *leftJoystick, *rightJoystick;
 	XboxController *xbox;
 	DalekDrive *d;
@@ -32,26 +33,29 @@ public:
 	void
 	RobotInit()
 	{
-		leftMotor     = new WPI_TalonSRX(LEFT_DRIVEMOTOR);
-		leftSlave     = new WPI_TalonSRX(LEFT_SLAVEMOTOR);
-		rightMotor    = new WPI_TalonSRX(RIGHT_DRIVEMOTOR);
-		rightSlave    = new WPI_TalonSRX(RIGHT_SLAVEMOTOR);
+		leftMotor     = new WPI_TalonSRX(3);
+		leftSlave     = new WPI_TalonSRX(4);
+		rightMotor    = new WPI_TalonSRX(7);
+		rightSlave    = new WPI_TalonSRX(8);
+
+		// wristMotor    = new WPI_TalonSRX(WRIST_MOTOR);
+		// rollerMotor   = new WPI_TalonSRX(ROLLER_MOTOR);
 
 		leftJoystick  = new Joystick(LEFT_JOYSTICK);
 		rightJoystick = new Joystick(RIGHT_JOYSTICK);
 		xbox          = new XboxController(XBOX_CONTROLS);
 		d             = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
-		c             = new Compressor(PCM_ID);
 
 		autoLocation.AddDefault("Left", LEFT_POSITION);
 		autoLocation.AddObject("Center", CENTER_POSITION);
 		autoLocation.AddObject("Right", RIGHT_POSITION);
 		frc::SmartDashboard::PutData("Autonomous Starting Location",
 				&autoLocation);
+
 		autoTarget.AddDefault("Switch", TARGET_SWITCH);
 		autoTarget.AddObject("Scale", TARGET_SCALE);
 		autoTarget.AddObject("AutoLine", TARGET_AUTOLINE);
-		frc::SmartDashboard::PutData("Automous Target",
+		frc::SmartDashboard::PutData("Autonomous Target",
 				&autoTarget);
 	}
 
@@ -114,6 +118,24 @@ public:
 			d->ArcadeDrive(leftJoystick);
 		else
 			d->TankDrive(leftJoystick, rightJoystick);
+
+		// Wrist Movement A/B button
+		if(xbox->GetAButtonPressed()) {
+			wristMotor->Set(0.2);
+		} else if (xbox->GetBButtonPressed()) {
+			wristMotor->Set(-0.2);
+		} else if ((xbox->GetAButtonReleased()) || (xbox->GetBButtonReleased())) {
+			wristMotor->Set(0.0);
+		}
+
+		// Roller Movement X/Y button
+		if(xbox->GetXButtonPressed()) {
+			rollerMotor->Set(0.2);
+		} else if (xbox->GetYButtonPressed()) {
+			rollerMotor->Set(-0.2);
+		} else if ((xbox->GetXButtonReleased()) || (xbox->GetYButtonReleased())) {
+			rollerMotor->Set(0.0);
+		}
 	}
 
 	void TestPeriodic()

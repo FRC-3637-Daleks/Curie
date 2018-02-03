@@ -17,7 +17,7 @@ DalekDrive::DalekDrive(int leftMotorChannel, int rightMotorChannel)
 	m_rightMotor      = new WPI_TalonSRX(rightMotorChannel);
 	m_leftSlaveMotor  = NULL;
 	m_rightSlaveMotor = NULL;
-	m_drive           = new frc::DifferentialDrive(*m_leftMotor, *m_rightMotor);
+	m_drive           = new DifferentialDrive(*m_leftMotor, *m_rightMotor);
 	InitDalekDrive();
 
 	m_needFree = true;
@@ -204,9 +204,9 @@ DalekDrive::InitDalekDrive(void)
 	m_rightMotor->ConfigNominalOutputForward(0.0, 0);
 	m_rightMotor->ConfigNominalOutputReverse(-0.0, 0);
 	m_leftMotor->ConfigPeakOutputForward(1.0, 0);
-	m_leftMotor->ConfigPeakOutputReverse(1.0, 0);
+	m_leftMotor->ConfigPeakOutputReverse(-1.0, 0);
 	m_rightMotor->ConfigPeakOutputForward(1.0, 0);
-	m_rightMotor->ConfigPeakOutputReverse(1.0, 0);
+	m_rightMotor->ConfigPeakOutputReverse(-1.0, 0);
 	m_leftMotor->ConfigOpenloopRamp(RAMP_RATE, 0); // TBD: how many MS ???
 	m_rightMotor->ConfigOpenloopRamp(RAMP_RATE, 0);
 	m_leftMotor->ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::QuadEncoder,0,0);
