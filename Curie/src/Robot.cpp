@@ -33,19 +33,25 @@ public:
 	void
 	RobotInit()
 	{
+		//leftMotor     = new WPI_TalonSRX(3);
+		//leftSlave     = new WPI_TalonSRX(4);
+		//rightMotor    = new WPI_TalonSRX(7);
+		//rightSlave    = new WPI_TalonSRX(8);
 		leftMotor     = new WPI_TalonSRX(3);
-		leftSlave     = new WPI_TalonSRX(4);
-		rightMotor    = new WPI_TalonSRX(7);
-		rightSlave    = new WPI_TalonSRX(8);
+		// leftSlave     = new WPI_TalonSRX(4);
+		rightMotor    = new WPI_TalonSRX(1);
+		// rightSlave    = new WPI_TalonSRX(8);
 
-		// wristMotor    = new WPI_TalonSRX(WRIST_MOTOR);
-		// rollerMotor   = new WPI_TalonSRX(ROLLER_MOTOR);
+		wristMotor    = new WPI_TalonSRX(WRIST_MOTOR);
+		rollerMotor   = new WPI_TalonSRX(ROLLER_MOTOR);
 
 		leftJoystick  = new Joystick(LEFT_JOYSTICK);
 		rightJoystick = new Joystick(RIGHT_JOYSTICK);
 		xbox          = new XboxController(XBOX_CONTROLS);
-		d             = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
-
+		// d             = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
+		d             = new DalekDrive(leftMotor, rightMotor);
+		d->SetInvertedMotor(LEFT_DRIVEMOTOR, true);
+		d->SetInvertedMotor(RIGHT_DRIVEMOTOR, true);
 		autoLocation.AddDefault("Left", LEFT_POSITION);
 		autoLocation.AddObject("Center", CENTER_POSITION);
 		autoLocation.AddObject("Right", RIGHT_POSITION);
@@ -130,9 +136,9 @@ public:
 
 		// Roller Movement X/Y button
 		if(xbox->GetXButtonPressed()) {
-			rollerMotor->Set(0.2);
+			rollerMotor->Set(0.75);
 		} else if (xbox->GetYButtonPressed()) {
-			rollerMotor->Set(-0.2);
+			rollerMotor->Set(-0.75);
 		} else if ((xbox->GetXButtonReleased()) || (xbox->GetYButtonReleased())) {
 			rollerMotor->Set(0.0);
 		}
