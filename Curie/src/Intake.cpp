@@ -35,8 +35,8 @@ Intake::Intake(WPI_TalonSRX* wristMotor, WPI_TalonSRX* rollerMotor, int intakeLo
 
 Intake::Intake(WPI_TalonSRX& wristMotor, WPI_TalonSRX& rollerMotor, int intakeLowerLimit, int intakeUpperLimit, int intakeProximity) {
 
-	m_wristMotor = wristMotor;
-	m_rollerMotor = rollerMotor;
+	m_wristMotor = &wristMotor;
+	m_rollerMotor = &rollerMotor;
 	m_lowerLimit = new DigitalInput(intakeLowerLimit);
 	m_upperLimit = new DigitalInput(intakeUpperLimit);
 	m_proximity = new DigitalInput(intakeProximity);
