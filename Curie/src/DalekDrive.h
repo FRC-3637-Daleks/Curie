@@ -44,6 +44,9 @@ class DalekDrive {
 	void SetLeftRightMotorOutputs(double leftOutput, double rightOutput);
 	void SetInvertedMotor(MotorType_t motor, bool isInverted);
 	void SetMaxOutput(double maxOutput);
+	void SetControlMode(ctre::phoenix::motorcontrol::ControlMode mode);
+	bool Turn(double degrees);
+	bool Travel(double distance);
 	bool DriveOk();
 
  private:
@@ -54,6 +57,9 @@ class DalekDrive {
 	WPI_TalonSRX *m_leftSlaveMotor;
 	WPI_TalonSRX *m_rightSlaveMotor;
 	frc::DifferentialDrive *m_drive;
+	double degreesRemaining;
+	double distanceRemaining;
+	ctre::phoenix::motorcontrol::ControlMode inMode;
 	bool m_needFree;
 };
 #endif /* _DALEKDRIVE_H_ */

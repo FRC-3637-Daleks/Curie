@@ -7,9 +7,59 @@
 
 #ifndef _CURIE_H_
 #define _CURIE_H_
+// #define PRATICE_BOT
 
-enum Motors      { LEFT_DRIVEMOTOR = 1, LEFT_SLAVEMOTOR, RIGHT_DRIVEMOTOR, RIGHT_SLAVEMOTOR, WRIST_MOTOR, ROLLER_MOTOR, NUM_MOTORS };
-enum Joysticks   { LEFT_JOYSTICK = 0, RIGHT_JOYSTICK, XBOX_CONTROLS, NUM_JOYSTICKS };
+enum Motors {
+	/* Motor Definitions
+	 */
+#ifdef PRACTICE_BOT
+		LeftDriveMotor = 3,
+		RightDriveMotor = 1,
+		WristMotor = 5,
+		RollerMotor = 6,
+		NumMotors = 4,
+#else
+		LeftDriveMotor = 4,
+		LeftSlaveMotor = 3,
+		RightDriveMotor = 8,
+		RightSlaveMotor = 7,
+		WristMotor = 1,
+		RollerMotor = 2,
+		WinchMotor = 5,
+		NumMotors = 8,
+#endif
+};
+
+enum Joysticks {
+		/* User input devices
+		 */
+		LeftJoystick = 0,
+		RightJoystick,
+		XboxControls,
+		NumJoysticks,
+};
+
+enum Constants {
+		/* Which PID slot to pull gains from.  Starting 2018, you can choose
+		 * from 0,1,2 or 3.  Only the first two (0,1) are visible in web-based configuration.
+		 */
+		DriveSlotIdx = 0,
+		ElevatorSlotIdx,
+		WristSlotIdx,
+
+		/* Talon SRX/ Victor SPX will supported multiple (cascaded) PID loops.
+		 * For now we just want the primary one.
+		 */
+		PIDLoopIdx = 0,
+
+		/*
+		 * set to zero to skip waiting for confirmation, set to nonzero to wait
+		 * and report to DS if action fails.
+		 */
+		CANTimeoutMs = 10,
+};
+
+
 
 #define LEFT_POSITION	"1"
 #define CENTER_POSITION	"2"

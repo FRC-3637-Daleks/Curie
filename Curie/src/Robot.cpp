@@ -26,32 +26,42 @@ public:
 	WPI_TalonSRX *leftMotor, *rightMotor;
  	WPI_TalonSRX *leftSlave, *rightSlave;
 	WPI_TalonSRX *wristMotor, *rollerMotor;
+	WPI_TalonSRX *winchMotor;
 	Joystick *leftJoystick, *rightJoystick;
 	XboxController *xbox;
+	SerialPort *p;
 	DalekDrive *d;
 
 	void
 	RobotInit()
 	{
-		//leftMotor     = new WPI_TalonSRX(3);
-		//leftSlave     = new WPI_TalonSRX(4);
-		//rightMotor    = new WPI_TalonSRX(7);
-		//rightSlave    = new WPI_TalonSRX(8);
-		leftMotor     = new WPI_TalonSRX(3);
-		// leftSlave     = new WPI_TalonSRX(4);
-		rightMotor    = new WPI_TalonSRX(1);
-		// rightSlave    = new WPI_TalonSRX(8);
+#ifdef PRACTICE_BOT
+		leftMotor     = new WPI_TalonSRX(LeftDriveMotor);
+		rightMotor    = new WPI_TalonSRX(RightDriveMotor);
+#else
+		leftMotor     = new WPI_TalonSRX(LeftDriveMotor);
+		leftSlave     = new WPI_TalonSRX(LeftSlaveMotor);
+		rightMotor    = new WPI_TalonSRX(RightDriveMotor);
+		rightSlave    = new WPI_TalonSRX(RightSlaveMotor);
+#endif
+		wristMotor    = new WPI_TalonSRX(WristMotor);
+		rollerMotor   = new WPI_TalonSRX(RollerMotor);
 
-		wristMotor    = new WPI_TalonSRX(WRIST_MOTOR);
-		rollerMotor   = new WPI_TalonSRX(ROLLER_MOTOR);
+		leftJoystick  = new Joystick(LeftJoystick);
+		rightJoystick = new Joystick(RightJoystick);
+		xbox          = new XboxController(XboxControls);
 
-		leftJoystick  = new Joystick(LEFT_JOYSTICK);
-		rightJoystick = new Joystick(RIGHT_JOYSTICK);
-		xbox          = new XboxController(XBOX_CONTROLS);
-		// d             = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
+		p = new SerialPort(115200, SerialPort::kUSB, 8,
+	             SerialPort::kParity_None, SerialPort::kStopBits_One);
+#ifdef PRACTICE_BOT
 		d             = new DalekDrive(leftMotor, rightMotor);
-		d->SetInvertedMotor(LEFT_DRIVEMOTOR, true);
-		d->SetInvertedMotor(RIGHT_DRIVEMOTOR, true);
+		d->SetInvertedMotor(LeftDriveMotor, true);
+		d->SetInvertedMotor(RightDriveMotor, true);
+#else
+		d             = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
+		d->SetInvertedMotor(LeftDriveMotor, false);
+		d->SetInvertedMotor(RightDriveMotor, false);
+#endif
 		autoLocation.AddDefault("Left", LEFT_POSITION);
 		autoLocation.AddObject("Center", CENTER_POSITION);
 		autoLocation.AddObject("Right", RIGHT_POSITION);
@@ -104,7 +114,7 @@ public:
 	void
 	AutonomousPeriodic()
 	{
-
+		d->SetLeftRightMotorOutputs(0.0, 0.0);
 	}
 
 	void

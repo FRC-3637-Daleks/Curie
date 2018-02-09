@@ -103,6 +103,10 @@ DalekDrive::~DalekDrive()
 void
 DalekDrive::Drive(double outputMagnitude, double curve)
 {
+	// Differential drive only supports PercentOutput control mode
+	if(inMode != ctre::phoenix::motorcontrol::ControlMode::PercentOutput)
+		return;
+
 	if(m_drive)
 		m_drive->CurvatureDrive(outputMagnitude, curve, false);
 	return;
@@ -112,6 +116,10 @@ void
 DalekDrive::TankDrive(GenericHID* leftStick, GenericHID* rightStick,
              bool squaredInputs)
 {
+	// Differential drive only supports PercentOutput control mode
+	if(inMode != ctre::phoenix::motorcontrol::ControlMode::PercentOutput)
+		return;
+
 	if(m_drive)
 		m_drive->TankDrive(leftStick->GetY(), rightStick->GetY(), squaredInputs);
 }
@@ -120,6 +128,10 @@ void
 DalekDrive::TankDrive(GenericHID& leftStick, GenericHID& rightStick,
              bool squaredInputs)
 {
+	// Differential drive only supports PercentOutput control mode
+	if(inMode != ctre::phoenix::motorcontrol::ControlMode::PercentOutput)
+		return;
+
 	if(m_drive)
 		m_drive->TankDrive(leftStick.GetY(), rightStick.GetY(), squaredInputs);
 }
@@ -128,6 +140,10 @@ void
 DalekDrive::TankDrive(double leftValue, double rightValue,
              bool squaredInputs)
 {
+	// Differential drive only supports PercentOutput control mode
+	if(inMode != ctre::phoenix::motorcontrol::ControlMode::PercentOutput)
+		return;
+
 	if(m_drive)
 		m_drive->TankDrive(leftValue, rightValue, squaredInputs);
 }
@@ -135,6 +151,10 @@ DalekDrive::TankDrive(double leftValue, double rightValue,
 void
 DalekDrive::ArcadeDrive(GenericHID* stick, bool squaredInputs)
 {
+	// Differential drive only supports PercentOutput control mode
+	if(inMode != ctre::phoenix::motorcontrol::ControlMode::PercentOutput)
+		return;
+
 	if(m_drive)
 		m_drive->ArcadeDrive(stick->GetY(), stick->GetX(), squaredInputs);
 }
@@ -142,6 +162,10 @@ DalekDrive::ArcadeDrive(GenericHID* stick, bool squaredInputs)
 void
 DalekDrive::ArcadeDrive(GenericHID& stick, bool squaredInputs)
 {
+	// Differential drive only supports PercentOutput control mode
+	if(inMode != ctre::phoenix::motorcontrol::ControlMode::PercentOutput)
+		return;
+
 	if(m_drive)
 		m_drive->ArcadeDrive(stick.GetY(), stick.GetX(), squaredInputs);
 }
@@ -150,22 +174,28 @@ void
 DalekDrive::ArcadeDrive(double moveValue, double rotateValue,
                bool squaredInputs)
 {
+	// Differential drive only supports PercentOutput control mode
+	if(inMode != ctre::phoenix::motorcontrol::ControlMode::PercentOutput)
+		return;
+
 	if(m_drive)
 		m_drive->ArcadeDrive(moveValue, rotateValue, squaredInputs);
 }
 
 void
-DalekDrive::SetLeftRightMotorOutputs(double leftOutput, double rightOutput)
+DalekDrive::SetLeftRightMotorOutputs(double leftValue, double rightValue)
 {
-	if(m_drive)
-		m_drive->TankDrive(leftOutput, rightOutput, false);
+	// Set the motor's value using mode
+	m_leftMotor->Set(inMode,  leftValue);
+	m_rightMotor->Set(inMode, rightValue);
+	return;
 }
 
 void
 DalekDrive::SetInvertedMotor(MotorType_t motor, bool isInverted)
 {
 	switch(motor) {
-	case LEFT_DRIVEMOTOR:
+	case LeftDriveMotor:
 		if(m_leftMotor) {
 			m_leftMotor->SetInverted(isInverted);
 			if(m_leftSlaveMotor)
@@ -173,7 +203,7 @@ DalekDrive::SetInvertedMotor(MotorType_t motor, bool isInverted)
 		}
 		break;
 
-	case RIGHT_DRIVEMOTOR:
+	case RightDriveMotor:
 		if(m_rightMotor) {
 			m_rightMotor->SetInverted(isInverted);
 			if(m_rightSlaveMotor)
@@ -194,39 +224,58 @@ DalekDrive::SetMaxOutput(double maxOutput)
 }
 
 void
+DalekDrive::SetControlMode(ctre::phoenix::motorcontrol::ControlMode mode)
+{
+	switch(mode) {
+	case ctre::phoenix::motorcontrol::ControlMode::PercentOutput:
+		inMode = mode;
+		break;
+	case ctre::phoenix::motorcontrol::ControlMode::Position:
+		inMode = mode;
+		break;
+	default:
+		inMode = ctre::phoenix::motorcontrol::ControlMode::PercentOutput;
+		break;
+	}
+}
+
+void
 DalekDrive::InitDalekDrive(void)
 {
 	// Configure the Talon's as needed
 	m_leftMotor->SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Brake);
 	m_rightMotor->SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Brake);
-	m_leftMotor->ConfigNominalOutputForward(0.0, 0);
-	m_leftMotor->ConfigNominalOutputReverse(-0.0, 0);
-	m_rightMotor->ConfigNominalOutputForward(0.0, 0);
-	m_rightMotor->ConfigNominalOutputReverse(-0.0, 0);
-	m_leftMotor->ConfigPeakOutputForward(1.0, 0);
-	m_leftMotor->ConfigPeakOutputReverse(-1.0, 0);
-	m_rightMotor->ConfigPeakOutputForward(1.0, 0);
-	m_rightMotor->ConfigPeakOutputReverse(-1.0, 0);
-	m_leftMotor->ConfigOpenloopRamp(RAMP_RATE, 0); // TBD: how many MS ???
-	m_rightMotor->ConfigOpenloopRamp(RAMP_RATE, 0);
-	m_leftMotor->ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::QuadEncoder,0,0);
-	m_rightMotor->ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::QuadEncoder,0,0);
+	m_leftMotor->ConfigNominalOutputForward(0.0, CANTimeoutMs);
+	m_leftMotor->ConfigNominalOutputReverse(-0.0, CANTimeoutMs);
+	m_rightMotor->ConfigNominalOutputForward(0.0, CANTimeoutMs);
+	m_rightMotor->ConfigNominalOutputReverse(-0.0, CANTimeoutMs);
+	m_leftMotor->ConfigPeakOutputForward(1.0, CANTimeoutMs);
+	m_leftMotor->ConfigPeakOutputReverse(-1.0, CANTimeoutMs);
+	m_rightMotor->ConfigPeakOutputForward(1.0, CANTimeoutMs);
+	m_rightMotor->ConfigPeakOutputReverse(-1.0, CANTimeoutMs);
+	m_leftMotor->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs); // TBD: how many MS ???
+	m_rightMotor->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
+	m_leftMotor->ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::QuadEncoder, DriveSlotIdx, CANTimeoutMs);
+	m_rightMotor->ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::QuadEncoder, DriveSlotIdx, CANTimeoutMs);
 	m_leftMotor->SetSensorPhase(true);
 	m_rightMotor->SetSensorPhase(false);
-	m_leftMotor->SetSelectedSensorPosition(0, 0, 0);
-	m_rightMotor->SetSelectedSensorPosition(0, 0, 0);
+	m_leftMotor->SetSelectedSensorPosition(0, 0, CANTimeoutMs);
+	m_rightMotor->SetSelectedSensorPosition(0, 0, CANTimeoutMs);
 	m_leftMotor->SetInverted(false);
 	m_rightMotor->SetInverted(false);
 	if(m_leftSlaveMotor) {
 		m_leftSlaveMotor->Set(ctre::phoenix::motorcontrol::ControlMode::Follower, m_leftMotor->GetDeviceID());
 		m_leftSlaveMotor->SetInverted(false);
-		m_leftSlaveMotor->ConfigOpenloopRamp(RAMP_RATE, 0);
+		m_leftSlaveMotor->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
 	}
 	if(m_rightSlaveMotor) {
 		m_rightSlaveMotor->Set(ctre::phoenix::motorcontrol::ControlMode::Follower, m_rightMotor->GetDeviceID());
 		m_rightSlaveMotor->SetInverted(false);
-		m_rightSlaveMotor->ConfigOpenloopRamp(RAMP_RATE, 0);
+		m_rightSlaveMotor->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
 	}
+	inMode = ctre::phoenix::motorcontrol::ControlMode::PercentOutput;
+	distanceRemaining = 0.0;
+	degreesRemaining = 0.0;
 }
 
 bool
