@@ -29,6 +29,7 @@ public:
 	WPI_TalonSRX *winchMotor;
 	Joystick *leftJoystick, *rightJoystick;
 	XboxController *xbox;
+	DigitalInput *intakeUpperLimit, *intakeLowerLimit, *intakeProximity;
 	SerialPort *p;
 	DalekDrive *d;
 	Intake *i;
