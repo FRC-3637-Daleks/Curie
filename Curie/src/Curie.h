@@ -39,6 +39,12 @@ enum Joysticks {
 		NumJoysticks,
 };
 
+enum DigitalIO {
+		IntakeUpperLimit = 1,
+		IntakeLowerLimit,
+		IntakeProximity,
+};
+
 enum Constants {
 		/* Which PID slot to pull gains from.  Starting 2018, you can choose
 		 * from 0,1,2 or 3.  Only the first two (0,1) are visible in web-based configuration.
