@@ -16,6 +16,7 @@
 #include <ctre/Phoenix.h>
 #include <DalekDrive.h>
 #include <Curie.h>
+#include <Intake.h>
 
 using namespace std;
 using namespace frc;
