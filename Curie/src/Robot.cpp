@@ -31,6 +31,7 @@ public:
 	XboxController *xbox;
 	SerialPort *p;
 	DalekDrive *d;
+	Intake *i;
 
 	void
 	RobotInit()
@@ -53,6 +54,10 @@ public:
 
 		p = new SerialPort(115200, SerialPort::kUSB, 8,
 	             SerialPort::kParity_None, SerialPort::kStopBits_One);
+		     
+		intakeUpperLimit = new DigitalInput(IntakeUpperLimit);
+		intakeLowerLimit = new DigitalInput(IntakeLowerLimit);
+		intakeProximity  = new DigitalInput(IntakeProximity);
 #ifdef PRACTICE_BOT
 		d             = new DalekDrive(leftMotor, rightMotor);
 		d->SetInvertedMotor(LeftDriveMotor, true);
@@ -137,20 +142,24 @@ public:
 
 		// Wrist Movement A/B button
 		if(xbox->GetAButtonPressed()) {
-			wristMotor->Set(0.2);
+			i->Raise();
 		} else if (xbox->GetBButtonPressed()) {
-			wristMotor->Set(-0.2);
+			i->Lower();
 		} else if ((xbox->GetAButtonReleased()) || (xbox->GetBButtonReleased())) {
-			wristMotor->Set(0.0);
+			i->StopWrist();
+		} else if ((i->WristUpperLimit()) || (i->WristLowerLimit())) {
+			i->StopWrist();
 		}
 
 		// Roller Movement X/Y button
 		if(xbox->GetXButtonPressed()) {
-			rollerMotor->Set(0.75);
+			i->Pull();
 		} else if (xbox->GetYButtonPressed()) {
-			rollerMotor->Set(-0.75);
+			i->Push();
 		} else if ((xbox->GetXButtonReleased()) || (xbox->GetYButtonReleased())) {
-			rollerMotor->Set(0.0);
+			i->StopRoller();
+		} else if (i->Proximity()) {
+			i->StopRoller();
 		}
 	}
 
