@@ -40,8 +40,8 @@ enum Joysticks {
 };
 
 enum DigitalIO {
-		IntakeUpperLimit = 1,
-		IntakeLowerLimit,
+		IntakeLowerLimit = 1,
+		IntakeUpperLimit,
 		IntakeProximity,
 };
 
