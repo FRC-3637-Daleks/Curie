@@ -31,7 +31,6 @@ public:
 	WPI_TalonSRX *winchMotor;
 	Joystick *leftJoystick, *rightJoystick;
 	XboxController *xbox;
-	DigitalInput *intakeUpperLimit, *intakeLowerLimit, *intakeProximity;
 	SerialPort *p;
 	DalekDrive *d;
 
@@ -61,9 +60,9 @@ public:
 		p = new SerialPort(115200, SerialPort::kUSB, 8,
 	             SerialPort::kParity_None, SerialPort::kStopBits_One);
 		     
-		intakeUpperLimit = new DigitalInput(IntakeUpperLimit);
-		intakeLowerLimit = new DigitalInput(IntakeLowerLimit);
-		intakeProximity  = new DigitalInput(IntakeProximity);
+		i             = new Intake(WristMotor, RollerMotor, IntakeLowerLimit,
+								   IntakeUpperLimit, IntakeProximity);
+
 #ifdef PRACTICE_BOT
 		d             = new DalekDrive(leftMotor, rightMotor);
 		d->SetInvertedMotor(LeftDriveMotor, false);
@@ -153,8 +152,6 @@ public:
 			i->Lower();
 		} else if ((xbox->GetAButtonReleased()) || (xbox->GetBButtonReleased())) {
 			i->StopWrist();
-		} else if ((i->WristUpperLimit()) || (i->WristLowerLimit())) {
-			i->StopWrist();
 		}
 
 		// Roller Movement X/Y button
@@ -163,8 +160,6 @@ public:
 		} else if (xbox->GetYButtonPressed()) {
 			i->Push();
 		} else if ((xbox->GetXButtonReleased()) || (xbox->GetYButtonReleased())) {
-			i->StopRoller();
-		} else if (i->Proximity()) {
 			i->StopRoller();
 		}
 
