@@ -7,14 +7,14 @@
 
 #ifndef _CURIE_H_
 #define _CURIE_H_
-// #define PRATICE_BOT
+#define PRACTICE_BOT
 
 enum Motors {
 	/* Motor Definitions
 	 */
 #ifdef PRACTICE_BOT
-		LeftDriveMotor = 3,
-		RightDriveMotor = 1,
+		LeftDriveMotor = 1,
+		RightDriveMotor = 3,
 		WristMotor = 5,
 		RollerMotor = 6,
 		NumMotors = 4,

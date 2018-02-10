@@ -55,8 +55,8 @@ public:
 	             SerialPort::kParity_None, SerialPort::kStopBits_One);
 #ifdef PRACTICE_BOT
 		d             = new DalekDrive(leftMotor, rightMotor);
-		d->SetInvertedMotor(LeftDriveMotor, true);
-		d->SetInvertedMotor(RightDriveMotor, true);
+		d->SetInvertedMotor(LeftDriveMotor, false);
+		d->SetInvertedMotor(RightDriveMotor, false);
 #else
 		d             = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
 		d->SetInvertedMotor(LeftDriveMotor, false);
@@ -137,9 +137,9 @@ public:
 
 		// Wrist Movement A/B button
 		if(xbox->GetAButtonPressed()) {
-			wristMotor->Set(0.2);
+			wristMotor->Set(0.4);
 		} else if (xbox->GetBButtonPressed()) {
-			wristMotor->Set(-0.2);
+			wristMotor->Set(-0.4);
 		} else if ((xbox->GetAButtonReleased()) || (xbox->GetBButtonReleased())) {
 			wristMotor->Set(0.0);
 		}
@@ -148,7 +148,7 @@ public:
 		if(xbox->GetXButtonPressed()) {
 			rollerMotor->Set(0.75);
 		} else if (xbox->GetYButtonPressed()) {
-			rollerMotor->Set(-0.75);
+			rollerMotor->Set(-0.9);
 		} else if ((xbox->GetXButtonReleased()) || (xbox->GetYButtonReleased())) {
 			rollerMotor->Set(0.0);
 		}
