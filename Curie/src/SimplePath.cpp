@@ -39,10 +39,13 @@ SimplePath::RunPath(DalekDrive *d, IMU *imu)
 
 		//Need to pass distance
 		state = steps.at(currentStepNumber).ExecuteStep(d, imu);
-		if ((state == AutonComplete) && (currentStepNumber < (int)steps.size())) {
+		if (state == AutonComplete) {
 			currentStepNumber++;
-			distanceTraveled = 0.0;
-			state = AutonExecuting;
+			//Check if any more steps to execute
+			if (currentStepNumber < (int)steps.size()) {
+				distanceTraveled = 0.0;
+				state = AutonExecuting;
+			}
 		}
 		break;
 	case AutonBlocked:
