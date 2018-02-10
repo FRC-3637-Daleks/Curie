@@ -17,6 +17,7 @@
 #include <DalekDrive.h>
 #include <Curie.h>
 #include <Intake.h>
+#include <Climber.h>
 
 using namespace std;
 using namespace frc;
@@ -33,7 +34,10 @@ public:
 	DigitalInput *intakeUpperLimit, *intakeLowerLimit, *intakeProximity;
 	SerialPort *p;
 	DalekDrive *d;
+
+	//Kent thinks we need to instantiate the Intake and Climber, but not sure what the parameters should be.
 	Intake *i;
+	Climber *c;
 
 	void
 	RobotInit()
@@ -162,6 +166,17 @@ public:
 			i->StopRoller();
 		} else if (i->Proximity()) {
 			i->StopRoller();
+		}
+
+		//Climber Controls (Start:Climb, Back: Hold, LeftStick:Hook, RightStick:Wing)
+		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kLeftHand)) {
+			c->DeployHook();
+		} else if (xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kRightHand)) {
+			c->DeployWings();
+		} else if (xbox->GetStartButtonPressed()) {
+			c->DoClimb();
+		} else if (xbox->GetBackButtonPressed()) {
+			c->Hold();
 		}
 	}
 
