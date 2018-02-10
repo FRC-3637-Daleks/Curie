@@ -17,9 +17,12 @@ class Intake {
   public:
 	typedef enum Motors MotorType_t;
 
-	Intake(int wristMotorChannel, int rollerMotorChannel, int intakeLowerLimit, int intakeUpperLimit, int intakeProximity);
-	Intake(WPI_TalonSRX* wristMotor, WPI_TalonSRX* rollerMotor, int intakeLowerLimit, int intakeUpperLimit, int intakeProximity);
-	Intake(WPI_TalonSRX& wristMotor, WPI_TalonSRX& rollerMotor, int intakeLowerLimit, int intakeUpperLimit, int intakeProximity);
+	Intake(int wristMotorChannel, int rollerMotorChannel,
+		   int intakeLowerLimit, int intakeUpperLimit, int intakeProximity);
+	Intake(WPI_TalonSRX* wristMotor, WPI_TalonSRX* rollerMotor,
+		   int intakeLowerLimit, int intakeUpperLimit, int intakeProximity);
+	Intake(WPI_TalonSRX& wristMotor, WPI_TalonSRX& rollerMotor,
+		   int intakeLowerLimit, int intakeUpperLimit, int intakeProximity);
 
 	void Raise();
 	void Lower();
@@ -34,8 +37,8 @@ class Intake {
 	~Intake();
 
   private:
-  	void InitDalekDrive();
-  	bool printFaults();
+  	void InitIntake();
+  	void IntakeOK();
   	WPI_TalonSRX *m_wristMotor;
   	WPI_TalonSRX *m_rollerMotor;
   	DigitalInput *m_lowerLimit;
