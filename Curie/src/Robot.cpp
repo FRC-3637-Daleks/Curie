@@ -16,6 +16,8 @@
 #include <ctre/Phoenix.h>
 #include <DalekDrive.h>
 #include <Curie.h>
+#include <Intake.h>
+#include <Climber.h>
 
 using namespace std;
 using namespace frc;
@@ -29,8 +31,13 @@ public:
 	WPI_TalonSRX *winchMotor;
 	Joystick *leftJoystick, *rightJoystick;
 	XboxController *xbox;
+	DigitalInput *intakeUpperLimit, *intakeLowerLimit, *intakeProximity;
 	SerialPort *p;
 	DalekDrive *d;
+
+	//Kent thinks we need to instantiate the Intake and Climber, but not sure what the parameters should be.
+	Intake *i;
+	Climber *c;
 
 	void
 	RobotInit()
@@ -53,6 +60,10 @@ public:
 
 		p = new SerialPort(115200, SerialPort::kUSB, 8,
 	             SerialPort::kParity_None, SerialPort::kStopBits_One);
+		     
+		intakeUpperLimit = new DigitalInput(IntakeUpperLimit);
+		intakeLowerLimit = new DigitalInput(IntakeLowerLimit);
+		intakeProximity  = new DigitalInput(IntakeProximity);
 #ifdef PRACTICE_BOT
 		d             = new DalekDrive(leftMotor, rightMotor);
 		d->SetInvertedMotor(LeftDriveMotor, false);
@@ -137,20 +148,35 @@ public:
 
 		// Wrist Movement A/B button
 		if(xbox->GetAButtonPressed()) {
-			wristMotor->Set(0.4);
+			i->Raise();
 		} else if (xbox->GetBButtonPressed()) {
-			wristMotor->Set(-0.4);
+			i->Lower();
 		} else if ((xbox->GetAButtonReleased()) || (xbox->GetBButtonReleased())) {
-			wristMotor->Set(0.0);
+			i->StopWrist();
+		} else if ((i->WristUpperLimit()) || (i->WristLowerLimit())) {
+			i->StopWrist();
 		}
 
 		// Roller Movement X/Y button
 		if(xbox->GetXButtonPressed()) {
-			rollerMotor->Set(0.75);
+			i->Pull();
 		} else if (xbox->GetYButtonPressed()) {
-			rollerMotor->Set(-0.9);
+			i->Push();
 		} else if ((xbox->GetXButtonReleased()) || (xbox->GetYButtonReleased())) {
-			rollerMotor->Set(0.0);
+			i->StopRoller();
+		} else if (i->Proximity()) {
+			i->StopRoller();
+		}
+
+		//Climber Controls (Start:Climb, Back: Hold, LeftStick:Hook, RightStick:Wing)
+		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kLeftHand)) {
+			c->DeployHook();
+		} else if (xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kRightHand)) {
+			c->DeployWings();
+		} else if (xbox->GetStartButtonPressed()) {
+			c->DoClimb();
+		} else if (xbox->GetBackButtonPressed()) {
+			c->Hold();
 		}
 	}
 
