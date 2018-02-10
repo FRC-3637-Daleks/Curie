@@ -17,9 +17,9 @@ class Climber {
 	public:
 		enum climbState { PRECLIMB, HOOKDEPLOYED, CLIMBING, HOLDING, NUM_CLIMB_STATES };
 
-		Climber(int motorChannel, int shifter, int lock, int wings, int encoderPortA, int encoderPortB);
-		Climber(WPI_TalonSRX* motor, Solenoid* shifter, Solenoid* lock, Solenoid* wings, Encoder* encoder);
-		Climber(WPI_TalonSRX& motor, Solenoid& shifter, Solenoid& lock, Solenoid& wings, Encoder& encoder);
+		Climber(int motorChannel, int slaveMotorChannel, int shifter, int lock, int wings, int encoderPortA, int encoderPortB);
+		Climber(WPI_TalonSRX* motor, WPI_TalonSRX* slave, Solenoid* shifter, Solenoid* lock, Solenoid* wings, Encoder* encoder);
+		Climber(WPI_TalonSRX& motor, WPI_TalonSRX& slave, Solenoid& shifter, Solenoid& lock, Solenoid& wings, Encoder& encoder);
 		~Climber();
 
 
@@ -32,7 +32,7 @@ class Climber {
 
 	private:
 		void InitClimber();
-		WPI_TalonSRX *m_motor;
+		WPI_TalonSRX *m_motor, *m_slave;
 		Solenoid *m_shifter, *m_lock, *m_wings;
 		Encoder *m_encoder;
 		climbState state;

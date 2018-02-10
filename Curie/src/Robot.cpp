@@ -60,8 +60,12 @@ public:
 		p = new SerialPort(115200, SerialPort::kUSB, 8,
 	             SerialPort::kParity_None, SerialPort::kStopBits_One);
 		     
+
 		i             = new Intake(WristMotor, RollerMotor, IntakeLowerLimit,
 								   IntakeUpperLimit, IntakeProximity);
+
+		//need slave motor port and encoder ports, winch motor out of if statement.
+		c = new Climber(5, 0, Shifter, Lock, Wings, 0, 1);
 
 #ifdef PRACTICE_BOT
 		d             = new DalekDrive(leftMotor, rightMotor);
@@ -163,7 +167,7 @@ public:
 			i->StopRoller();
 		}
 
-		//Climber Controls (Start:Climb, Back: Hold, LeftStick:Hook, RightStick:Wing)
+		//Climber Controls (Start:Climb, Back:Hold, LeftStick:Hook, RightStick:Wing)
 		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kLeftHand)) {
 			c->DeployHook();
 		} else if (xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kRightHand)) {

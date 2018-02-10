@@ -39,6 +39,12 @@ enum Joysticks {
 		NumJoysticks,
 };
 
+enum Solenoids {
+		Shifter = 0,
+		Lock,
+		Wings,
+};
+
 enum DigitalIO {
 		IntakeLowerLimit = 1,
 		IntakeUpperLimit,
