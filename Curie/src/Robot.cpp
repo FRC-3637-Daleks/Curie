@@ -33,8 +33,6 @@ public:
 	XboxController *xbox;
 	SerialPort *p;
 	DalekDrive *d;
-
-	//Kent thinks we need to instantiate the Intake and Climber, but not sure what the parameters should be.
 	Intake *i;
 	Climber *c;
 
@@ -57,25 +55,22 @@ public:
 		rightJoystick = new Joystick(RightJoystick);
 		xbox          = new XboxController(XboxControls);
 
-		p = new SerialPort(115200, SerialPort::kUSB, 8,
-	             SerialPort::kParity_None, SerialPort::kStopBits_One);
+		p             = new SerialPort(115200, SerialPort::kUSB, 8,
+	             	 	 	 SerialPort::kParity_None, SerialPort::kStopBits_One);
 		     
 
 		i             = new Intake(WristMotor, RollerMotor, IntakeLowerLimit,
 								   IntakeUpperLimit, IntakeProximity);
-
-		//need slave motor port and encoder ports, winch motor out of if statement.
-		c = new Climber(5, 0, Shifter, Lock, Wings, 0, 1);
+		c             = new Climber(5, 0, Shifter, Lock, Wings, 0, 1);
 
 #ifdef PRACTICE_BOT
 		d             = new DalekDrive(leftMotor, rightMotor);
-		d->SetInvertedMotor(LeftDriveMotor, false);
-		d->SetInvertedMotor(RightDriveMotor, false);
 #else
 		d             = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
+#endif
 		d->SetInvertedMotor(LeftDriveMotor, false);
 		d->SetInvertedMotor(RightDriveMotor, false);
-#endif
+
 		autoLocation.AddDefault("Left", LEFT_POSITION);
 		autoLocation.AddObject("Center", CENTER_POSITION);
 		autoLocation.AddObject("Right", RIGHT_POSITION);
@@ -88,7 +83,6 @@ public:
 		frc::SmartDashboard::PutData("Autonomous Target",
 				&autoTarget);
 	}
-
 
 	void
 	AutonomousInit() override
