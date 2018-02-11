@@ -7,7 +7,7 @@
 
 #ifndef _CURIE_H_
 #define _CURIE_H_
-#define PRACTICE_BOT
+// #define PRACTICE_BOT
 
 enum Motors {
 	/* Motor Definitions
@@ -17,7 +17,6 @@ enum Motors {
 		RightDriveMotor = 3,
 		WristMotor = 5,
 		RollerMotor = 6,
-		NumMotors = 4,
 #else
 		LeftDriveMotor = 4,
 		LeftSlaveMotor = 3,
@@ -25,8 +24,8 @@ enum Motors {
 		RightSlaveMotor = 7,
 		WristMotor = 1,
 		RollerMotor = 2,
-		WinchMotor = 5,
-		NumMotors = 8,
+		LiftMasterMotor = 5,
+		LiftSlaveMotor = 6,
 #endif
 };
 
@@ -43,12 +42,17 @@ enum Solenoids {
 		Shifter = 0,
 		Lock,
 		Wings,
+		Brace,
 };
 
 enum DigitalIO {
 		IntakeLowerLimit = 1,
 		IntakeUpperLimit,
 		IntakeProximity,
+		ElevatorLowerLimit,
+		ElevatorUpperLimit,
+		ClimbEncoderA,
+		ClimbEncoderB,
 };
 
 enum Constants {
@@ -70,8 +74,6 @@ enum Constants {
 		 */
 		CANTimeoutMs = 10,
 };
-
-
 
 #define LEFT_POSITION	"1"
 #define CENTER_POSITION	"2"

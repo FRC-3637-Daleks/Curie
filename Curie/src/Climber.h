@@ -11,37 +11,35 @@
 #include <Curie.h>
 #include <WPILib.h>
 #include <ctre/Phoenix.h>
-
+#include <Lifter.h>
 
 class Climber {
 	public:
 		enum climbState { PRECLIMB, HOOKDEPLOYED, CLIMBING, HOLDING, NUM_CLIMB_STATES };
 
-		Climber(int motorChannel, int slaveMotorChannel, int shifter, int lock, int wings, int encoderPortA, int encoderPortB);
-		Climber(WPI_TalonSRX* motor, WPI_TalonSRX* slave, Solenoid* shifter, Solenoid* lock, Solenoid* wings, Encoder* encoder);
-		Climber(WPI_TalonSRX& motor, WPI_TalonSRX& slave, Solenoid& shifter, Solenoid& lock, Solenoid& wings, Encoder& encoder);
+		Climber(Lifter *lift, int brace, int lock, int wings,
+				int encoderPortA, int encoderPortB);
+		Climber(Lifter *lift, Solenoid *brace, Solenoid* lock, Solenoid* wings,
+				Encoder* encoder);
+		Climber(Lifter& lift, Solenoid& brace, Solenoid& lock, Solenoid& wings,
+				Encoder& encoder);
 		~Climber();
 
-
 		void DeployHook();
+		void DeployBrace();
 		void DeployWings();
 		void DoClimb();
 		void Hold();
-
-
+		void setClimbLimit(int value);
 
 	private:
 		void InitClimber();
-		WPI_TalonSRX *m_motor, *m_slave;
-		Solenoid *m_shifter, *m_lock, *m_wings;
+		Lifter *m_lifter;
+		Solenoid *m_brace, *m_lock, *m_wings;
 		Encoder *m_encoder;
+		int m_climbLimit;
 		climbState state;
-
-
-
 		bool m_needFree;
 };
-
-
 
 #endif /* SRC_CLIMBER_H_ */

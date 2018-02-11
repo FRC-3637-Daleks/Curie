@@ -18,16 +18,21 @@ class Lifter {
 				CLIMBING_MODE, NUM_OPERATING_MODES } opMode_t;
 		typedef enum talonMode { PERCENT_VBUS,
 				POSITION, NUM_TALON_MODES } tMode_t;
+
 		Lifter(int motorChannel, int slaveMotorChannel, int shifter);
 		Lifter(WPI_TalonSRX* motor, WPI_TalonSRX* slave, Solenoid* shifter);
 		Lifter(WPI_TalonSRX& motor, WPI_TalonSRX& slave, Solenoid& shifter);
 		~Lifter();
 
+		void invertMotor(bool invert);
 		void setOperatingMode(opMode_t newMode);
 		opMode_t getOperatingMode();
 		void Set(double value);
-		void setTalonMOde(tMode_t newMode);
+		void setTalonMode(tMode_t newMode);
 		tMode_t getTalonMode();
+		void SetP(double p);
+		void SetI(double i);
+		void SetD(double d);
 
 	private:
 		WPI_TalonSRX *m_master;

@@ -16,8 +16,10 @@
 #include <ctre/Phoenix.h>
 #include <DalekDrive.h>
 #include <Curie.h>
+#include <Lifter.h>
 #include <Intake.h>
 #include <Climber.h>
+#include <Elevator.h>
 
 using namespace std;
 using namespace frc;
@@ -28,13 +30,16 @@ public:
 	WPI_TalonSRX *leftMotor, *rightMotor;
  	WPI_TalonSRX *leftSlave, *rightSlave;
 	WPI_TalonSRX *wristMotor, *rollerMotor;
-	WPI_TalonSRX *winchMotor;
-	Joystick *leftJoystick, *rightJoystick;
+	WPI_TalonSRX *liftMaster, *liftSlave;
+	Solenoid     *shifter;
+	Joystick     *leftJoystick, *rightJoystick;
 	XboxController *xbox;
 	SerialPort *p;
 	DalekDrive *d;
-	Intake *i;
-	Climber *c;
+	Intake     *i;
+	Climber    *c;
+	Elevator   *e;
+	Lifter     *l;
 
 	void
 	RobotInit()
@@ -47,6 +52,8 @@ public:
 		leftSlave     = new WPI_TalonSRX(LeftSlaveMotor);
 		rightMotor    = new WPI_TalonSRX(RightDriveMotor);
 		rightSlave    = new WPI_TalonSRX(RightSlaveMotor);
+		liftMaster    = new WPI_TalonSRX(LiftMasterMotor);
+		liftSlave     = new WPI_TalonSRX(LiftSlaveMotor);
 #endif
 		wristMotor    = new WPI_TalonSRX(WristMotor);
 		rollerMotor   = new WPI_TalonSRX(RollerMotor);
@@ -54,19 +61,19 @@ public:
 		leftJoystick  = new Joystick(LeftJoystick);
 		rightJoystick = new Joystick(RightJoystick);
 		xbox          = new XboxController(XboxControls);
-
+		shifter       = new Solenoid(Shifter);
 		p             = new SerialPort(115200, SerialPort::kUSB, 8,
 	             	 	 	 SerialPort::kParity_None, SerialPort::kStopBits_One);
-		     
-
 		i             = new Intake(WristMotor, RollerMotor, IntakeLowerLimit,
 								   IntakeUpperLimit, IntakeProximity);
-		c             = new Climber(5, 0, Shifter, Lock, Wings, 0, 1);
-
 #ifdef PRACTICE_BOT
 		d             = new DalekDrive(leftMotor, rightMotor);
 #else
 		d             = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
+		l             = new Lifter(liftMaster, liftSlave, shifter);
+		c             = new Climber(l, Brace, Lock, Wings,
+									ClimbEncoderA, ClimbEncoderB);
+		e             = new Elevator(l, ElevatorLowerLimit, ElevatorUpperLimit);
 #endif
 		d->SetInvertedMotor(LeftDriveMotor, false);
 		d->SetInvertedMotor(RightDriveMotor, false);

@@ -44,6 +44,16 @@ Lifter::Lifter(WPI_TalonSRX &master, WPI_TalonSRX &slave, Solenoid &shifter)
 	m_needFree = false;
 }
 
+Lifter::~Lifter()
+{
+	if(m_needFree) {
+		delete m_master;
+		delete m_slave;
+		delete m_shifter;
+	}
+	m_needFree = false;
+}
+
 void
 Lifter::initLifter()
 {
@@ -56,13 +66,19 @@ Lifter::initLifter()
 	m_master->ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::Analog, DriveSlotIdx, CANTimeoutMs);
 	m_master->ConfigSetParameter(ParamEnum::eFeedbackNotContinuous, 1, 0x00,0x00, 0x00);
 	m_master->SetInverted(false);
-
-	if(m_slave) {
-		m_slave->Set(ctre::phoenix::motorcontrol::ControlMode::Follower, m_master->GetDeviceID());
-		m_slave->SetInverted(false);
-		m_slave->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
-	}
+	m_slave->Set(ctre::phoenix::motorcontrol::ControlMode::Follower, m_master->GetDeviceID());
+	m_slave->SetInverted(false);
+	m_slave->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
 	m_shifter->Set(true);
+	return;
+}
+
+void
+Lifter::invertMotor(bool invert)
+{
+	m_master->SetInverted(invert);
+	m_slave->SetInverted(invert);
+	return;
 }
 
 void
@@ -108,7 +124,7 @@ Lifter::Set(double value)
 }
 
 void
-Lifter::setTalonMOde(tMode_t newMode)
+Lifter::setTalonMode(tMode_t newMode)
 {
 	m_tmode = newMode;
 }
@@ -117,4 +133,22 @@ Lifter::tMode_t
 Lifter::getTalonMode()
 {
 	return m_tmode;
+}
+
+void
+Lifter::SetP(double p)
+{
+	// set talon pid p value
+}
+
+void
+Lifter::SetI(double i)
+{
+	// set talon pid i value
+}
+
+void
+Lifter::SetD(double d)
+{
+	// set talon pid d value
 }

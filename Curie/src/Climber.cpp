@@ -11,13 +11,10 @@
 
 #include <Climber.h>
 
-// I have no idea what to instantiate the encoders with or utilize them so yeah.
-Climber::Climber(int motorChannel, int slaveMotorChannel,
-		int shifter, int lock, int wings, int encoderPortA, int encoderPortB)
+Climber::Climber(Lifter *lift, int brace, int lock, int wings,
+		int encoderPortA, int encoderPortB)
 {
-	m_motor   = new WPI_TalonSRX(motorChannel);
-	m_slave   = new WPI_TalonSRX(slaveMotorChannel);
-	m_shifter = new Solenoid(shifter);
+	m_lifter  = lift;
 	m_lock    = new Solenoid(lock);
 	m_wings   = new Solenoid(wings);
 	m_encoder = new Encoder(encoderPortA, encoderPortB, false,
@@ -28,12 +25,11 @@ Climber::Climber(int motorChannel, int slaveMotorChannel,
 	m_needFree = true;
 }
 
-Climber::Climber(WPI_TalonSRX* motor, WPI_TalonSRX* slave,
-		Solenoid* shifter, Solenoid* lock, Solenoid* wings, Encoder* encoder)
+Climber::Climber(Lifter *lift, Solenoid *brace, Solenoid* lock, Solenoid* wings,
+		Encoder* encoder)
 {
-	m_motor   = motor;
-	m_slave   = slave;
-	m_shifter = shifter;
+	m_lifter  = lift;
+	m_brace   = brace;
 	m_lock    = lock;
 	m_wings   = wings;
 	m_encoder = encoder;
@@ -43,15 +39,15 @@ Climber::Climber(WPI_TalonSRX* motor, WPI_TalonSRX* slave,
 	m_needFree = false;
 }
 
-Climber::Climber(WPI_TalonSRX& motor, WPI_TalonSRX& slave, Solenoid& shifter, Solenoid& lock, Solenoid& wings, Encoder& encoder)
+Climber::Climber(Lifter& lift, Solenoid& brace, Solenoid& lock, Solenoid& wings,
+		Encoder& encoder)
 {
-	m_motor   = &motor;
-	m_slave   = &slave;
-	m_shifter = &shifter;
+	m_lifter  = &lift;
+	m_brace   = &brace;
 	m_lock    = &lock;
 	m_wings   = &wings;
 	m_encoder = &encoder;
-
+	m_climbLimit = 0;
 	InitClimber();
 
 	m_needFree = false;
@@ -60,8 +56,7 @@ Climber::Climber(WPI_TalonSRX& motor, WPI_TalonSRX& slave, Solenoid& shifter, So
 Climber::~Climber()
 {
 	if(m_needFree) {
-		delete m_motor;
-		delete m_shifter;
+		delete m_brace;
 		delete m_lock;
 		delete m_wings;
 		delete m_encoder;
@@ -70,12 +65,16 @@ Climber::~Climber()
 	return;
 }
 
-//Need to configure Encoder
+void
+Climber::setClimbLimit(int newLimit)
+{
+	m_climbLimit = newLimit;
+}
+
 void
 Climber::InitClimber(void)
 {
 	state = PRECLIMB;
-	m_slave->Set(ctre::phoenix::motorcontrol::ControlMode::Follower, m_motor->GetDeviceID());
 }
 
 void
@@ -92,11 +91,23 @@ Climber::DeployWings(void)
 }
 
 void
+Climber::DeployBrace(void)
+{
+	m_brace->Set(true);
+}
+
+void
 Climber::DoClimb(void)
 {
 	//if (time is in last 30 seconds of Teleop && (state == HOOKDEPLOYED || state == CLIMBING))
 	state = CLIMBING;
-	m_motor->Set(0.5);
+	m_lifter->setOperatingMode(Lifter::CLIMBING_MODE);
+	m_lifter->setTalonMode(Lifter::PERCENT_VBUS);
+	if(m_encoder->Get() > m_climbLimit) {
+		Hold();
+	}
+	else
+		m_lifter->Set(0.5);
 }
 
 void
@@ -105,6 +116,6 @@ Climber::Hold(void)
 	if (state == CLIMBING) {
 		state = HOLDING;
 		m_lock->Set(true);
-		m_motor->Set(0);
+		m_lifter->Set(0.0);
 	}
 }

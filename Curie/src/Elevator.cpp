@@ -3,40 +3,36 @@
 #include <Curie.h>
 #include <WPILib.h>
 #include <ctre/Phoenix.h>
+#include <Lifter.h>
 #include <Elevator.h>
 
-Elevator::Elevator(int elevMotorChannel, int elevSlaveMotorChannel, int potenimeter, double limitValue, double pidController)
+Elevator::Elevator(int elevMotorChannel, int elevSlaveMotorChannel, int shifter,
+		int limitTop, int limitBottom)
 {
-	m_elevMotor     = new WPI_TalonSRX*(elevMotorChannel);
-	m_elevSlaveMotor = new WPI_TalonSRX*(elevSlaveMotorChannel);
-	m_potenimeter   = new Potentiometer*(potenimeter);
-	m_limitValue    = new DigitalInput (limitValue);
-	m_pidController = new PIDController(pidController);
+	m_lifter      = new Lifter(elevMotorChannel, elevSlaveMotorChannel, shifter);
+	m_limitTop    = new DigitalInput(limitTop);
+	m_limitBottom = new DigitalInput(limitBottom);
 
 	InitElevator();
 	m_needFree = true;
 }
 
-Elevator::Elevator(WPI_TalonSRX* elevMotor, WPI_TalonSRX* elevSlaveMotor, int potenimeter, double limitValue, double pidController)
+Elevator::Elevator(Lifter* lift, int limitTop, int limitBottom)
 {
 
-	m_elevMotor     = elevMotor;
-	m_elevSlaveMotor = elevSlaveMotor;
-	m_potenimeter   = potenimeter;
-	m_limitValue    = limitValue;
-	m_pidController = pidController;
+	m_lifter      = lift;
+	m_limitTop    = new DigitalInput(limitTop);
+	m_limitBottom = new DigitalInput(limitBottom);
 
 	InitElevator();
 	m_needFree = true;
 }
 
-Elevator::Elevator(WPI_TalonSRX& elevMotor, WPI_TalonSRX& elevSlaveMotor, int potenimeter, double limitValue, double pidController)
+Elevator::Elevator(Lifter& lift, int limitTop, int limitBottom)
 {
-	m_elevMotor     = &elevMotor;
-	m_elevSlaveMotor = &elevSlaveMotor;
-	m_potenimeter   = &potenimeter;
-	m_limitValue    = &limitValue;
-	m_pidController = &pidController;
+	m_lifter      = &lift;
+	m_limitTop    = new DigitalInput(limitTop);
+	m_limitBottom = new DigitalInput(limitBottom);
 
 	InitElevator();
 	m_needFree = true;
@@ -44,91 +40,88 @@ Elevator::Elevator(WPI_TalonSRX& elevMotor, WPI_TalonSRX& elevSlaveMotor, int po
 
 Elevator::~Elevator()
 {
-	if (m_needFree) {
-		delete m_elevMotor;
-		delete m_elevSlaveMotor;
-		delete m_potenimeter;
-		delete m_limitValue;
-		delete m_pidController;
-	}
+	if (m_needFree)
+		delete m_lifter;
+	delete m_limitTop;
+	delete m_limitBottom;
+
 	m_needFree = false;
 	return;
 }
 
 void
-Elevator::InitElevator(void) {
-
-	    m_elevMotor->SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Brake);
-		m_elevSlaveMotor->SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Brake);
-		m_elevMotor->ConfigNominalOutputForward(0.0, 0);
-		m_elevMotor->ConfigNominalOutputReverse(-0.0, 0);
-		m_elevSlaveMotor->ConfigNominalOutputForward(0.0, 0);
-		m_elevSlaveMotor->ConfigNominalOutputReverse(-0.0, 0);
-		m_elevMotor->ConfigPeakOutputForward(1.0, 0);
-		m_elevMotor->ConfigPeakOutputReverse(-1.0, 0);
-		m_elevSlaveMotor->ConfigPeakOutputForward(1.0, 0);
-		m_elevSlaveMotor->ConfigPeakOutputReverse(-1.0, 0);
-		m_elevMotor->ConfigOpenloopRamp(RAMP_RATE, 0);
-		m_elevSlaveMotor->ConfigOpenloopRamp(RAMP_RATE, 0);
-		//m_elevMotor->ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::QuadEncoder,0,0);
-		//m_elevSlaveMotor->ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::QuadEncoder,0,0);
-		m_elevMotor->SetSensorPhase(true);
-		m_elevSlaveMotor->SetSensorPhase(false);
-		m_elevMotor->SetSelectedSensorPosition(0, 0, 0);
-		m_elevSlaveMotor->SetSelectedSensorPosition(0, 0, 0);
-		m_elevMotor->SetInverted(false);
-
-		if(m_elevSlaveMotor) {
-			m_elevSlaveMotor->Set(ctre::phoenix::motorcontrol::ControlMode::Follower, m_elevMotor->GetDeviceID());
-			m_elevSlaveMotor->SetInverted(false);
-			m_elevSlaveMotor->ConfigOpenloopRamp(RAMP_RATE, 0);
-	}
+Elevator::InitElevator(void)
+{
+	m_lifter->setOperatingMode(Lifter::ELEVATOR_MODE);
+	m_lifter->setTalonMode(Lifter::PERCENT_VBUS);
 }
 
 void
 Elevator::InvertElevatorMotor(bool isInverted)
 {
-	m_elevMotor->SetInverted(isInverted);
-	m_elevSlaveMotor->SetInverted(isInverted);
-	isInverted = false;
+	if(m_lifter->getOperatingMode() == Lifter::ELEVATOR_MODE)
+		m_lifter->invertMotor(isInverted);
+}
+
+double
+Elevator::normalizeValue(double v)
+{
+	// if in %vbus mode, use limit switches.  If in position mode ???
+	if(m_lifter->getTalonMode() == Lifter::PERCENT_VBUS) {
+		if (v > 0.0) {
+			if (m_limitTop->Get() == 1)
+				v = 0.0;
+		}
+		else if (v < 0.0) {
+			if (m_limitBottom->Get() == 1)
+				v = 0.0;
+		}
+		return v;
+	}
+	return v;
 }
 
 void
-Elevator::MoveElevator(ControlMode mode, double value)
+Elevator::MoveElevator(double value)
 {
-	m_elevMotor->Set(mode, value);
+	double nv = normalizeValue(value);
+
+	if(m_lifter->getOperatingMode() == Lifter::ELEVATOR_MODE)
+		m_lifter->Set(nv);
 }
 
 void
-Elevator::MaintainElevatorPosistion(ControlMode mode, double value)
+Elevator::MaintainElevatorPosistion(double value)
 {
-	m_elevMotor->Set(mode, value);
+	if(m_lifter->getOperatingMode() == Lifter::ELEVATOR_MODE) {
+		m_lifter->setTalonMode(Lifter::POSITION);
+		m_lifter->Set(value);
+	}
 }
 
 void
 Elevator::StopElevator(void)
 {
-	//Working on elevator control loop
-	//Working on PID control loop
+	if(m_lifter->getOperatingMode() == Lifter::ELEVATOR_MODE) {
+		m_lifter->setTalonMode(Lifter::POSITION);
+		m_lifter->Set(0.0);
+	}
 }
 
 void
 Elevator::SetP(double p)
 {
-	m_pidController->SetP(p);
+	m_lifter->SetP(p);
 }
 
 void
 Elevator::SetI(double i)
 {
-	m_pidController->SetI(i);
+	m_lifter->SetI(i);
 }
 
 void
 Elevator::SetD(double d)
 {
-	m_pidController->SetD(d);
+	m_lifter->SetD(d);
 }
-
-
-

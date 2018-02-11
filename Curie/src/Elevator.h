@@ -7,53 +7,36 @@
 
 #include <WPILib.h>
 #include <ctre/Phoenix.h>
-#include <PIDController.h>
+#include <Lifter.h>
 
 class Elevator {
 public:
-
 	enum elevPos {SWITCH,  SCALE, BASE_POS, MAX_HIGH, MAX_LOW};
-	enum motorMode {PERCENTVOLTAGE, POSITION};
 
-	Elevator(int elevMotor, int elevSlaveMotor, int potenimeter, double limitValue, double pidController);
-	Elevator(WPI_TalonSRX* elevMotor, WPI_TalonSRX* elevSlaveMotorm, int potenimeter, double limitValue, double pidController);
-	Elevator(WPI_TalonSRX& elevMoto, WPI_TalonSRX& elevSlaveMotor, int potenimeter, double limitValue, double pidController);
+	Elevator(int elevMotor, int elevSlaveMotor, int shifter,
+			int limitTop, int limitBottom);
+	Elevator(Lifter *lift, int limitTop, int limitBottom);
+	Elevator(Lifter &lift, int limitTop, int limitBottom);
 	~Elevator();
 
+	void MoveElevator(double value);
+	void MaintainElevatorPosistion(double value);
 	void InvertElevatorMotor(bool isInverted);
-
-	void MoveElevator(ControlMode mode, double value);
-
-	void MaintainElevatorPosistion(ControlMode mode, double value);
-	//PID LOOP
-
-	void SetP (double p);
-	//Proportional constant
-
-	void SetI (double i);
-	//Integral constant
-
-	void SetD (double d);
-	//Derivative constant
-
+	void SetP(double p);
+	void SetI(double i);
+	void SetD(double d);
 	void StopElevator();
 
-	int GetLimit();
+private:
+	void InitElevator();
+	double normalizeValue(double v);
+	Lifter *m_lifter;
+	DigitalInput *m_limitTop;
+	DigitalInput *m_limitBottom;
+	bool m_needFree;
+};
 
-	 private:
-
-		void InitElevator();
-
-		WPI_TalonSRX *m_elevMotor, *m_elevSlaveMotor;
-		Potentiometer *m_potenimeter;
-		DigitalInput *m_limitValue;
-		PIDController *m_pidController;
-
-		bool isinverted;
-		bool m_needFree;
-	};
-
-	#endif /* SRC_ELEVATOR_H_ */
+#endif /* SRC_ELEVATOR_H_ */
 
 
 
