@@ -19,7 +19,6 @@ Elevator::Elevator(int elevMotorChannel, int elevSlaveMotorChannel, int shifter,
 
 Elevator::Elevator(Lifter* lift, int limitTop, int limitBottom)
 {
-
 	m_lifter      = lift;
 	m_limitTop    = new DigitalInput(limitTop);
 	m_limitBottom = new DigitalInput(limitBottom);
