@@ -11,7 +11,7 @@
 
 class Elevator {
 public:
-	enum elevPos {SWITCH,  SCALE, BASE_POS, MAX_HIGH, MAX_LOW};
+	enum elevPos {SWITCH, SCALE, BASE_POS, MAX_HIGH, MAX_LOW};
 
 	Elevator(int elevMotor, int elevSlaveMotor, int shifter,
 			int limitTop, int limitBottom);
