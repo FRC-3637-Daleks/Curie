@@ -20,12 +20,9 @@ SimplePath::AddStep(Step newStep)
 
 //TODO need to add proximity sensor!
 
-bool
+AutonState_t
 SimplePath::RunPath(DalekDrive *d, IMU *imu)
 {
-	bool complete = false;
-	return complete;
-
 	switch (state) {
 	case AutonWaiting:
 		//initialize stuff to start path execution
@@ -33,10 +30,8 @@ SimplePath::RunPath(DalekDrive *d, IMU *imu)
 		state = AutonExecuting;
 		//set curr position/distance???
 		distanceTraveled = 0.0;
-
 		break;
 	case AutonExecuting:
-
 		//Need to pass distance
 		state = steps.at(currentStepNumber).ExecuteStep(d, imu);
 		if (state == AutonComplete) {
@@ -54,6 +49,7 @@ SimplePath::RunPath(DalekDrive *d, IMU *imu)
 	default:
 		break;
 	}
+	return state;
 }
 
 SimplePath::~SimplePath() {
