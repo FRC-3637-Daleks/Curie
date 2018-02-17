@@ -10,6 +10,9 @@
 
 #include <IMU.h>
 #include <DalekDrive.h>
+#include <math.h>
+
+#define angleDiffLimit 0.5
 
 enum AutonState {
 	/* Auton States
@@ -34,13 +37,14 @@ class Step {
 public:
 	typedef enum Commands Commands_t;
 	Step();
-	Step(Commands_t com, double dist);
+	Step(Commands_t com, double howFar);
 	//TODO need to add proximity sensor!
 	AutonState_t ExecuteStep(DalekDrive *d, IMU *imu);
 	virtual ~Step();
 private:
 	Commands_t command;
 	float distance;
+	float angle;
 	bool Travel(double dist);
 	bool Turn (double angle);
 };

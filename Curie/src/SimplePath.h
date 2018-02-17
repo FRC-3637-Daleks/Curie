@@ -21,7 +21,7 @@ public:
 	virtual ~SimplePath();
 	void AddStep(Step newStep);
 	//TODO need to add proximity sensor!
-	bool RunPath(DalekDrive *d, IMU *imu);
+	AutonState_t RunPath(DalekDrive *d, IMU *imu);
 private:
 	std::vector<Step> steps;
 	AutonState_t state;
