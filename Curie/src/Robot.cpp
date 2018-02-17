@@ -55,8 +55,8 @@ public:
 		leftSlave     = new WPI_TalonSRX(LeftSlaveMotor);
 		rightMotor    = new WPI_TalonSRX(RightDriveMotor);
 		rightSlave    = new WPI_TalonSRX(RightSlaveMotor);
-		liftMaster    = new WPI_TalonSRX(LiftMasterMotor);
-		liftSlave     = new WPI_TalonSRX(LiftSlaveMotor);
+//		liftMaster    = new WPI_TalonSRX(LiftMasterMotor);
+//		liftSlave     = new WPI_TalonSRX(LiftSlaveMotor);
 #endif
 		wristMotor    = new WPI_TalonSRX(WristMotor);
 		rollerMotor   = new WPI_TalonSRX(RollerMotor);
@@ -74,9 +74,9 @@ public:
 #else
 		shifter       = new Solenoid(PCMID, Shifter);
 		drive         = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
-		lift          = new Lifter(liftMaster, liftSlave, shifter);
-		climb         = new Climber(lift, Brace, Lock, Wings, UltrasonicClimb);
-		elev          = new Elevator(lift, ElevatorLowerLimit, ElevatorUpperLimit);
+//		lift          = new Lifter(liftMaster, liftSlave, shifter);
+//		climb         = new Climber(lift, Brace, Lock, Wings, UltrasonicClimb);
+//		elev          = new Elevator(lift, ElevatorLowerLimit, ElevatorUpperLimit);
 #endif
 		autoLocation.AddDefault("Left", LEFT_POSITION);
 		autoLocation.AddObject("Center", CENTER_POSITION);
