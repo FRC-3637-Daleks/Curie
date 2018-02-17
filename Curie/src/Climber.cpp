@@ -12,44 +12,42 @@
 #include <Climber.h>
 
 Climber::Climber(Lifter *lift, int brace, int lock, int wings,
-		int encoderPortA, int encoderPortB)
+		int ultra)
 {
-	m_lifter  = lift;
-	m_lock    = new Solenoid(lock);
-	m_wings   = new Solenoid(wings);
-	m_encoder = new Encoder(encoderPortA, encoderPortB, false,
-			Encoder::EncodingType::k4X);
+	m_lifter = lift;
+	m_lock   = new Solenoid(lock);
+	m_wings  = new Solenoid(wings);
+	m_brace  = new Solenoid(brace);
+	m_ultra  = new AnalogInput(ultra);
 
 	InitClimber();
-
 	m_needFree = true;
 }
 
 Climber::Climber(Lifter *lift, Solenoid *brace, Solenoid* lock, Solenoid* wings,
-		Encoder* encoder)
+		AnalogInput* ultra)
 {
-	m_lifter  = lift;
-	m_brace   = brace;
-	m_lock    = lock;
-	m_wings   = wings;
-	m_encoder = encoder;
+	m_lifter = lift;
+	m_brace  = brace;
+	m_lock   = lock;
+	m_wings  = wings;
+	m_ultra  = ultra;
 
 	InitClimber();
-
 	m_needFree = false;
 }
 
 Climber::Climber(Lifter& lift, Solenoid& brace, Solenoid& lock, Solenoid& wings,
-		Encoder& encoder)
+		AnalogInput& ultra)
 {
-	m_lifter  = &lift;
-	m_brace   = &brace;
-	m_lock    = &lock;
-	m_wings   = &wings;
-	m_encoder = &encoder;
+	m_lifter = &lift;
+	m_brace  = &brace;
+	m_lock   = &lock;
+	m_wings  = &wings;
+	m_ultra  = &ultra;
 	m_climbLimit = 0;
-	InitClimber();
 
+	InitClimber();
 	m_needFree = false;
 }
 
@@ -59,7 +57,7 @@ Climber::~Climber()
 		delete m_brace;
 		delete m_lock;
 		delete m_wings;
-		delete m_encoder;
+		delete m_ultra;
 	}
 	m_needFree = false;
 	return;
@@ -103,7 +101,7 @@ Climber::DoClimb(void)
 	state = CLIMBING;
 	m_lifter->setOperatingMode(Lifter::CLIMBING_MODE);
 	m_lifter->setTalonMode(Lifter::PERCENT_VBUS);
-	if(m_encoder->Get() > m_climbLimit) {
+	if(m_ultra->GetValue() > m_climbLimit) { // TBD: GetVoltage?
 		Hold();
 	}
 	else

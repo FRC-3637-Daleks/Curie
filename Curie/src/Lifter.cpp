@@ -63,12 +63,22 @@ Lifter::initLifter()
 	m_master->ConfigPeakOutputForward(1.0, CANTimeoutMs);
 	m_master->ConfigPeakOutputReverse(-1.0, CANTimeoutMs);
 	m_master->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs); // TBD: how many MS ???
-	m_master->ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::Analog, DriveSlotIdx, CANTimeoutMs);
-	m_master->ConfigSetParameter(ParamEnum::eFeedbackNotContinuous, 1, 0x00,0x00, 0x00);
+	m_master->ConfigSelectedFeedbackSensor(FeedbackDevice::Analog,
+			ElevatorSlotIdx, CANTimeoutMs);
+	m_master->ConfigSetParameter(ParamEnum::eFeedbackNotContinuous, 1,
+			0x00, 0x00, 0x00);
+	m_master->SetSensorPhase(true);
 	m_master->SetInverted(false);
-	m_slave->Set(ctre::phoenix::motorcontrol::ControlMode::Follower, m_master->GetDeviceID());
+	m_master->SelectProfileSlot(ElevatorSlotIdx, PIDLoopIdx);
+	m_master->Config_kF(PIDLoopIdx, LIFTER_DEFAULT_F, CANTimeoutMs);
+	m_master->Config_kP(PIDLoopIdx, LIFTER_DEFAULT_P, CANTimeoutMs);
+	m_master->Config_kI(PIDLoopIdx, LIFTER_DEFAULT_I, CANTimeoutMs);
+	m_master->Config_kD(PIDLoopIdx, LIFTER_DEFAULT_D, CANTimeoutMs);
+
+	m_slave->Set(ControlMode::Follower, m_master->GetDeviceID());
 	m_slave->SetInverted(false);
 	m_slave->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
+
 	m_shifter->Set(true);
 	return;
 }

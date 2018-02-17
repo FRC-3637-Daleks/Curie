@@ -7,7 +7,11 @@
 
 #ifndef _CURIE_H_
 #define _CURIE_H_
-// #define PRACTICE_BOT
+
+// #define PRACTICE_BOT // uncomment if on simple drivebase
+// #define USB_CAMERA   // uncomment if using usb camera
+
+#define IP_CAMERA_ADDRESS "10.36.37.33"
 
 enum Motors {
 	/* Motor Definitions
@@ -19,12 +23,12 @@ enum Motors {
 		RollerMotor = 6,
 #else
 		LeftDriveMotor = 4,
-		LeftSlaveMotor = 3,
-		RightDriveMotor = 8,
-		RightSlaveMotor = 7,
+		LeftSlaveMotor = 5,
+		RightDriveMotor = 7,
+		RightSlaveMotor = 8,
 		WristMotor = 1,
 		RollerMotor = 2,
-		LiftMasterMotor = 5,
+		LiftMasterMotor = 3,
 		LiftSlaveMotor = 6,
 #endif
 };
@@ -40,19 +44,23 @@ enum Joysticks {
 
 enum Solenoids {
 		Shifter = 0,
-		Lock,
 		Wings,
 		Brace,
+		Lock,
 };
 
 enum DigitalIO {
-		IntakeLowerLimit = 1,
+		ElevatorLowerLimit = 0,
+		ElevatorUpperLimit,
+		IntakeLowerLimit,
 		IntakeUpperLimit,
 		IntakeProximity,
-		ElevatorLowerLimit,
-		ElevatorUpperLimit,
-		ClimbEncoderA,
-		ClimbEncoderB,
+};
+
+enum AnalogIO {
+		UltrasonicLeft = 1,
+		UltrasonicRight,
+		UltrasonicClimb,
 };
 
 enum Constants {

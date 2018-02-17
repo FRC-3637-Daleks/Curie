@@ -53,38 +53,49 @@ Intake::Intake(WPI_TalonSRX& wristMotor, WPI_TalonSRX& rollerMotor,
 void
 Intake::Raise()
 {
+#ifdef PRACTICE_BOT
+	m_wristMotor->Set(0.2);
+#else
 	if (m_upperLimit->Get() == 0) {
 		m_wristMotor->Set(0.2);
 	} else {
 		m_wristMotor->Set(0.0);
 	}
-
+#endif
 }
 
 void
 Intake::Lower()
 {
+#ifdef PRACTICE_BOT
+	m_wristMotor->Set(-0.2);
+#else
 	if (m_lowerLimit->Get() == 0) {
 		m_wristMotor->Set(-0.2);
 	} else {
 		m_wristMotor->Set(0.0);
 	}
+#endif
 }
 
 void
 Intake::Push()
 {
+#ifdef PRACTICE_BOT
+	m_rollerMotor->Set(0.75);
+#else
 	if (m_proximity->Get() == 0) {
-		m_rollerMotor->Set(1.0);
+		m_rollerMotor->Set(0.75);
 	} else {
 		m_rollerMotor->Set(0.0);
 	}
+#endif
 }
 
 void
 Intake::Pull()
 {
-	m_rollerMotor->Set(1.0);
+	m_rollerMotor->Set(-0.75);
 }
 
 void

@@ -11,15 +11,15 @@
 #include <Curie.h>
 #include <WPILib.h>
 #include <DalekTask.h>
-
-#define SERIAL_BAUD_RATE 	115200
+#include <AHRS.h>
+#include "SmartDashboard/SendableBuilder.h"
 
 class IMU : public DalekTask {
   public:
 
-	IMU(SerialPort::Port p);
-	IMU(SerialPort* p);
-	IMU(SerialPort &p);
+	IMU(SPI::Port p);
+	IMU(AHRS* p);
+	IMU(AHRS& p);
 	~IMU();
 
 	void Run();
@@ -33,9 +33,8 @@ class IMU : public DalekTask {
 	int GetReadCount();
 
   private:
-	void initializePort();
-	char m_buffer[1024];
-	SerialPort* m_port;
+	void initializeIMU();
+	AHRS *m_ahrs;
 	double m_ax, m_ay, m_az, m_yaw, m_pitch, m_roll;
 	int m_count;
 	bool m_needFree;

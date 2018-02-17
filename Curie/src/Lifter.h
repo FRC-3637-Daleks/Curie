@@ -12,6 +12,11 @@
 #include <WPILib.h>
 #include <ctre/Phoenix.h>
 
+#define LIFTER_DEFAULT_P 0.1
+#define LIFTER_DEFAULT_I 0.0
+#define LIFTER_DEFAULT_D 0.0
+#define LIFTER_DEFAULT_F 0.0
+
 class Lifter {
 	public:
 		typedef enum operatingMode { ELEVATOR_MODE,

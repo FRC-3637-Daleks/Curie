@@ -8,57 +8,53 @@
 #include <WPILib.h>
 #include <IMU.h>
 
-IMU::IMU(SerialPort::Port p)
+IMU::IMU(SPI::Port p)
 {
-	m_port = new SerialPort(SERIAL_BAUD_RATE, p, 8, SerialPort::kParity_None,
-			SerialPort::kStopBits_One);
+	m_ahrs = new AHRS(SPI::Port::kMXP);
 	m_needFree = true;
-	initializePort();
-	return;
+	initializeIMU();
 }
 
-IMU::IMU(SerialPort* p)
+IMU::IMU(AHRS* p)
 {
-	m_port = p;
+	m_ahrs = p;
 	m_needFree = false;
-	initializePort();
+	initializeIMU();
 }
 
-IMU::IMU(SerialPort &p)
+IMU::IMU(AHRS &p)
 {
-	m_port = &p;
+	m_ahrs = &p;
 	m_needFree = false;
-	initializePort();
+	initializeIMU();
 }
 
 IMU::~IMU()
 {
 	if(m_needFree)
-		delete m_port;
+		delete m_ahrs;
 	return;
 }
 
 void
 IMU::Run()
 {
-	int rcnt;
-	if((rcnt = m_port->Read(m_buffer, 1024)) > 0) {
-		// if there was data available, parse the string
-		// and store the results in the local variables
-		m_count += rcnt;
-	}
+	m_yaw   = m_ahrs->GetYaw();
+	m_pitch = m_ahrs->GetPitch();
+	m_roll  = m_ahrs->GetRoll();
+	m_ax    = m_ahrs->GetRawAccelX();
+	m_ay    = m_ahrs->GetRawAccelY();
+	m_az    = m_ahrs->GetRawAccelZ();
+	m_count++;
+	frc::SmartDashboard::PutNumber("IMU Read count", m_count);
 }
 
 void
-IMU::initializePort()
+IMU::initializeIMU()
 {
-	m_port->SetFlowControl(SerialPort::FlowControl::kFlowControl_XonXoff);
-	m_port->EnableTermination();
-	m_port->SetTimeout(10);
-	m_port->SetReadBufferSize(1024);
-	m_port->SetWriteBufferSize(1024);
-	m_ax = m_ay = m_az = 0.0;
+	m_ax  = m_ay    = m_az   = 0.0;
 	m_yaw = m_pitch = m_roll = 0.0;
+
 	m_count = 0;
 }
 
