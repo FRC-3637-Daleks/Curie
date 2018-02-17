@@ -15,9 +15,9 @@ Climber::Climber(Lifter *lift, int brace, int lock, int wings,
 		int ultra)
 {
 	m_lifter = lift;
-	m_lock   = new Solenoid(lock);
-	m_wings  = new Solenoid(wings);
-	m_brace  = new Solenoid(brace);
+	m_lock   = new Solenoid(PCMID, lock);
+	m_wings  = new Solenoid(PCMID, wings);
+	m_brace  = new Solenoid(PCMID, brace);
 	m_ultra  = new AnalogInput(ultra);
 
 	InitClimber();

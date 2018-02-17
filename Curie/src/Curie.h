@@ -12,6 +12,7 @@
 // #define USB_CAMERA   // uncomment if using usb camera
 
 #define IP_CAMERA_ADDRESS "10.36.37.33"
+#define PCMID 12
 
 enum Motors {
 	/* Motor Definitions
@@ -26,8 +27,8 @@ enum Motors {
 		LeftSlaveMotor = 5,
 		RightDriveMotor = 7,
 		RightSlaveMotor = 8,
-		WristMotor = 1,
-		RollerMotor = 2,
+		WristMotor = 2,
+		RollerMotor = 1,
 		LiftMasterMotor = 3,
 		LiftSlaveMotor = 6,
 #endif
@@ -50,8 +51,8 @@ enum Solenoids {
 };
 
 enum DigitalIO {
-		ElevatorLowerLimit = 0,
-		ElevatorUpperLimit,
+		ElevatorUpperLimit = 0,
+		ElevatorLowerLimit,
 		IntakeLowerLimit,
 		IntakeUpperLimit,
 		IntakeProximity,

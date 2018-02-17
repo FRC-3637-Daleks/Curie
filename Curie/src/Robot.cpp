@@ -72,7 +72,7 @@ public:
 #ifdef PRACTICE_BOT
 		drive         = new DalekDrive(leftMotor, rightMotor);
 #else
-		shifter       = new Solenoid(Shifter);
+		shifter       = new Solenoid(PCMID, Shifter);
 		drive         = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
 		lift          = new Lifter(liftMaster, liftSlave, shifter);
 		climb         = new Climber(lift, Brace, Lock, Wings, UltrasonicClimb);

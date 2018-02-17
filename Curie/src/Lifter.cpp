@@ -15,7 +15,7 @@ Lifter::Lifter(int masterChannel, int slaveChannel, int shifterChannel)
 {
 	m_master  = new WPI_TalonSRX(masterChannel);
 	m_slave   = new WPI_TalonSRX(slaveChannel);
-	m_shifter = new Solenoid(shifterChannel);
+	m_shifter = new Solenoid(PCMID, shifterChannel);
 	m_omode   = ELEVATOR_MODE;
 	m_tmode   = PERCENT_VBUS;
 	initLifter();
