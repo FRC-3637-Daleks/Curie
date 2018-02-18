@@ -107,10 +107,11 @@ Elevator::Down()
 		m_lifter->Set(0.0);
 	}
 
-	double liftPosition = m_lifter->m_master->GetSelectedSensorPosition(0);
-	if (liftPosition >= 0.5) {
-		m_lifter->Set(0.0);
-	}
+	// if you need to do this you add method to expose the pot position
+//	double liftPosition = m_lifter->m_master->GetSelectedSensorPosition(0);
+//	if (liftPosition >= 0.5) {
+//		m_lifter->Set(0.0);
+//	}
 
 }
 

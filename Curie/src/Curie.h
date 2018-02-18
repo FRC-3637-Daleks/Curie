@@ -8,7 +8,10 @@
 #ifndef _CURIE_H_
 #define _CURIE_H_
 // #define PRACTICE_BOT
+// #define USB_CAMERA
+
 #define PCMID 12
+#define IP_CAMERA "10.36.37.200"
 
 enum Motors {
 	/* Motor Definitions

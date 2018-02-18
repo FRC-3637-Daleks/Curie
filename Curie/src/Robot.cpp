@@ -88,6 +88,8 @@ public:
 				&autoTarget);
 #ifdef USB_CAMERA
 		cam.SetResolution(640, 480);
+#else
+		m_cs.StartAutomaticCapture(cam);
 #endif
 	}
 
@@ -205,7 +207,9 @@ private:
 	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
 	frc::CameraServer& m_cs = *CameraServer::GetInstance();
 #ifdef USB_CAMERA
-	cs::UsbCamera  cam = m_cs->StartAutomaticCapture();
+	cs::UsbCamera  cam = m_cs.StartAutomaticCapture();
+#else
+	cs::AxisCamera cam = m_cs.AddAxisCamera(IP_CAMERA);
 #endif
 	frc::SendableChooser<std::string> autoLocation;
 	frc::SendableChooser<std::string> autoTarget;
