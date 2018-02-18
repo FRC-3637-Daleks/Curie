@@ -30,6 +30,7 @@ enum Commands {
 	 */
 	DoNothing = 0,
 	DriveIt,
+	DriveItSlow,
 	TurnIt,
 };
 
@@ -43,7 +44,9 @@ public:
 	virtual ~Step();
 private:
 	Commands_t command;
+	//In inches
 	float distance;
+	//In degrees, relative
 	float angle;
 	bool Travel(double dist);
 	bool Turn (double angle);

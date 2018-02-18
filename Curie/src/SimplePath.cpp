@@ -12,6 +12,41 @@ SimplePath::SimplePath(size_t len) {
 	state=AutonWaiting;
 }
 
+SimplePath::SimplePath(StartPositions_t start, TargetType_t target){
+	state=AutonWaiting;
+	switch(target) {
+	case LeftSwitch :
+		switch(start) {
+		case(Left) :
+			steps.reserve(3);
+			//Distance to travel = distance to fence + 1/2 depth of switch
+			//distance = 140" + 1/2(56") = 168"
+			AddStep(Step(DriveIt,168.0));
+			AddStep(Step(TurnIt, 90.0));
+			AddStep(Step(DriveItSlow,12.0));
+			break;
+		default:
+			break;
+		}
+		break;
+		case RightSwitch :
+			switch(start) {
+			case(Right) :
+				steps.reserve(3);
+				//Distance to travel = distance to fence + 1/2 depth of switch
+				//distance = 140" + 1/2(56") = 168"
+				AddStep(Step(DriveIt,168.0));
+				AddStep(Step(TurnIt, 270.0));
+				AddStep(Step(DriveItSlow,12.0));
+				break;
+			default:
+				break;
+			}
+			break;	default:
+		break;
+	}
+}
+
 void
 SimplePath::AddStep(Step newStep)
 {

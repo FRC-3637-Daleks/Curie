@@ -12,12 +12,32 @@
 #include <cstddef>
 #include <Step.h>
 
+enum TargetType {
+	/* Target Types
+	 */
+	LeftSwitch=0,
+	RightSwitch,
+	LeftScale,
+	RightScale,
+	BaseLine,
+};
 
+enum StartPositions {
+	/* Starting Driver Station Positions
+	 *
+	 */
+	Left=0,
+	Center,
+	Right,
+};
 
+typedef enum TargetType TargetType_t;
+typedef enum StartPositions StartPositions_t;
 
 class SimplePath {
 public:
 	SimplePath(size_t len);
+	SimplePath(StartPositions_t start, TargetType_t target);
 	virtual ~SimplePath();
 	void AddStep(Step newStep);
 	//TODO need to add proximity sensor!
