@@ -20,7 +20,6 @@
 #include <Intake.h>
 #include <Climber.h>
 #include <Elevator.h>
-#include <IMU.h>
 
 using namespace std;
 using namespace frc;
@@ -28,21 +27,19 @@ using namespace frc;
 class Robot : public frc::TimedRobot
 {
 public:
-	WPI_TalonSRX *leftMotor,  *rightMotor;
- 	WPI_TalonSRX *leftSlave,  *rightSlave;
+	WPI_TalonSRX *leftMotor, *rightMotor;
+ 	WPI_TalonSRX *leftSlave, *rightSlave;
 	WPI_TalonSRX *wristMotor, *rollerMotor;
 	WPI_TalonSRX *liftMaster, *liftSlave;
-	AnalogInput	 *ultraLeft,  *ultraRight;
 	Solenoid     *shifter;
 	Joystick     *leftJoystick, *rightJoystick;
 	XboxController *xbox;
-	AHRS       *port;
-	DalekDrive *drive;
-	Intake     *intake;
-	Climber    *climb;
-	Elevator   *elev;
-	Lifter     *lift;
-	IMU		   *imu;
+	SerialPort *p;
+	DalekDrive *d;
+	Intake     *i;
+	Climber    *c;
+	Elevator   *e;
+	Lifter     *l;
 
 	void
 	RobotInit()
@@ -55,8 +52,8 @@ public:
 		leftSlave     = new WPI_TalonSRX(LeftSlaveMotor);
 		rightMotor    = new WPI_TalonSRX(RightDriveMotor);
 		rightSlave    = new WPI_TalonSRX(RightSlaveMotor);
-//		liftMaster    = new WPI_TalonSRX(LiftMasterMotor);
-//		liftSlave     = new WPI_TalonSRX(LiftSlaveMotor);
+		liftMaster    = new WPI_TalonSRX(LiftMasterMotor);
+		liftSlave     = new WPI_TalonSRX(LiftSlaveMotor);
 #endif
 		wristMotor    = new WPI_TalonSRX(WristMotor);
 		rollerMotor   = new WPI_TalonSRX(RollerMotor);
@@ -64,20 +61,23 @@ public:
 		leftJoystick  = new Joystick(LeftJoystick);
 		rightJoystick = new Joystick(RightJoystick);
 		xbox          = new XboxController(XboxControls);
-
-		port          = new AHRS(SPI::Port::kMXP);
-		imu           = new IMU(port);
-		intake        = new Intake(WristMotor, RollerMotor, IntakeLowerLimit,
+		shifter       = new Solenoid(Shifter);
+		p             = new SerialPort(115200, SerialPort::kUSB, 8,
+	             	 	 	 SerialPort::kParity_None, SerialPort::kStopBits_One);
+		i             = new Intake(WristMotor, RollerMotor, IntakeLowerLimit,
 								   IntakeUpperLimit, IntakeProximity);
 #ifdef PRACTICE_BOT
-		drive         = new DalekDrive(leftMotor, rightMotor);
+		d             = new DalekDrive(leftMotor, rightMotor);
 #else
-		shifter       = new Solenoid(PCMID, Shifter);
-		drive         = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
-//		lift          = new Lifter(liftMaster, liftSlave, shifter);
-//		climb         = new Climber(lift, Brace, Lock, Wings, UltrasonicClimb);
-//		elev          = new Elevator(lift, ElevatorLowerLimit, ElevatorUpperLimit);
+		d             = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
+		l             = new Lifter(liftMaster, liftSlave, shifter);
+		c             = new Climber(l, Brace, Lock, Wing,
+									ClimbEncoderA, ClimbEncoderB);
+		e             = new Elevator(l, ElevatorLowerLimit, ElevatorUpperLimit);
 #endif
+		d->SetInvertedMotor(LeftDriveMotor, false);
+		d->SetInvertedMotor(RightDriveMotor, false);
+
 		autoLocation.AddDefault("Left", LEFT_POSITION);
 		autoLocation.AddObject("Center", CENTER_POSITION);
 		autoLocation.AddObject("Right", RIGHT_POSITION);
@@ -89,12 +89,6 @@ public:
 		autoTarget.AddObject("AutoLine", TARGET_AUTOLINE);
 		frc::SmartDashboard::PutData("Autonomous Target",
 				&autoTarget);
-#ifdef USB_CAMERA
-		cam.SetResolution(640, 480);
-#else
-		m_cs.StartAutomaticCapture(cam);
-#endif
-		imu->Start();
 	}
 
 	void
@@ -135,7 +129,7 @@ public:
 	void
 	AutonomousPeriodic()
 	{
-		drive->SetLeftRightMotorOutputs(0.0, 0.0);
+		d->SetLeftRightMotorOutputs(0.0, 0.0);
 	}
 
 	void
@@ -152,37 +146,37 @@ public:
 
 		// Drive controls
 		if (useArcade)
-			drive->ArcadeDrive(leftJoystick);
+			d->ArcadeDrive(leftJoystick);
 		else
-			drive->TankDrive(leftJoystick, rightJoystick);
+			d->TankDrive(leftJoystick, rightJoystick);
 
 		// Wrist Movement A/B button
 		if(xbox->GetAButtonPressed()) {
-			intake->Raise();
+			i->Lower();
 		} else if (xbox->GetBButtonPressed()) {
-			intake->Lower();
+			i->Raise();
 		} else if ((xbox->GetAButtonReleased()) || (xbox->GetBButtonReleased())) {
-			intake->StopWrist();
+			i->StopWrist();
 		}
 
 		// Roller Movement X/Y button
 		if(xbox->GetXButtonPressed()) {
-			intake->Pull();
+			i->Pull();
 		} else if (xbox->GetYButtonPressed()) {
-			intake->Push();
+			i->Push();
 		} else if ((xbox->GetXButtonReleased()) || (xbox->GetYButtonReleased())) {
-			intake->StopRoller();
+			i->StopRoller();
 		}
 
 		//Climber Controls (Start:Climb, Back:Hold, LeftStick:Hook, RightStick:Wing)
 		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kLeftHand)) {
-			climb->DeployHook();
+			c->DeployHook();
 		} else if (xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kRightHand)) {
-			climb->DeployWings();
+			c->DeployWings();
 		} else if (xbox->GetStartButtonPressed()) {
-			climb->DoClimb();
+			c->DoClimb();
 		} else if (xbox->GetBackButtonPressed()) {
-			climb->Hold();
+			c->Hold();
 		}
 	}
 
@@ -193,12 +187,6 @@ public:
 
 private:
 	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
-	frc::CameraServer& m_cs = *CameraServer::GetInstance();
-#ifdef USB_CAMERA
-	cs::UsbCamera  cam = m_cs->StartAutomaticCapture();
-#else
-	cs::AxisCamera cam = m_cs.AddAxisCamera(IP_CAMERA_ADDRESS);
-#endif
 	frc::SendableChooser<std::string> autoLocation;
 	frc::SendableChooser<std::string> autoTarget;
 	std::string gameData;
