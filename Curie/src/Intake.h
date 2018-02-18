@@ -26,8 +26,8 @@ class Intake {
 
 	void Raise();
 	void Lower();
-	void Push();
 	void Pull();
+	void Push();
 	void StopWrist();
 	void StopRoller();
 	bool Proximity();
@@ -49,3 +49,4 @@ class Intake {
 };
 
 #endif /* SRC_INTAKE_H_ */
+
