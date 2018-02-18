@@ -8,24 +8,29 @@
 #ifndef _CURIE_H_
 #define _CURIE_H_
 // #define PRACTICE_BOT
+#define USB_CAMERA
+
+#define IP_CAMERA_ADDRESS "10.36.37.200"  // TBD: need real address
+
+#define PCMID 12
 
 enum Motors {
 	/* Motor Definitions
 	 */
 #ifdef PRACTICE_BOT
-		LeftDriveMotor = 1,
+		LeftDriveMotor  = 1,
 		RightDriveMotor = 3,
-		WristMotor = 5,
-		RollerMotor = 6,
+		WristMotor      = 5,
+		RollerMotor     = 6,
 #else
-		LeftDriveMotor = 4,
-		LeftSlaveMotor = 3,
+		LeftDriveMotor  = 4,
+		LeftSlaveMotor  = 3,
 		RightDriveMotor = 8,
 		RightSlaveMotor = 7,
-		WristMotor = 2,
-		RollerMotor = 1,
+		WristMotor      = 2,
+		RollerMotor     = 1,
 		LiftMasterMotor = 5,
-		LiftSlaveMotor = 6,
+		LiftSlaveMotor  = 6,
 #endif
 };
 
@@ -51,8 +56,13 @@ enum DigitalIO {
 		IntakeLowerLimit,
 		IntakeUpperLimit,
 		IntakeProximity,
-		ClimbEncoderA,
-		ClimbEncoderB,
+};
+
+enum AnalogIO {
+	UltrasonicLeft = 0,
+	UltrasonicRight,
+	UltrasonicDown,
+	Magnetopot,
 };
 
 enum Constants {

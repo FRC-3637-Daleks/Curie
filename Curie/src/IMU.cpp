@@ -46,7 +46,10 @@ IMU::Run()
 	m_ay    = m_ahrs->GetRawAccelY();
 	m_az    = m_ahrs->GetRawAccelZ();
 	m_count++;
+
 	frc::SmartDashboard::PutNumber("IMU Read count", m_count);
+	frc::SmartDashboard::PutNumber("IMU Heading",
+			m_ahrs->GetCompassHeading());
 }
 
 void
