@@ -49,4 +49,3 @@ class Intake {
 };
 
 #endif /* SRC_INTAKE_H_ */
-

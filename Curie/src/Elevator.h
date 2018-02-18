@@ -22,6 +22,8 @@ public:
 	void MoveElevator(double value);
 	void MaintainElevatorPosistion(double value);
 	void InvertElevatorMotor(bool isInverted);
+	void Up();
+	void Down();
 	void SetP(double p);
 	void SetI(double i);
 	void SetD(double d);

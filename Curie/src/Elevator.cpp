@@ -99,6 +99,34 @@ Elevator::MaintainElevatorPosistion(double value)
 }
 
 void
+Elevator::Down()
+{
+	if (m_limitBottom->Get() == 1) {
+		m_lifter->Set(0.15);
+	} else {
+		m_lifter->Set(0.0);
+	}
+
+	double liftPosition = m_lifter->m_master->GetSelectedSensorPosition(0);
+	if (liftPosition >= 0.5) {
+		m_lifter->Set(0.0);
+	}
+
+}
+
+void
+Elevator::Up()
+{
+	if (m_limitTop->Get() == 1) {
+		m_lifter->Set(-0.15);
+	} else {
+		m_lifter->Set(0.0);
+	}
+	//double liftPosition = m_lifter->m_master->GetSelectedSensorPosition(0);
+
+}
+
+void
 Elevator::StopElevator(void)
 {
 	if(m_lifter->getOperatingMode() == Lifter::ELEVATOR_MODE) {
