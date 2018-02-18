@@ -96,5 +96,7 @@ enum Constants {
 
 #define RPM_THRESHOLD 300
 #define RAMP_RATE 0.2
+#define LEFT_MOTOR_ADJUSTMENT 0.5
+#define RIGHT_MOTOR_ADJUSTMENT 0.4825
 
 #endif /* _CURIE_H_ */

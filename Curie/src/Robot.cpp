@@ -187,14 +187,15 @@ public:
 			lift->setOperatingMode(Lifter::CLIMBING_MODE);
 		}
 
-		if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand)) {
+		frc::SmartDashboard::PutNumber("Trigger Axis Left Value: ", xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand));
+		frc::SmartDashboard::PutNumber("Trigger Axis Right Value: ", xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand));
+		if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand) > 0.05) {
 			elev->Down();
-		} else if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand)) {
+		} else if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand) > 0.05) {
 			elev->Up();
-		}/* else if ((xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand) <= 0.05) ||
-				   (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand) <= 0.05)) {
+		} else  {
 			elev->StopElevator();
-		}*/
+		}
 
 	}
 

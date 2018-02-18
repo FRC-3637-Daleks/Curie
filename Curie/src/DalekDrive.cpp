@@ -121,7 +121,7 @@ DalekDrive::TankDrive(GenericHID* leftStick, GenericHID* rightStick,
 		return;
 
 	if(m_drive)
-		m_drive->TankDrive(leftStick->GetY(), rightStick->GetY(), squaredInputs);
+		m_drive->TankDrive(LEFT_MOTOR_ADJUSTMENT * leftStick->GetY(), RIGHT_MOTOR_ADJUSTMENT * rightStick->GetY(), squaredInputs);
 }
 
 void
@@ -133,7 +133,7 @@ DalekDrive::TankDrive(GenericHID& leftStick, GenericHID& rightStick,
 		return;
 
 	if(m_drive)
-		m_drive->TankDrive(leftStick.GetY(), rightStick.GetY(), squaredInputs);
+		m_drive->TankDrive(LEFT_MOTOR_ADJUSTMENT * leftStick.GetY(), RIGHT_MOTOR_ADJUSTMENT * rightStick.GetY(), squaredInputs);
 }
 
 void
@@ -145,7 +145,7 @@ DalekDrive::TankDrive(double leftValue, double rightValue,
 		return;
 
 	if(m_drive)
-		m_drive->TankDrive(leftValue, rightValue, squaredInputs);
+		m_drive->TankDrive(LEFT_MOTOR_ADJUSTMENT * leftValue, RIGHT_MOTOR_ADJUSTMENT * rightValue, squaredInputs);
 }
 
 void

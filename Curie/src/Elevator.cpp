@@ -102,7 +102,7 @@ void
 Elevator::Down()
 {
 	if (m_limitBottom->Get() == 1) {
-		m_lifter->Set(0.15);
+		m_lifter->Set(0.2);
 	} else {
 		m_lifter->Set(0.0);
 	}
@@ -119,7 +119,7 @@ void
 Elevator::Up()
 {
 	if (m_limitTop->Get() == 1) {
-		m_lifter->Set(-0.15);
+		m_lifter->Set(-0.2);
 	} else {
 		m_lifter->Set(0.0);
 	}
@@ -131,7 +131,7 @@ void
 Elevator::StopElevator(void)
 {
 	if(m_lifter->getOperatingMode() == Lifter::ELEVATOR_MODE) {
-		m_lifter->setTalonMode(Lifter::POSITION);
+		//m_lifter->setTalonMode(Lifter::POSITION);
 		m_lifter->Set(0.0);
 	}
 }
