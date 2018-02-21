@@ -11,7 +11,7 @@
 // #define USB_CAMERA
 
 #define PCMID 12
-#define IP_CAMERA "AmcrestIPCam"
+#define IP_CAMERA "10.36.37.33"
 
 enum Motors {
 	/* Motor Definitions
@@ -62,15 +62,13 @@ enum AnalogIO {
 	MagnetoPot      = 1,
 };
 
-enum Constants {
+enum CANConstants {
 	/* Which PID slot to pull gains from.  Starting 2018, you can choose
 	 * from 0,1,2 or 3.  Only the first two (0,1) are visible in web-based configuration.
 	 */
-	DriveSlotIdx = 0,
-	ElevatorSlotIdx,
-	WristSlotIdx,
+	PIDSlotIdx = 0,
 
-	/* Talon SRX/ Victor SPX will supported multiple (cascaded) PID loops.
+	/* Talon SRX/Victor SPX will supported multiple (cascaded) PID loops.
 	 * For now we just want the primary one.
 	 */
 	PIDLoopIdx = 0,

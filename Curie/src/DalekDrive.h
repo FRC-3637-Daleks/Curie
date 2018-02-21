@@ -47,6 +47,8 @@ class DalekDrive {
 	void SetControlMode(ctre::phoenix::motorcontrol::ControlMode mode);
 	bool Turn(double degrees);
 	bool Travel(double distance);
+	int  GetPosition(MotorType_t motor);
+	int  GetVelocity(MotorType_t motor);
 	bool DriveOk();
 
  private:

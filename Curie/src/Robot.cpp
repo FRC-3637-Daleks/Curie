@@ -20,6 +20,7 @@
 #include <Intake.h>
 #include <Climber.h>
 #include <Elevator.h>
+#include <Amcrest.h>
 #include <IMU.h>
 
 using namespace std;
@@ -34,6 +35,7 @@ public:
 	WPI_TalonSRX *liftMaster, *liftSlave;
 	AnalogInput	 *ultraLeft,  *ultraRight;
 	Solenoid     *shifter;
+	AmcrestIPCAM *cam;
 	Joystick     *leftJoystick, *rightJoystick;
 	XboxController *xbox;
 	DalekDrive *drive;
@@ -43,6 +45,7 @@ public:
 	Lifter     *lift;
 	IMU		   *imu;
 	AHRS       *ahrs;
+
 
 	void
 	RobotInit()
@@ -69,13 +72,16 @@ public:
 								   IntakeUpperLimit);
 		ahrs          = new AHRS(SPI::Port::kMXP);
 		imu           = new IMU(ahrs);
+		ultraLeft     = new AnalogInput(UltrasonicLeft);
+		ultraRight    = new AnalogInput(UltrasonicRight);
+		cam           = new AmcrestIPCAM(IP_CAMERA, 0, 1);
 
 #ifdef PRACTICE_BOT
 		drive         = new DalekDrive(leftMotor, rightMotor);
 #else
 		shifter       = new Solenoid(PCMID, Shifter);
 		drive         = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
-		lift          = new Lifter(liftMaster, liftSlave, shifter, MagnetoPot);
+		lift          = new Lifter(liftMaster, liftSlave, shifter);
 		climb         = new Climber(lift, Brace, Lock, UltrasonicClimb);
 		elev          = new Elevator(lift, ElevatorLowerLimit, ElevatorUpperLimit);
 #endif
@@ -94,11 +100,6 @@ public:
 		intake->Start();
 		imu->Start();
 
-#ifdef USB_CAMERA
-		cam.SetResolution(640, 480);
-#else
-		m_cs.StartAutomaticCapture(cam);
-#endif
 	}
 
 	void
@@ -193,8 +194,6 @@ public:
 			lift->setOperatingMode(Lifter::CLIMBING_MODE);
 		}
 
-		frc::SmartDashboard::PutNumber("Trigger Axis Left Value: ", xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand));
-		frc::SmartDashboard::PutNumber("Trigger Axis Right Value: ", xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand));
 		if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand) > 0.05) {
 			elev->Down();
 		} else if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand) > 0.05) {
@@ -203,6 +202,7 @@ public:
 			elev->StopElevator();
 		}
 
+		UpdateDashboard();
 	}
 
 	void TestPeriodic()
@@ -210,14 +210,19 @@ public:
 
 	}
 
+	void UpdateDashboard()
+	{
+		frc::SmartDashboard::PutNumber("Elevator Position",
+				lift->getAnalogPos());
+		frc::SmartDashboard::PutNumber("Left Drive Velocity",
+				drive->GetVelocity(Motors::LeftDriveMotor));
+		frc::SmartDashboard::PutNumber("Right Drive Velocity",
+				drive->GetVelocity(Motors::RightDriveMotor));
+	}
+
 private:
 	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
-	frc::CameraServer& m_cs = *CameraServer::GetInstance();
-#ifdef USB_CAMERA
-	cs::UsbCamera  cam = m_cs.StartAutomaticCapture();
-#else
-	cs::AxisCamera cam = m_cs.AddAxisCamera(IP_CAMERA);
-#endif
+
 	frc::SendableChooser<std::string> autoLocation;
 	frc::SendableChooser<std::string> autoTarget;
 	std::string gameData;

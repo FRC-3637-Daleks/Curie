@@ -11,36 +11,33 @@
 
 #include <Lifter.h>
 
-Lifter::Lifter(int masterChannel, int slaveChannel, int shifterChannel, int pot)
+Lifter::Lifter(int masterChannel, int slaveChannel, int shifterChannel)
 {
 	m_master  = new WPI_TalonSRX(masterChannel);
 	m_slave   = new WPI_TalonSRX(slaveChannel);
 	m_shifter = new Solenoid(PCMID, shifterChannel);
-	m_pot     = new AnalogInput(pot);
 	m_omode   = ELEVATOR_MODE;
 	m_tmode   = PERCENT_VBUS;
 	initLifter();
 	m_needFree = true;
 }
 
-Lifter::Lifter(WPI_TalonSRX *master, WPI_TalonSRX *slave, Solenoid *shifter, int pot)
+Lifter::Lifter(WPI_TalonSRX *master, WPI_TalonSRX *slave, Solenoid *shifter)
 {
 	m_master  = master;
 	m_slave   = slave;
 	m_shifter = shifter;
-	m_pot     = new AnalogInput(pot);
 	m_omode   = ELEVATOR_MODE;
 	m_tmode   = PERCENT_VBUS;
 	initLifter();
 	m_needFree = false;
 }
 
-Lifter::Lifter(WPI_TalonSRX &master, WPI_TalonSRX &slave, Solenoid &shifter, int pot)
+Lifter::Lifter(WPI_TalonSRX &master, WPI_TalonSRX &slave, Solenoid &shifter)
 {
 	m_master  = &master;
 	m_slave   = &slave;
 	m_shifter = &shifter;
-	m_pot     = new AnalogInput(pot);
 	m_omode   = ELEVATOR_MODE;
 	m_tmode   = PERCENT_VBUS;
 	initLifter();
@@ -54,20 +51,32 @@ Lifter::~Lifter()
 		delete m_slave;
 		delete m_shifter;
 	}
-	delete m_pot;
 	m_needFree = false;
 }
 
 void
 Lifter::initLifter()
 {
-	m_master->SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Brake);
+	m_master->SetNeutralMode(NeutralMode::Brake);
 	m_master->ConfigNominalOutputForward(0.0, CANTimeoutMs);
 	m_master->ConfigNominalOutputReverse(-0.0, CANTimeoutMs);
 	m_master->ConfigPeakOutputForward(1.0, CANTimeoutMs);
 	m_master->ConfigPeakOutputReverse(-1.0, CANTimeoutMs);
 	m_master->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
+	m_master->ConfigSelectedFeedbackSensor(FeedbackDevice::Analog,
+				PIDLoopIdx, CANTimeoutMs);
+	m_master->SetSelectedSensorPosition(0, PIDLoopIdx, CANTimeoutMs);
+	m_master->SelectProfileSlot(PIDSlotIdx, PIDLoopIdx);
+
+	m_master->Config_kF(PIDSlotIdx, LIFTER_DEFAULT_F, CANTimeoutMs);
+	m_master->Config_kP(PIDSlotIdx, LIFTER_DEFAULT_P, CANTimeoutMs);
+	m_master->Config_kI(PIDSlotIdx, LIFTER_DEFAULT_I, CANTimeoutMs);
+	m_master->Config_kD(PIDSlotIdx, LIFTER_DEFAULT_D, CANTimeoutMs);
+	m_master->ConfigSetParameter(ParamEnum::eFeedbackNotContinuous,
+			1, 0x00, 0x00, 0x00);
 	m_master->SetInverted(false);
+	m_master->SetSensorPhase(true);
+
 	m_slave->Set(ControlMode::Follower, m_master->GetDeviceID());
 	m_slave->SetInverted(false);
 	m_slave->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
@@ -113,12 +122,10 @@ Lifter::Set(double value)
 {
 	switch(m_tmode) {
 	case PERCENT_VBUS:
-		m_master->Set(ctre::phoenix::motorcontrol::ControlMode::PercentOutput,
-				value);
+		m_master->Set(ControlMode::PercentOutput, value);
 		break;
 	case POSITION:
-		m_master->Set(ctre::phoenix::motorcontrol::ControlMode::Position,
-				value);
+		m_master->Set(ControlMode::Position, value);
 		break;
 	default:
 		break;
@@ -138,20 +145,36 @@ Lifter::getTalonMode()
 	return m_tmode;
 }
 
+int
+Lifter::getAnalogPos()
+{
+	return m_master->GetSensorCollection().GetAnalogIn();
+}
+
+double
+Lifter::getAnalogVel()
+{
+	return m_master->GetSensorCollection().GetAnalogInVel();
+}
+
 void
 Lifter::SetP(double p)
 {
-	// set talon pid p value
+	m_master->SelectProfileSlot(PIDSlotIdx, PIDLoopIdx);
+	m_master->Config_kP(PIDSlotIdx, p, CANTimeoutMs);
 }
 
 void
 Lifter::SetI(double i)
 {
-	// set talon pid i value
+	m_master->SelectProfileSlot(PIDSlotIdx, PIDLoopIdx);
+	m_master->Config_kI(PIDSlotIdx, i, CANTimeoutMs);
+	return;
 }
 
 void
 Lifter::SetD(double d)
 {
-	// set talon pid d value
+	m_master->SelectProfileSlot(PIDSlotIdx, PIDLoopIdx);
+	m_master->Config_kD(PIDSlotIdx, d, CANTimeoutMs);
 }

@@ -239,12 +239,28 @@ DalekDrive::SetControlMode(ctre::phoenix::motorcontrol::ControlMode mode)
 	}
 }
 
+int
+DalekDrive::GetPosition(MotorType_t motor)
+{
+	if(motor == LeftDriveMotor)
+		return m_leftMotor->GetSensorCollection().GetQuadraturePosition();
+	return m_rightMotor->GetSensorCollection().GetQuadraturePosition();
+}
+
+int
+DalekDrive::GetVelocity(MotorType_t motor)
+{
+	if(motor == LeftDriveMotor)
+		return m_leftMotor->GetSensorCollection().GetQuadratureVelocity();
+	return m_rightMotor->GetSensorCollection().GetQuadratureVelocity();
+}
+
 void
 DalekDrive::InitDalekDrive(void)
 {
 	// Configure the Talon's as needed
-	m_leftMotor->SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Brake);
-	m_rightMotor->SetNeutralMode(ctre::phoenix::motorcontrol::NeutralMode::Brake);
+	m_leftMotor->SetNeutralMode(NeutralMode::Brake);
+	m_rightMotor->SetNeutralMode(NeutralMode::Brake);
 	m_leftMotor->ConfigNominalOutputForward(0.0, CANTimeoutMs);
 	m_leftMotor->ConfigNominalOutputReverse(-0.0, CANTimeoutMs);
 	m_rightMotor->ConfigNominalOutputForward(0.0, CANTimeoutMs);
@@ -255,25 +271,25 @@ DalekDrive::InitDalekDrive(void)
 	m_rightMotor->ConfigPeakOutputReverse(-1.0, CANTimeoutMs);
 	m_leftMotor->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs); // TBD: how many MS ???
 	m_rightMotor->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
-	m_leftMotor->ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::QuadEncoder, DriveSlotIdx, CANTimeoutMs);
-	m_rightMotor->ConfigSelectedFeedbackSensor(ctre::phoenix::motorcontrol::FeedbackDevice::QuadEncoder, DriveSlotIdx, CANTimeoutMs);
+	m_leftMotor->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, PIDLoopIdx, CANTimeoutMs);
+	m_rightMotor->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, PIDLoopIdx, CANTimeoutMs);
 	m_leftMotor->SetSensorPhase(true);
 	m_rightMotor->SetSensorPhase(false);
-	m_leftMotor->SetSelectedSensorPosition(0, 0, CANTimeoutMs);
-	m_rightMotor->SetSelectedSensorPosition(0, 0, CANTimeoutMs);
+	m_leftMotor->SetSelectedSensorPosition(PIDSlotIdx, PIDLoopIdx, CANTimeoutMs);
+	m_rightMotor->SetSelectedSensorPosition(PIDSlotIdx, PIDLoopIdx, CANTimeoutMs);
 	m_leftMotor->SetInverted(false);
 	m_rightMotor->SetInverted(false);
 	if(m_leftSlaveMotor) {
-		m_leftSlaveMotor->Set(ctre::phoenix::motorcontrol::ControlMode::Follower, m_leftMotor->GetDeviceID());
+		m_leftSlaveMotor->Set(ControlMode::Follower, m_leftMotor->GetDeviceID());
 		m_leftSlaveMotor->SetInverted(false);
 		m_leftSlaveMotor->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
 	}
 	if(m_rightSlaveMotor) {
-		m_rightSlaveMotor->Set(ctre::phoenix::motorcontrol::ControlMode::Follower, m_rightMotor->GetDeviceID());
+		m_rightSlaveMotor->Set(ControlMode::Follower, m_rightMotor->GetDeviceID());
 		m_rightSlaveMotor->SetInverted(false);
 		m_rightSlaveMotor->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
 	}
-	inMode = ctre::phoenix::motorcontrol::ControlMode::PercentOutput;
+	inMode = ControlMode::PercentOutput;
 	distanceRemaining = 0.0;
 	degreesRemaining = 0.0;
 }
