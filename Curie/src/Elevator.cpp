@@ -6,16 +6,6 @@
 #include <Lifter.h>
 #include <Elevator.h>
 
-Elevator::Elevator(int elevMotorChannel, int elevSlaveMotorChannel, int shifter,
-		int limitTop, int limitBottom)
-{
-	m_lifter      = new Lifter(elevMotorChannel, elevSlaveMotorChannel, shifter);
-	m_limitTop    = new DigitalInput(limitTop);
-	m_limitBottom = new DigitalInput(limitBottom);
-
-	InitElevator();
-	m_needFree = true;
-}
 
 Elevator::Elevator(Lifter* lift, int limitTop, int limitBottom)
 {
@@ -107,7 +97,7 @@ Elevator::Down()
 		m_lifter->Set(0.0);
 	}
 
-	// if you need to do this you add method to expose the pot position
+// if you need to do this you add method to expose the pot position
 //	double liftPosition = m_lifter->m_master->GetSelectedSensorPosition(0);
 //	if (liftPosition >= 0.5) {
 //		m_lifter->Set(0.0);

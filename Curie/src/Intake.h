@@ -12,17 +12,20 @@
 
 #include <WPILib.h>
 #include <ctre/Phoenix.h>
+#include <DalekTask.h>
 
-class Intake {
+class Intake: public DalekTask {
   public:
-	typedef enum Motors MotorType_t;
+	typedef enum intakeState { Stopped, MovingUp, AtTop, MovingDown, AtBottom } iState_t;
 
 	Intake(int wristMotorChannel, int rollerMotorChannel,
-		   int intakeLowerLimit, int intakeUpperLimit, int intakeProximity);
+		   int intakeLowerLimit, int intakeUpperLimit);
 	Intake(WPI_TalonSRX* wristMotor, WPI_TalonSRX* rollerMotor,
-		   int intakeLowerLimit, int intakeUpperLimit, int intakeProximity);
+		   int intakeLowerLimit, int intakeUpperLimit);
 	Intake(WPI_TalonSRX& wristMotor, WPI_TalonSRX& rollerMotor,
-		   int intakeLowerLimit, int intakeUpperLimit, int intakeProximity);
+		   int intakeLowerLimit, int intakeUpperLimit);
+
+	void Run();
 
 	void Raise();
 	void Lower();
@@ -30,7 +33,6 @@ class Intake {
 	void Push();
 	void StopWrist();
 	void StopRoller();
-	bool Proximity();
 	bool WristUpperLimit();
 	bool WristLowerLimit();
 
@@ -43,7 +45,7 @@ class Intake {
   	WPI_TalonSRX *m_rollerMotor;
   	DigitalInput *m_lowerLimit;
   	DigitalInput *m_upperLimit;
-	DigitalInput *m_proximity;
+	iState_t m_state;
   	bool m_needFree;
 
 };

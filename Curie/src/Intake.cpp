@@ -12,48 +12,62 @@
 #include <Intake.h>
 
 Intake::Intake(int wristMotorChannel, int rollerMotorChannel,
-			   int intakeLowerLimit, int intakeUpperLimit, int intakeProximity)
+			   int intakeLowerLimit, int intakeUpperLimit)
 {
 
 	m_wristMotor    = new WPI_TalonSRX(wristMotorChannel);
 	m_rollerMotor   = new WPI_TalonSRX(rollerMotorChannel);
 	m_lowerLimit    = new DigitalInput(intakeLowerLimit);
 	m_upperLimit    = new DigitalInput(intakeUpperLimit);
-	m_proximity     = new DigitalInput(intakeProximity);
-
+	m_state         = Stopped;
 	m_needFree      = true;
 }
 
 Intake::Intake(WPI_TalonSRX* wristMotor, WPI_TalonSRX* rollerMotor,
-			   int intakeLowerLimit, int intakeUpperLimit, int intakeProximity)
+			   int intakeLowerLimit, int intakeUpperLimit)
 {
 
 	m_wristMotor    = wristMotor;
 	m_rollerMotor   = rollerMotor;
 	m_lowerLimit    = new DigitalInput(intakeLowerLimit);
 	m_upperLimit    = new DigitalInput(intakeUpperLimit);
-	m_proximity     = new DigitalInput(intakeProximity);
-
+	m_state         = Stopped;
 	m_needFree      = false;
 }
 
 Intake::Intake(WPI_TalonSRX& wristMotor, WPI_TalonSRX& rollerMotor,
-			   int intakeLowerLimit, int intakeUpperLimit, int intakeProximity)
+			   int intakeLowerLimit, int intakeUpperLimit)
 {
 
 	m_wristMotor    = &wristMotor;
 	m_rollerMotor   = &rollerMotor;
 	m_lowerLimit    = new DigitalInput(intakeLowerLimit);
 	m_upperLimit    = new DigitalInput(intakeUpperLimit);
-	m_proximity     = new DigitalInput(intakeProximity);
-
+	m_state         = Stopped;
 	m_needFree      = false;
+}
+
+void
+Intake::Run()
+{
+	if(m_state == MovingUp && m_upperLimit->Get() == 0) {
+		m_state = AtTop;
+		m_wristMotor->Set(0.0);
+	}
+
+	if(m_state == MovingDown && m_lowerLimit->Get() == 0) {
+		m_state = AtBottom;
+		m_wristMotor->Set(0.0);
+	}
+
+	return;
 }
 
 void
 Intake::Raise()
 {
-	if (m_upperLimit->Get() == 1) {
+	if (m_state != AtTop) {
+		m_state = MovingUp;
 		m_wristMotor->Set(-0.35);
 	} else {
 		m_wristMotor->Set(0.0);
@@ -64,7 +78,8 @@ Intake::Raise()
 void
 Intake::Lower()
 {
-	if (m_lowerLimit->Get() == 1) {
+	if (m_state != AtBottom) {
+		m_state = MovingDown;
 		m_wristMotor->Set(0.35);
 	} else {
 		m_wristMotor->Set(0.0);
@@ -74,11 +89,7 @@ Intake::Lower()
 void
 Intake::Pull()
 {
-	if (m_proximity->Get() == 1) {
-		m_rollerMotor->Set(-0.7);
-	} else {
-		m_rollerMotor->Set(0.0);
-	}
+	m_rollerMotor->Set(-0.7);
 }
 
 void
@@ -97,12 +108,6 @@ void
 Intake::StopRoller()
 {
 	m_rollerMotor->Set(0.0);
-}
-
-bool
-Intake::Proximity()
-{
-	return (m_proximity->Get() == 1);
 }
 
 bool
@@ -126,7 +131,6 @@ Intake::~Intake()
 	if (true) {
 		delete m_lowerLimit;
 		delete m_upperLimit;
-		delete m_proximity;
 	}
 	m_needFree      = false;
 	return;
@@ -148,12 +152,11 @@ Intake::InitIntake()
 	m_rollerMotor->ConfigPeakOutputForward(1.0, CANTimeoutMs);
 	m_rollerMotor->ConfigPeakOutputReverse(-1.0, CANTimeoutMs);
 
-	m_wristMotor->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, DriveSlotIdx, CANTimeoutMs);
-	m_rollerMotor->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, DriveSlotIdx, CANTimeoutMs);
+	m_wristMotor->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, WristSlotIdx, CANTimeoutMs);
 	m_wristMotor->SetSensorPhase(true);
-	m_rollerMotor->SetSensorPhase(false);
-	m_wristMotor->SetSelectedSensorPosition(0, 0, CANTimeoutMs);
-	m_rollerMotor->SetSelectedSensorPosition(0, 0, CANTimeoutMs);
+
+	m_wristMotor->SetSelectedSensorPosition(WristSlotIdx, PIDLoopIdx, CANTimeoutMs);
+
 	m_wristMotor->SetInverted(false);
 	m_rollerMotor->SetInverted(false);
 }

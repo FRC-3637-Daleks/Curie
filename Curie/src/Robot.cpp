@@ -42,6 +42,7 @@ public:
 	Elevator   *elev;
 	Lifter     *lift;
 	IMU		   *imu;
+	AHRS       *ahrs;
 
 	void
 	RobotInit()
@@ -65,14 +66,17 @@ public:
 		xbox          = new XboxController(XboxControls);
 
 		intake        = new Intake(WristMotor, RollerMotor, IntakeLowerLimit,
-								   IntakeUpperLimit, IntakeProximity);
+								   IntakeUpperLimit);
+		ahrs          = new AHRS(SPI::Port::kMXP);
+		imu           = new IMU(ahrs);
+
 #ifdef PRACTICE_BOT
 		drive         = new DalekDrive(leftMotor, rightMotor);
 #else
 		shifter       = new Solenoid(PCMID, Shifter);
 		drive         = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
-		lift          = new Lifter(liftMaster, liftSlave, shifter);
-		climb         = new Climber(lift, Brace, Lock, Wing, UltrasonicClimb);
+		lift          = new Lifter(liftMaster, liftSlave, shifter, MagnetoPot);
+		climb         = new Climber(lift, Brace, Lock, UltrasonicClimb);
 		elev          = new Elevator(lift, ElevatorLowerLimit, ElevatorUpperLimit);
 #endif
 		autoLocation.AddDefault("Left", LEFT_POSITION);
@@ -86,6 +90,10 @@ public:
 		autoTarget.AddObject("AutoLine", TARGET_AUTOLINE);
 		frc::SmartDashboard::PutData("Autonomous Target",
 				&autoTarget);
+
+		intake->Start();
+		imu->Start();
+
 #ifdef USB_CAMERA
 		cam.SetResolution(640, 480);
 #else
@@ -173,8 +181,6 @@ public:
 		//Climber Controls (Start:Climb, Back:Hold, LeftStick:Hook, RightStick:Wing)
 		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kLeftHand)) {
 			climb->DeployHook();
-		} else if (xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kRightHand)) {
-			climb->DeployWings();
 		} else if (xbox->GetStartButtonPressed()) {
 			climb->DoClimb();
 		} else if (xbox->GetBackButtonPressed()) {

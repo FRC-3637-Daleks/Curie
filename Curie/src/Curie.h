@@ -11,75 +11,75 @@
 // #define USB_CAMERA
 
 #define PCMID 12
-#define IP_CAMERA "10.36.37.200"
+#define IP_CAMERA "AmcrestIPCam"
 
 enum Motors {
 	/* Motor Definitions
 	 */
 #ifdef PRACTICE_BOT
-		LeftDriveMotor = 1,
-		RightDriveMotor = 3,
-		WristMotor = 5,
-		RollerMotor = 6,
+	LeftDriveMotor  = 1,
+	RightDriveMotor = 3,
+	WristMotor      = 5,
+	RollerMotor     = 6,
 #else
-		LeftDriveMotor = 5,
-		LeftSlaveMotor = 4,
-		RightDriveMotor = 7,
-		RightSlaveMotor = 8,
-		WristMotor = 2,
-		RollerMotor = 1,
-		LiftMasterMotor = 3,
-		LiftSlaveMotor = 6,
+	LeftDriveMotor  = 5,
+	LeftSlaveMotor  = 4,
+	RightDriveMotor = 7,
+	RightSlaveMotor = 8,
+	WristMotor      = 1,
+	RollerMotor     = 2,
+	LiftMasterMotor = 3,
+	LiftSlaveMotor  = 6,
 #endif
 };
 
 enum Joysticks {
-		/* User input devices
-		 */
-		LeftJoystick = 0,
-		RightJoystick,
-		XboxControls,
-		NumJoysticks,
+	/* User input devices
+	 */
+	LeftJoystick = 0,
+	RightJoystick,
+	XboxControls,
+	NumJoysticks,
 };
 
 enum Solenoids {
-		Shifter = 0,
-		Wing,
-		Brace,
-		Lock,
+	Shifter = 0,
+	Brace   = 1,
+	Lock    = 2,
 };
 
 enum DigitalIO {
-		ElevatorLowerLimit = 0,
-		ElevatorUpperLimit,
-		IntakeLowerLimit,
-		IntakeUpperLimit,
-		IntakeProximity,
+	ElevatorLowerLimit = 0,
+	ElevatorUpperLimit = 1,
+	IntakeLowerLimit   = 2,
+	IntakeUpperLimit   = 3,
 };
+
 enum AnalogIO {
-		UltrasonicLeft = 0,
-		UltrasonicRight,
-		UltrasonicClimb,
+	UltrasonicLeft  = 2,
+	UltrasonicRight = 3,
+	UltrasonicClimb = 0,
+	MagnetoPot      = 1,
 };
 
 enum Constants {
-		/* Which PID slot to pull gains from.  Starting 2018, you can choose
-		 * from 0,1,2 or 3.  Only the first two (0,1) are visible in web-based configuration.
-		 */
-		DriveSlotIdx = 0,
-		ElevatorSlotIdx,
-		WristSlotIdx,
+	/* Which PID slot to pull gains from.  Starting 2018, you can choose
+	 * from 0,1,2 or 3.  Only the first two (0,1) are visible in web-based configuration.
+	 */
+	DriveSlotIdx = 0,
+	ElevatorSlotIdx,
+	WristSlotIdx,
 
-		/* Talon SRX/ Victor SPX will supported multiple (cascaded) PID loops.
-		 * For now we just want the primary one.
-		 */
-		PIDLoopIdx = 0,
+	/* Talon SRX/ Victor SPX will supported multiple (cascaded) PID loops.
+	 * For now we just want the primary one.
+	 */
+	PIDLoopIdx = 0,
 
-		/*
-		 * set to zero to skip waiting for confirmation, set to nonzero to wait
-		 * and report to DS if action fails.
-		 */
-		CANTimeoutMs = 10,
+	/*
+	 * set to zero to skip waiting for confirmation, set to nonzero to wait
+	 * and report to DS if action fails.
+	 */
+	CANTimeoutMs = 10,
 };
 
 #define LEFT_POSITION	"1"

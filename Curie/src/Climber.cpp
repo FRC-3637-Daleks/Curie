@@ -11,12 +11,10 @@
 
 #include <Climber.h>
 
-Climber::Climber(Lifter *lift, int brace, int lock, int wings,
-		int ultra)
+Climber::Climber(Lifter *lift, int brace, int lock,	int ultra)
 {
 	m_lifter = lift;
 	m_lock   = new Solenoid(PCMID, lock);
-	m_wings  = new Solenoid(PCMID, wings);
 	m_brace  = new Solenoid(PCMID, brace);
 	m_ultra  = new AnalogInput(ultra);
 
@@ -24,26 +22,22 @@ Climber::Climber(Lifter *lift, int brace, int lock, int wings,
 	m_needFree = true;
 }
 
-Climber::Climber(Lifter *lift, Solenoid *brace, Solenoid* lock, Solenoid* wings,
-		AnalogInput* ultra)
+Climber::Climber(Lifter *lift, Solenoid *brace, Solenoid* lock,	AnalogInput* ultra)
 {
 	m_lifter = lift;
 	m_brace  = brace;
 	m_lock   = lock;
-	m_wings  = wings;
 	m_ultra  = ultra;
 
 	InitClimber();
 	m_needFree = false;
 }
 
-Climber::Climber(Lifter& lift, Solenoid& brace, Solenoid& lock, Solenoid& wings,
-		AnalogInput& ultra)
+Climber::Climber(Lifter& lift, Solenoid& brace, Solenoid& lock, AnalogInput& ultra)
 {
 	m_lifter = &lift;
 	m_brace  = &brace;
 	m_lock   = &lock;
-	m_wings  = &wings;
 	m_ultra  = &ultra;
 	m_climbLimit = 0;
 
@@ -56,7 +50,6 @@ Climber::~Climber()
 	if(m_needFree) {
 		delete m_brace;
 		delete m_lock;
-		delete m_wings;
 		delete m_ultra;
 	}
 	m_needFree = false;
@@ -80,12 +73,6 @@ Climber::DeployHook(void)
 {
 	//No idea here.
 	state = HOOKDEPLOYED;
-}
-
-void
-Climber::DeployWings(void)
-{
-	m_wings->Set(true);
 }
 
 void

@@ -11,33 +11,36 @@
 
 #include <Lifter.h>
 
-Lifter::Lifter(int masterChannel, int slaveChannel, int shifterChannel)
+Lifter::Lifter(int masterChannel, int slaveChannel, int shifterChannel, int pot)
 {
 	m_master  = new WPI_TalonSRX(masterChannel);
 	m_slave   = new WPI_TalonSRX(slaveChannel);
 	m_shifter = new Solenoid(PCMID, shifterChannel);
+	m_pot     = new AnalogInput(pot);
 	m_omode   = ELEVATOR_MODE;
 	m_tmode   = PERCENT_VBUS;
 	initLifter();
 	m_needFree = true;
 }
 
-Lifter::Lifter(WPI_TalonSRX *master, WPI_TalonSRX *slave, Solenoid *shifter)
+Lifter::Lifter(WPI_TalonSRX *master, WPI_TalonSRX *slave, Solenoid *shifter, int pot)
 {
 	m_master  = master;
 	m_slave   = slave;
 	m_shifter = shifter;
+	m_pot     = new AnalogInput(pot);
 	m_omode   = ELEVATOR_MODE;
 	m_tmode   = PERCENT_VBUS;
 	initLifter();
 	m_needFree = false;
 }
 
-Lifter::Lifter(WPI_TalonSRX &master, WPI_TalonSRX &slave, Solenoid &shifter)
+Lifter::Lifter(WPI_TalonSRX &master, WPI_TalonSRX &slave, Solenoid &shifter, int pot)
 {
 	m_master  = &master;
 	m_slave   = &slave;
 	m_shifter = &shifter;
+	m_pot     = new AnalogInput(pot);
 	m_omode   = ELEVATOR_MODE;
 	m_tmode   = PERCENT_VBUS;
 	initLifter();
@@ -51,6 +54,7 @@ Lifter::~Lifter()
 		delete m_slave;
 		delete m_shifter;
 	}
+	delete m_pot;
 	m_needFree = false;
 }
 
@@ -62,19 +66,8 @@ Lifter::initLifter()
 	m_master->ConfigNominalOutputReverse(-0.0, CANTimeoutMs);
 	m_master->ConfigPeakOutputForward(1.0, CANTimeoutMs);
 	m_master->ConfigPeakOutputReverse(-1.0, CANTimeoutMs);
-	m_master->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs); // TBD: how many MS ???
-	m_master->ConfigSelectedFeedbackSensor(FeedbackDevice::Analog,
-			ElevatorSlotIdx, CANTimeoutMs);
-	m_master->ConfigSetParameter(ParamEnum::eFeedbackNotContinuous, 1,
-			0x00, 0x00, 0x00);
-	m_master->SetSensorPhase(true);
+	m_master->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
 	m_master->SetInverted(false);
-	m_master->SelectProfileSlot(ElevatorSlotIdx, PIDLoopIdx);
-	m_master->Config_kF(PIDLoopIdx, LIFTER_DEFAULT_F, CANTimeoutMs);
-	m_master->Config_kP(PIDLoopIdx, LIFTER_DEFAULT_P, CANTimeoutMs);
-	m_master->Config_kI(PIDLoopIdx, LIFTER_DEFAULT_I, CANTimeoutMs);
-	m_master->Config_kD(PIDLoopIdx, LIFTER_DEFAULT_D, CANTimeoutMs);
-
 	m_slave->Set(ControlMode::Follower, m_master->GetDeviceID());
 	m_slave->SetInverted(false);
 	m_slave->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);

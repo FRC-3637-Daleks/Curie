@@ -2,11 +2,8 @@
 #include "DalekTask.h"
 #include <string>
 
-DalekTask::DalekTask(const char* taskName)
+DalekTask::DalekTask()
 {
-    if (!taskName)
-        return;
-    
     m_enabled = false;
     m_running = true;
     m_dead    = false;
@@ -30,7 +27,7 @@ DalekTask::DalekTaskStarter(void* vtask)
     while (task->m_running) {
         if (task->m_enabled) {
             task->Run();
-            Wait(0.002);
+            Wait(0.02);
         }
         else
             Wait(0.05);

@@ -7,7 +7,7 @@
 class DalekTask
 {
     public:
-        DalekTask(const char* taskName = NULL);
+        DalekTask();
         virtual ~DalekTask();
 
         static void* DalekTaskStarter(void* task);

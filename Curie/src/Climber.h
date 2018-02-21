@@ -17,17 +17,13 @@ class Climber {
 	public:
 		enum climbState { PRECLIMB, HOOKDEPLOYED, CLIMBING, HOLDING, NUM_CLIMB_STATES };
 
-		Climber(Lifter *lift, int brace, int lock, int wings,
-				int ultra);
-		Climber(Lifter *lift, Solenoid *brace, Solenoid* lock, Solenoid* wings,
-				AnalogInput* ultra);
-		Climber(Lifter& lift, Solenoid& brace, Solenoid& lock, Solenoid& wings,
-				AnalogInput& ultra);
+		Climber(Lifter *lift, int brace, int lock,int ultra);
+		Climber(Lifter *lift, Solenoid *brace, Solenoid* lock, AnalogInput* ultra);
+		Climber(Lifter& lift, Solenoid& brace, Solenoid& lock, AnalogInput& ultra);
 		~Climber();
 
 		void DeployHook();
 		void DeployBrace();
-		void DeployWings();
 		void DoClimb();
 		void Hold();
 		void setClimbLimit(int value);
@@ -35,7 +31,7 @@ class Climber {
 	private:
 		void InitClimber();
 		Lifter *m_lifter;
-		Solenoid *m_brace, *m_lock, *m_wings;
+		Solenoid *m_brace, *m_lock;
 		AnalogInput *m_ultra;
 		int m_climbLimit;
 		climbState state;

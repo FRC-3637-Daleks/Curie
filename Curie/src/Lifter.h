@@ -16,6 +16,7 @@
 #define LIFTER_DEFAULT_I 0.0
 #define LIFTER_DEFAULT_D 0.0
 #define LIFTER_DEFAULT_F 0.0
+#define LIFTER_POSITION_TOLERANCE 0.5
 
 class Lifter {
 	public:
@@ -24,9 +25,9 @@ class Lifter {
 		typedef enum talonMode { PERCENT_VBUS,
 				POSITION, NUM_TALON_MODES } tMode_t;
 
-		Lifter(int motorChannel, int slaveMotorChannel, int shifter);
-		Lifter(WPI_TalonSRX* motor, WPI_TalonSRX* slave, Solenoid* shifter);
-		Lifter(WPI_TalonSRX& motor, WPI_TalonSRX& slave, Solenoid& shifter);
+		Lifter(int motorChannel, int slaveMotorChannel, int shifter, int pot);
+		Lifter(WPI_TalonSRX* motor, WPI_TalonSRX* slave, Solenoid* shifter, int pot);
+		Lifter(WPI_TalonSRX& motor, WPI_TalonSRX& slave, Solenoid& shifter, int pot);
 		~Lifter();
 
 		void invertMotor(bool invert);
@@ -43,6 +44,7 @@ class Lifter {
 		WPI_TalonSRX *m_master;
 		WPI_TalonSRX *m_slave;
 		Solenoid *m_shifter;
+		AnalogInput *m_pot;
 		opMode_t m_omode;
 		tMode_t m_tmode;
 		bool m_needFree;
