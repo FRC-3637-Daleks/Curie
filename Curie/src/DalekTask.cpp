@@ -27,7 +27,7 @@ DalekTask::DalekTaskStarter(void* vtask)
     while (task->m_running) {
         if (task->m_enabled) {
             task->Run();
-            Wait(0.02);
+            Wait(0.04);
         }
         else
             Wait(0.05);

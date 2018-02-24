@@ -15,9 +15,11 @@
  * Utility class for handling Robot drive based on a definition of the motor
  * configuration.
  */
+#define PRECISION_ADJUSTMENT 0.5
 class DalekDrive {
   public:
 	typedef enum Motors MotorType_t;
+	typedef enum driveMode { Normal, Precision } driveMode_t;
 
 	DalekDrive(int leftMotorChannel, int rightMotorChannel);
 	DalekDrive(int leftMotorChannel, int leftSlaveMotorChannel,
@@ -49,19 +51,20 @@ class DalekDrive {
 	bool Travel(double distance);
 	int  GetPosition(MotorType_t motor);
 	int  GetVelocity(MotorType_t motor);
+	void SetPrecisionMode(bool v);
 	bool DriveOk();
 
  private:
 	void InitDalekDrive();
 	bool printFaults();
+	float Normalize(float v);
 	WPI_TalonSRX *m_leftMotor;
 	WPI_TalonSRX *m_rightMotor;
 	WPI_TalonSRX *m_leftSlaveMotor;
 	WPI_TalonSRX *m_rightSlaveMotor;
 	frc::DifferentialDrive *m_drive;
-	double degreesRemaining;
-	double distanceRemaining;
 	ctre::phoenix::motorcontrol::ControlMode inMode;
+	driveMode_t m_mode;
 	bool m_needFree;
 };
 #endif /* _DALEKDRIVE_H_ */

@@ -12,8 +12,8 @@ AmcrestIPCAM::AmcrestIPCAM(const char *ipaddr, int channel, int subtype)
 {
 	char url[MAXURLSIZE];
 
-	sprintf(url, "http:://%s:%s@%s/cgi-bin/mjpg/video.cgi?channel=%d&subtype=%d",
-			DEFUSER, DEFPASSWD, ipaddr, channel, subtype);
+	sprintf(url, "http://%s:%s@%s/cgi-bin/mjpg/video.cgi?channel=%d&subtype=%d",
+			 DEFUSER, DEFPASSWD, ipaddr, channel, subtype);
 	cs::HttpCamera cam("AMcrestCAM", url);
 
 	m_cs.AddCamera(cam);

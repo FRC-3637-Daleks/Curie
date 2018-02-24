@@ -99,7 +99,7 @@ public:
 
 		intake->Start();
 		imu->Start();
-
+		lift->setTalonMode(Lifter::PERCENT_VBUS);
 	}
 
 	void
@@ -181,7 +181,7 @@ public:
 
 		//Climber Controls (Start:Climb, Back:Hold, LeftStick:Hook, RightStick:Wing)
 		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kLeftHand)) {
-			climb->DeployHook();
+			climb->DeployBrace();
 		} else if (xbox->GetStartButtonPressed()) {
 			climb->DoClimb();
 		} else if (xbox->GetBackButtonPressed()) {
@@ -202,6 +202,11 @@ public:
 			elev->StopElevator();
 		}
 
+		if(leftJoystick->GetTrigger())
+			drive->SetPrecisionMode(true);
+		if(rightJoystick->GetTrigger())
+			drive->SetPrecisionMode(false);
+
 		UpdateDashboard();
 	}
 
@@ -218,6 +223,10 @@ public:
 				drive->GetVelocity(Motors::LeftDriveMotor));
 		frc::SmartDashboard::PutNumber("Right Drive Velocity",
 				drive->GetVelocity(Motors::RightDriveMotor));
+		frc::SmartDashboard::PutNumber("Left Distance",
+				ultraLeft->GetVoltage()/INCHES_PER_MILLIVOLTS);
+		frc::SmartDashboard::PutNumber("Right Distance",
+				ultraRight->GetVoltage()/INCHES_PER_MILLIVOLTS);
 	}
 
 private:

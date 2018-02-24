@@ -74,11 +74,11 @@ Lifter::initLifter()
 	m_master->Config_kD(PIDSlotIdx, LIFTER_DEFAULT_D, CANTimeoutMs);
 	m_master->ConfigSetParameter(ParamEnum::eFeedbackNotContinuous,
 			1, 0x00, 0x00, 0x00);
-	m_master->SetInverted(false);
+	m_master->SetInverted(true);
 	m_master->SetSensorPhase(true);
 
 	m_slave->Set(ControlMode::Follower, m_master->GetDeviceID());
-	m_slave->SetInverted(false);
+	m_slave->SetInverted(true);
 	m_slave->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
 
 	m_shifter->Set(true);

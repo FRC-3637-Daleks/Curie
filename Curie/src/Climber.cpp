@@ -81,6 +81,12 @@ Climber::DeployBrace(void)
 	m_brace->Set(true);
 }
 
+float
+Climber::GetHeight()
+{
+	return (m_ultra->GetVoltage()/INCHES_PER_MILLIVOLTS);
+}
+
 void
 Climber::DoClimb(void)
 {
@@ -88,7 +94,7 @@ Climber::DoClimb(void)
 	state = CLIMBING;
 	m_lifter->setOperatingMode(Lifter::CLIMBING_MODE);
 	m_lifter->setTalonMode(Lifter::PERCENT_VBUS);
-	if(m_ultra->GetValue() > m_climbLimit) { // TBD: GetVoltage?
+	if( GetHeight() > m_climbLimit) {
 		Hold();
 	}
 	else

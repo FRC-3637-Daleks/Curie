@@ -18,6 +18,7 @@ DalekDrive::DalekDrive(int leftMotorChannel, int rightMotorChannel)
 	m_leftSlaveMotor  = NULL;
 	m_rightSlaveMotor = NULL;
 	m_drive           = new DifferentialDrive(*m_leftMotor, *m_rightMotor);
+	m_mode            = Normal;
 	InitDalekDrive();
 
 	m_needFree = true;
@@ -30,6 +31,7 @@ DalekDrive::DalekDrive(int leftMotorChannel, int leftSlaveMotorChannel, int righ
 	m_leftSlaveMotor  = new WPI_TalonSRX(leftSlaveMotorChannel);
 	m_rightSlaveMotor = new WPI_TalonSRX(rightSlaveMotorChannel);
 	m_drive           = new DifferentialDrive(*m_leftMotor, *m_rightMotor);
+	m_mode            = Normal;
 	InitDalekDrive();
 
 	m_needFree = true;
@@ -42,6 +44,7 @@ DalekDrive::DalekDrive(WPI_TalonSRX* leftMotor, WPI_TalonSRX* rightMotor)
 	m_leftSlaveMotor  = NULL;
 	m_rightSlaveMotor = NULL;
 	m_drive           = new DifferentialDrive(*m_leftMotor, *m_rightMotor);
+	m_mode            = Normal;
 	InitDalekDrive();
 
 	m_needFree = false;
@@ -54,6 +57,7 @@ DalekDrive::DalekDrive(WPI_TalonSRX& leftMotor, WPI_TalonSRX& rightMotor)
 	m_leftSlaveMotor  = NULL;
 	m_rightSlaveMotor = NULL;
 	m_drive           = new DifferentialDrive(*m_leftMotor, *m_rightMotor);
+	m_mode            = Normal;
 	InitDalekDrive();
 
 	m_needFree = false;
@@ -67,6 +71,7 @@ DalekDrive::DalekDrive(WPI_TalonSRX* leftMotor, WPI_TalonSRX* leftSlaveMotor,
 	m_rightMotor      = rightMotor;
 	m_rightSlaveMotor = rightSlaveMotor;
 	m_drive           = new DifferentialDrive(*m_leftMotor, *m_rightMotor);
+	m_mode            = Normal;
 	InitDalekDrive();
 
 	m_needFree = false;
@@ -80,6 +85,7 @@ DalekDrive::DalekDrive(WPI_TalonSRX& leftMotor, WPI_TalonSRX& leftSlaveMotor,
 	m_rightMotor      = &rightMotor;
 	m_rightSlaveMotor = &rightSlaveMotor;
 	m_drive           = new DifferentialDrive(*m_leftMotor, *m_rightMotor);
+	m_mode            = Normal;
 	InitDalekDrive();
 
 	m_needFree = false;
@@ -113,6 +119,22 @@ DalekDrive::Drive(double outputMagnitude, double curve)
 }
 
 void
+DalekDrive::SetPrecisionMode(bool val)
+{
+	m_mode = (val) ? Precision : Normal;
+	return;
+}
+
+float
+DalekDrive::Normalize(float val)
+{
+	if(m_mode == Normal)
+		return val;
+
+	return val * PRECISION_ADJUSTMENT;
+}
+
+void
 DalekDrive::TankDrive(GenericHID* leftStick, GenericHID* rightStick,
              bool squaredInputs)
 {
@@ -121,7 +143,8 @@ DalekDrive::TankDrive(GenericHID* leftStick, GenericHID* rightStick,
 		return;
 
 	if(m_drive)
-		m_drive->TankDrive(LEFT_MOTOR_ADJUSTMENT * leftStick->GetY(), RIGHT_MOTOR_ADJUSTMENT * rightStick->GetY(), squaredInputs);
+		m_drive->TankDrive(Normalize(leftStick->GetY()),
+				Normalize(rightStick->GetY()), squaredInputs);
 }
 
 void
@@ -133,7 +156,8 @@ DalekDrive::TankDrive(GenericHID& leftStick, GenericHID& rightStick,
 		return;
 
 	if(m_drive)
-		m_drive->TankDrive(LEFT_MOTOR_ADJUSTMENT * leftStick.GetY(), RIGHT_MOTOR_ADJUSTMENT * rightStick.GetY(), squaredInputs);
+		m_drive->TankDrive(Normalize(leftStick.GetY()),
+				Normalize(rightStick.GetY()), squaredInputs);
 }
 
 void
@@ -145,7 +169,7 @@ DalekDrive::TankDrive(double leftValue, double rightValue,
 		return;
 
 	if(m_drive)
-		m_drive->TankDrive(LEFT_MOTOR_ADJUSTMENT * leftValue, RIGHT_MOTOR_ADJUSTMENT * rightValue, squaredInputs);
+		m_drive->TankDrive(Normalize(leftValue), Normalize(rightValue), squaredInputs);
 }
 
 void
@@ -156,7 +180,7 @@ DalekDrive::ArcadeDrive(GenericHID* stick, bool squaredInputs)
 		return;
 
 	if(m_drive)
-		m_drive->ArcadeDrive(stick->GetY(), stick->GetX(), squaredInputs);
+		m_drive->ArcadeDrive(Normalize(stick->GetY()), Normalize(stick->GetX()), squaredInputs);
 }
 
 void
@@ -167,7 +191,7 @@ DalekDrive::ArcadeDrive(GenericHID& stick, bool squaredInputs)
 		return;
 
 	if(m_drive)
-		m_drive->ArcadeDrive(stick.GetY(), stick.GetX(), squaredInputs);
+		m_drive->ArcadeDrive(Normalize(stick.GetY()), Normalize(stick.GetX()), squaredInputs);
 }
 
 void
@@ -179,7 +203,7 @@ DalekDrive::ArcadeDrive(double moveValue, double rotateValue,
 		return;
 
 	if(m_drive)
-		m_drive->ArcadeDrive(moveValue, rotateValue, squaredInputs);
+		m_drive->ArcadeDrive(Normalize(moveValue), Normalize(rotateValue), squaredInputs);
 }
 
 void
@@ -290,8 +314,6 @@ DalekDrive::InitDalekDrive(void)
 		m_rightSlaveMotor->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
 	}
 	inMode = ControlMode::PercentOutput;
-	distanceRemaining = 0.0;
-	degreesRemaining = 0.0;
 }
 
 bool

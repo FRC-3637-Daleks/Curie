@@ -13,6 +13,7 @@
 #include <ctre/Phoenix.h>
 #include <Lifter.h>
 
+
 class Climber {
 	public:
 		enum climbState { PRECLIMB, HOOKDEPLOYED, CLIMBING, HOLDING, NUM_CLIMB_STATES };
@@ -27,6 +28,7 @@ class Climber {
 		void DoClimb();
 		void Hold();
 		void setClimbLimit(int value);
+		float GetHeight();
 
 	private:
 		void InitClimber();

@@ -11,7 +11,8 @@
 // #define USB_CAMERA
 
 #define PCMID 12
-#define IP_CAMERA "10.36.37.33"
+#define IP_CAMERA "10.36.37.34"
+#define INCHES_PER_MILLIVOLTS 0.009
 
 enum Motors {
 	/* Motor Definitions
