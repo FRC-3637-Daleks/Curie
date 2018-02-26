@@ -23,15 +23,15 @@ Step::Step(Commands_t com, double howFar) {
 }
 
 //TODO need to add proximity sensor and check it!
-//     need "distance" passed in/updated
-//     for turning, query IMU to get angle and see if turn complete
 //     for  traveling, how are we determining distance traveled????  IMU, encoders???
+//     do we need the motors passed so can do like we did in Brahe?
+//       or use DalekDrive->GetPosition? but even that needs one of the motors
 AutonState_t
 Step::ExecuteStep(DalekDrive *d, IMU *imu) {
 	AutonState_t state = AutonExecuting;
 	//TODO: how to figure out how far we've traveled?
 	double distanceTraveled = 0.0;
-	double currAngle, diff = 0.0;
+	double currAngle, diff, newdiff = 0.0;
 	double motorPower = 0.5;
 	switch (command) {
 	case DriveItSlow:
@@ -44,10 +44,10 @@ Step::ExecuteStep(DalekDrive *d, IMU *imu) {
 			//if (sensor indicates obstacle) {
 			// state = AutonBlocked;
 			//else
-			if (distance - distanceTraveled < 12.0) {
-
+			if (distance - distanceTraveled > 12.0) {
+				motorPower = 0.5;
 			}
-			  d->SetLeftRightMotorOutputs(motorPower, motorPower);
+			d->SetLeftRightMotorOutputs(motorPower, motorPower);
 		} else {
 			state = AutonComplete;
 		}
@@ -55,15 +55,25 @@ Step::ExecuteStep(DalekDrive *d, IMU *imu) {
 	case TurnIt:
 		motorPower = 0.25;
 		//TODO what kind of measurement does this give? 0-360? what if turn more than 360? did we start at 0?
-		currAngle = imu->GetYaw();
+		currAngle = fmod(imu->GetYaw(), 360.0);
 		diff = angle - currAngle;
+		// We are within tolerance to turn is considered complete
 		if (fabs(diff) < angleDiffLimit) {
 			state = AutonComplete;
-		} else if (fabs(diff) < 180) {
-			//TODO is this the right power? the right way to turn? do we need to check for obstacle while turning?
-			d->SetLeftRightMotorOutputs(motorPower, -motorPower);
 		} else {
-			d->SetLeftRightMotorOutputs(-motorPower, motorPower);
+			if (fabs(diff) > 180) {
+				newdiff = fabs(diff) - 180;
+				if (diff > 0) {
+					diff = newdiff * -1;
+				}
+			}
+			if (diff > 0) {
+			//TODO is this the right power?  do we need to check for obstacle while turning?
+			//     Decrease power if diff is close to 0???
+				d->SetLeftRightMotorOutputs(motorPower, -motorPower);
+			} else {
+				d->SetLeftRightMotorOutputs(-motorPower, motorPower);
+			}
 		}
 		break;
 	case DoNothing:
