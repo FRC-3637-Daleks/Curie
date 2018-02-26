@@ -41,89 +41,68 @@ Elevator::~Elevator()
 void
 Elevator::InitElevator(void)
 {
-	m_lifter->setOperatingMode(Lifter::ELEVATOR_MODE);
-	m_lifter->setTalonMode(Lifter::PERCENT_VBUS);
+	m_lifter->SetOperatingMode(Lifter::ELEVATOR_MODE);
+	m_lifter->SetTalonMode(Lifter::PERCENT_VBUS);
 }
 
 void
 Elevator::InvertElevatorMotor(bool isInverted)
 {
-	if(m_lifter->getOperatingMode() == Lifter::ELEVATOR_MODE)
-		m_lifter->invertMotor(isInverted);
+	if(m_lifter->GetOperatingMode() == Lifter::ELEVATOR_MODE)
+		m_lifter->InvertMotor(isInverted);
 }
 
-double
-Elevator::normalizeValue(double v)
-{
-	// if in %vbus mode, use limit switches.  If in position mode ???
-	if(m_lifter->getTalonMode() == Lifter::PERCENT_VBUS) {
-		if (v > 0.0) {
-			if (m_limitTop->Get() == 1)
-				v = 0.0;
-		}
-		else if (v < 0.0) {
-			if (m_limitBottom->Get() == 1)
-				v = 0.0;
-		}
-		return v;
-	}
-	return v;
-}
 
 void
-Elevator::MoveElevator(double value)
+Elevator::MoveToPosition(double value)
 {
-	double nv = normalizeValue(value);
-
-	if(m_lifter->getOperatingMode() == Lifter::ELEVATOR_MODE)
-		m_lifter->Set(nv);
-}
-
-void
-Elevator::MaintainElevatorPosistion(double value)
-{
-	if(m_lifter->getOperatingMode() == Lifter::ELEVATOR_MODE) {
-		m_lifter->setTalonMode(Lifter::POSITION);
+	if(m_lifter->GetOperatingMode() == Lifter::ELEVATOR_MODE) {
+		if(m_lifter->GetTalonMode() != Lifter::POSITION)
+			m_lifter->SetTalonMode(Lifter::POSITION);
 		m_lifter->Set(value);
 	}
 }
 
 void
-Elevator::Down()
+Elevator::MaintainElevatorPosition(double value)
 {
-	if (m_limitBottom->Get() == 1) {
-		m_lifter->Set(0.2);
-	} else {
-		m_lifter->Set(0.0);
+	if(m_lifter->GetOperatingMode() == Lifter::ELEVATOR_MODE) {
+		if(m_lifter->GetTalonMode() == Lifter::POSITION)
+			m_lifter->Set(value);
 	}
-
-// if you need to do this you add method to expose the pot position
-//	double liftPosition = m_lifter->m_master->GetSelectedSensorPosition(0);
-//	if (liftPosition >= 0.5) {
-//		m_lifter->Set(0.0);
-//	}
-
 }
 
 void
-Elevator::Up()
+Elevator::ManualDown()
 {
-	if (m_limitTop->Get() == 1) {
-		m_lifter->Set(-0.2);
-	} else {
-		m_lifter->Set(0.0);
-	}
-	//double liftPosition = m_lifter->m_master->GetSelectedSensorPosition(0);
+	if(m_lifter->GetOperatingMode() == Lifter::ELEVATOR_MODE)
+		m_lifter->Set(AtBottom() ? ELEVATOR_DOWN_SPEED : 0.0);
+}
 
+void
+Elevator::ManualUp()
+{
+	if(m_lifter->GetOperatingMode() == Lifter::ELEVATOR_MODE)
+		m_lifter->Set(AtTop() ? ELEVATOR_UP_SPEED : 0.0);
 }
 
 void
 Elevator::StopElevator(void)
 {
-	if(m_lifter->getOperatingMode() == Lifter::ELEVATOR_MODE) {
-		//m_lifter->setTalonMode(Lifter::POSITION);
+	if(m_lifter->GetOperatingMode() == Lifter::ELEVATOR_MODE)
 		m_lifter->Set(0.0);
-	}
+}
+
+bool
+Elevator::AtTop()
+{
+	return (m_limitTop->Get() == 0);
+}
+
+bool
+Elevator::AtBottom()
+{
+	return (m_limitBottom->Get() == 0);
 }
 
 void

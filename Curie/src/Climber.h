@@ -13,6 +13,9 @@
 #include <ctre/Phoenix.h>
 #include <Lifter.h>
 
+#define DEPLOYHOOK_POSITION  200
+#define CLIMB_DOWN_SPEED	 0.2
+#define CLIMB_UP_SPEED      -0.2
 
 class Climber {
 	public:
@@ -26,8 +29,11 @@ class Climber {
 		void DeployHook();
 		void DeployBrace();
 		void DoClimb();
+		void ManualUp();
+		void ManualDown();
+		void StopClimbing();
 		void Hold();
-		void setClimbLimit(int value);
+		void SetClimbLimit(int value);
 		float GetHeight();
 
 	private:

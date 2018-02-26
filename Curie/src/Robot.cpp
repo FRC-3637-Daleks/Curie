@@ -34,18 +34,15 @@ public:
 	WPI_TalonSRX *wristMotor, *rollerMotor;
 	WPI_TalonSRX *liftMaster, *liftSlave;
 	AnalogInput	 *ultraLeft,  *ultraRight;
-	Solenoid     *shifter;
+	Solenoid     *shifter, *brace, *lock;
 	AmcrestIPCAM *cam;
 	Joystick     *leftJoystick, *rightJoystick;
 	XboxController *xbox;
 	DalekDrive *drive;
 	Intake     *intake;
-	Climber    *climb;
-	Elevator   *elev;
 	Lifter     *lift;
 	IMU		   *imu;
 	AHRS       *ahrs;
-
 
 	void
 	RobotInit()
@@ -75,15 +72,15 @@ public:
 		ultraLeft     = new AnalogInput(UltrasonicLeft);
 		ultraRight    = new AnalogInput(UltrasonicRight);
 		cam           = new AmcrestIPCAM(IP_CAMERA, 0, 1);
-
 #ifdef PRACTICE_BOT
 		drive         = new DalekDrive(leftMotor, rightMotor);
 #else
 		shifter       = new Solenoid(PCMID, Shifter);
+		brace         = new Solenoid(PCMID, Brace);
+		lock          = new Solenoid(PCMID, Lock);
 		drive         = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
-		lift          = new Lifter(liftMaster, liftSlave, shifter);
-		climb         = new Climber(lift, Brace, Lock, UltrasonicClimb);
-		elev          = new Elevator(lift, ElevatorLowerLimit, ElevatorUpperLimit);
+		lift          = new Lifter(liftMaster, liftSlave, shifter, brace, lock,
+								LiftLowerLimit, LiftUpperLimit, UltrasonicClimb);
 #endif
 		autoLocation.AddDefault("Left", LEFT_POSITION);
 		autoLocation.AddObject("Center", CENTER_POSITION);
@@ -99,7 +96,8 @@ public:
 
 		intake->Start();
 		imu->Start();
-		lift->setTalonMode(Lifter::PERCENT_VBUS);
+		if(!lift->AtBottom())
+			lift->MoveToBottom();
 	}
 
 	void
@@ -135,12 +133,31 @@ public:
 		}
 		else
 			autotgt = 0;
+		autoCount = 0;
 	}
 
 	void
 	AutonomousPeriodic()
 	{
-		drive->SetLeftRightMotorOutputs(0.0, 0.0);
+		bool ObjectDetected;
+		double ld, rd;
+
+		ld = ultraLeft->GetVoltage()*INCHES_PER_VOLTS;
+		rd = ultraRight->GetVoltage()*INCHES_PER_VOLTS;
+		ObjectDetected = (ld < 10.0 || rd < 10.0);
+
+		drive->TankDrive(-0.6, -0.6);
+
+		frc::SmartDashboard::PutNumber("Left Drive Velocity",
+				drive->GetVelocity(Motors::LeftDriveMotor));
+		frc::SmartDashboard::PutNumber("Right Drive Velocity",
+				drive->GetVelocity(Motors::RightDriveMotor));
+		frc::SmartDashboard::PutNumber("Left Drive Distance",
+				drive->GetPosition(Motors::LeftDriveMotor));
+		frc::SmartDashboard::PutNumber("Right Drive Distance",
+				drive->GetPosition(Motors::RightDriveMotor));
+		frc::SmartDashboard::PutBoolean("Object in Path", ObjectDetected);
+		frc::SmartDashboard::PutNumber("Heading", ahrs->GetFusedHeading());
 	}
 
 	void
@@ -181,25 +198,26 @@ public:
 
 		//Climber Controls (Start:Climb, Back:Hold, LeftStick:Hook, RightStick:Wing)
 		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kLeftHand)) {
-			climb->DeployBrace();
+			lift->DeployBrace();
 		} else if (xbox->GetStartButtonPressed()) {
-			climb->DoClimb();
+			lift->InitiateClimb();
 		} else if (xbox->GetBackButtonPressed()) {
-			climb->Hold();
+			lift->HoldPosition();
 		}
 
 		if (xbox->GetBumperPressed(frc::GenericHID::JoystickHand::kLeftHand)) {
-			lift->setOperatingMode(Lifter::ELEVATOR_MODE);
+			lift->SetOperatingMode(Lifter::ELEVATOR_MODE);
 		} else if (xbox->GetBumperPressed(frc::GenericHID::JoystickHand::kRightHand)) {
-			lift->setOperatingMode(Lifter::CLIMBING_MODE);
+			lift->SetOperatingMode(Lifter::CLIMBING_MODE);
 		}
 
+		// manual control of elevator & climber
 		if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand) > 0.05) {
-			elev->Down();
+			lift->ManualDown();
 		} else if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand) > 0.05) {
-			elev->Up();
+			lift->ManualUp();
 		} else  {
-			elev->StopElevator();
+			lift->Stop();
 		}
 
 		if(leftJoystick->GetTrigger())
@@ -218,15 +236,19 @@ public:
 	void UpdateDashboard()
 	{
 		frc::SmartDashboard::PutNumber("Elevator Position",
-				lift->getAnalogPos());
+				lift->GetPosition());
+		frc::SmartDashboard::PutNumber("Elevator Velocity",
+				lift->GetVelocity());
+
 		frc::SmartDashboard::PutNumber("Left Drive Velocity",
 				drive->GetVelocity(Motors::LeftDriveMotor));
 		frc::SmartDashboard::PutNumber("Right Drive Velocity",
 				drive->GetVelocity(Motors::RightDriveMotor));
+
 		frc::SmartDashboard::PutNumber("Left Distance",
-				ultraLeft->GetVoltage()/INCHES_PER_MILLIVOLTS);
+				ultraLeft->GetVoltage()*INCHES_PER_VOLTS);
 		frc::SmartDashboard::PutNumber("Right Distance",
-				ultraRight->GetVoltage()/INCHES_PER_MILLIVOLTS);
+				ultraRight->GetVoltage()*INCHES_PER_VOLTS);
 	}
 
 private:
@@ -237,6 +259,7 @@ private:
 	std::string gameData;
 	int autoloc;
 	int autotgt;
+	int autoCount;
 };
 
 START_ROBOT_CLASS(Robot)

@@ -57,7 +57,7 @@ Climber::~Climber()
 }
 
 void
-Climber::setClimbLimit(int newLimit)
+Climber::SetClimbLimit(int newLimit)
 {
 	m_climbLimit = newLimit;
 }
@@ -66,6 +66,27 @@ void
 Climber::InitClimber(void)
 {
 	state = PRECLIMB;
+}
+
+void
+Climber::ManualDown()
+{
+	if(m_lifter->GetOperatingMode() == Lifter::CLIMBING_MODE)
+		m_lifter->Set(CLIMB_DOWN_SPEED);
+}
+
+void
+Climber::ManualUp()
+{
+	if(m_lifter->GetOperatingMode() == Lifter::CLIMBING_MODE)
+		m_lifter->Set(CLIMB_UP_SPEED);
+}
+
+void
+Climber::StopClimbing(void)
+{
+	if(m_lifter->GetOperatingMode() == Lifter::CLIMBING_MODE)
+		m_lifter->Set(0.0);
 }
 
 void
@@ -84,21 +105,20 @@ Climber::DeployBrace(void)
 float
 Climber::GetHeight()
 {
-	return (m_ultra->GetVoltage()/INCHES_PER_MILLIVOLTS);
+	return (m_ultra->GetVoltage()*INCHES_PER_VOLTS);
 }
 
 void
 Climber::DoClimb(void)
 {
-	//if (time is in last 30 seconds of Teleop && (state == HOOKDEPLOYED || state == CLIMBING))
 	state = CLIMBING;
-	m_lifter->setOperatingMode(Lifter::CLIMBING_MODE);
-	m_lifter->setTalonMode(Lifter::PERCENT_VBUS);
+	m_lifter->SetOperatingMode(Lifter::CLIMBING_MODE);
+	m_lifter->SetTalonMode(Lifter::PERCENT_VBUS);
 	if( GetHeight() > m_climbLimit) {
 		Hold();
 	}
 	else
-		m_lifter->Set(0.5);
+		m_lifter->Set(CLIMB_UP_SPEED);
 }
 
 void

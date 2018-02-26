@@ -9,6 +9,7 @@
 #include <ctre/Phoenix.h>
 #include <Lifter.h>
 
+
 class Elevator {
 public:
 	enum elevPos {SWITCH, SCALE, BASE_POS, MAX_HIGH, MAX_LOW};
@@ -17,11 +18,13 @@ public:
 	Elevator(Lifter &lift, int limitTop, int limitBottom);
 	~Elevator();
 
-	void MoveElevator(double value);
-	void MaintainElevatorPosistion(double value);
+	void MoveToPosition(double value);
+	void MaintainElevatorPosition(double value);
 	void InvertElevatorMotor(bool isInverted);
-	void Up();
-	void Down();
+	void ManualDown();
+	void ManualUp();
+	bool AtTop();
+	bool AtBottom();
 	void SetP(double p);
 	void SetI(double i);
 	void SetD(double d);
@@ -29,7 +32,6 @@ public:
 
 private:
 	void InitElevator();
-	double normalizeValue(double v);
 	Lifter *m_lifter;
 	DigitalInput *m_limitTop;
 	DigitalInput *m_limitBottom;

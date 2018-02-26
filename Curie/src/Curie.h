@@ -12,7 +12,7 @@
 
 #define PCMID 12
 #define IP_CAMERA "10.36.37.34"
-#define INCHES_PER_MILLIVOLTS 0.009
+#define INCHES_PER_VOLTS 40.33
 
 enum Motors {
 	/* Motor Definitions
@@ -23,8 +23,8 @@ enum Motors {
 	WristMotor      = 5,
 	RollerMotor     = 6,
 #else
-	LeftDriveMotor  = 5,
-	LeftSlaveMotor  = 4,
+	LeftDriveMotor  = 4,
+	LeftSlaveMotor  = 5,
 	RightDriveMotor = 7,
 	RightSlaveMotor = 8,
 	WristMotor      = 1,
@@ -50,8 +50,8 @@ enum Solenoids {
 };
 
 enum DigitalIO {
-	ElevatorLowerLimit = 0,
-	ElevatorUpperLimit = 1,
+	LiftLowerLimit = 0,
+	LiftUpperLimit = 1,
 	IntakeLowerLimit   = 2,
 	IntakeUpperLimit   = 3,
 };
