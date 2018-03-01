@@ -1,10 +1,3 @@
-/*
- * Lifter.cpp
- *
- *  Created on: Feb. 10, 2018
- *      Author: Michael
- */
-
 #include <Curie.h>
 #include <WPILib.h>
 #include <ctre/Phoenix.h>
@@ -114,7 +107,7 @@ Lifter::initLifter()
 	m_slave->Set(ControlMode::Follower, m_master->GetDeviceID());
 	m_slave->SetInverted(true);
 	m_slave->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
-	m_shifter->Set(true);
+	m_shifter->Set(ELEVATOR_MODE);
 	if(AtBottom())
 		ZeroPosition();
 	return;
@@ -131,7 +124,8 @@ Lifter::InvertMotor(bool invert)
 void
 Lifter::ZeroPosition()
 {
-	// zero encoder, and set ready to do position control
+	//Zero encoder, and set ready to do position control
+	//Look up SetSelectedSensorPosition (Talon XRS)
 	m_master->SetSelectedSensorPosition(0, PIDLoopIdx, CANTimeoutMs);
 	m_ready = true;
 }
@@ -185,11 +179,11 @@ Lifter::SetOperatingMode(opMode_t newMode)
 	switch(newMode) {
 	case ELEVATOR_MODE:
 		m_omode = newMode;
-		m_shifter->Set(true);
+		m_shifter->Set(false);
 		break;
 	case CLIMBING_MODE:
 		m_omode = newMode;
-		m_shifter->Set(false);
+		m_shifter->Set(true);
 		break;
 	default:
 		break;
@@ -233,13 +227,15 @@ Lifter::GetTalonMode()
 int
 Lifter::GetPosition()
 {
-	return m_master->GetSensorCollection().GetQuadraturePosition();
+	//Abs value of encoder position becuase motor is inverted
+	return abs(m_master->GetSensorCollection().GetQuadraturePosition());
 }
 
 double
 Lifter::GetVelocity()
 {
-	return m_master->GetSensorCollection().GetQuadratureVelocity();
+	//Changed the velocity values when going up (positive value) and down (negative value)
+	return (m_master->GetSensorCollection().GetQuadratureVelocity()*-1);
 }
 
 void

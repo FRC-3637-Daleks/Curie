@@ -1,10 +1,3 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2017-2018 FIRST. All Rights Reserved.                        */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
-
 #include <iostream>
 #include <string>
 
@@ -212,9 +205,10 @@ public:
 		}
 
 		// manual control of elevator & climber
-		if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand) > 0.05) {
+		//Switched Right and left hand, this was only for testing
+		if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand) > 0.05) {
 			lift->ManualDown();
-		} else if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand) > 0.05) {
+		} else if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand) > 0.05) {
 			lift->ManualUp();
 		} else  {
 			lift->Stop();

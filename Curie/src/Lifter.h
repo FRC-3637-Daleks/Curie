@@ -1,10 +1,3 @@
-/*
- * Lifter.h
- *
- *  Created on: Feb 10, 2018
- *      Author: Michael
- */
-
 #ifndef _LIFTER_H_
 #define _LIFTER_H_
 
@@ -22,8 +15,8 @@
 #define ELEVATOR_DOWN_SPEED 0.2
 
 #define DEPLOYHOOK_POSITION  200
-#define CLIMB_DOWN_SPEED	 0.2
-#define CLIMB_UP_SPEED      -0.2
+#define CLIMB_DOWN_SPEED	 -0.2
+#define CLIMB_UP_SPEED      0.2
 #define DEFAULT_CLIMB_HEIGHT 15
 
 class Lifter {
