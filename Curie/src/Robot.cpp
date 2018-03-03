@@ -36,6 +36,7 @@ public:
 	Lifter     *lift;
 	IMU		   *imu;
 	AHRS       *ahrs;
+	Elevator   *elev;
 
 	void
 	RobotInit()
@@ -74,6 +75,7 @@ public:
 		drive         = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
 		lift          = new Lifter(liftMaster, liftSlave, shifter, brace, lock,
 								LiftLowerLimit, LiftUpperLimit, UltrasonicClimb);
+		elev          = new Elevator(lift, LiftLowerLimit, LiftUpperLimit);
 #endif
 		autoLocation.AddDefault("Left", LEFT_POSITION);
 		autoLocation.AddObject("Center", CENTER_POSITION);
@@ -207,11 +209,15 @@ public:
 		// manual control of elevator & climber
 		//Switched Right and left hand, this was only for testing
 		if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand) > 0.05) {
-			lift->ManualDown();
-		} else if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand) > 0.05) {
 			lift->ManualUp();
+		} else if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand) > 0.05) {
+			lift->ManualDown();
 		} else  {
 			lift->Stop();
+		}
+
+		if (elev->AtBottom()) {
+			lift->ZeroPosition();
 		}
 
 		if(leftJoystick->GetTrigger())
@@ -240,9 +246,22 @@ public:
 				drive->GetVelocity(Motors::RightDriveMotor));
 
 		frc::SmartDashboard::PutNumber("Left Distance",
-				ultraLeft->GetVoltage()*INCHES_PER_VOLTS);
+		//		ultraLeft->GetVoltage()*INCHES_PER_VOLTS);
+				drive->GetPosition(LeftDriveMotor));
 		frc::SmartDashboard::PutNumber("Right Distance",
-				ultraRight->GetVoltage()*INCHES_PER_VOLTS);
+		//		ultraRight->GetVoltage()*INCHES_PER_VOLTS);
+				drive->GetPosition(RightDriveMotor));
+
+		frc::SmartDashboard::PutNumber("ElevUpSpeed",
+				ELEVATOR_UP_SPEED);
+		frc::SmartDashboard::PutNumber("ElevDownSpeed",
+				ELEVATOR_DOWN_SPEED);
+
+		frc::SmartDashboard::PutNumber("AtBottom",
+				lift->AtBottom());
+		frc::SmartDashboard::PutNumber("AtTop",
+				lift->AtTop());
+
 	}
 
 private:
