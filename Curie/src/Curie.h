@@ -50,8 +50,8 @@ enum Solenoids {
 };
 
 enum DigitalIO {
-	LiftLowerLimit = 0,
-	LiftUpperLimit = 1,
+	LiftLowerLimit = 1,
+	LiftUpperLimit = 0,
 	IntakeLowerLimit   = 2,
 	IntakeUpperLimit   = 3,
 };
@@ -95,7 +95,5 @@ enum CANConstants {
 
 #define RPM_THRESHOLD 300
 #define RAMP_RATE 0.2
-#define LEFT_MOTOR_ADJUSTMENT 0.5
-#define RIGHT_MOTOR_ADJUSTMENT 0.4825
 
 #endif /* _CURIE_H_ */
