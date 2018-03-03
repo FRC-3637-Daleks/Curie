@@ -199,6 +199,7 @@ Lifter::GetOperatingMode()
 void
 Lifter::Set(double value)
 {
+	m_slave->Set(ControlMode::Follower, 3);
 	switch(m_tmode) {
 	case PERCENT_VBUS:
 		m_master->Set(ControlMode::PercentOutput, value);

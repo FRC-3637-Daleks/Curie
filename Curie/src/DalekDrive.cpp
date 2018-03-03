@@ -274,7 +274,7 @@ DalekDrive::GetPosition(MotorType_t motor)
 double
 DalekDrive::GetDistance()
 {
-	double ave_ticks = (m_leftMotor->GetSensorCollection().GetQuadraturePosition() +
+	double ave_ticks = ((m_leftMotor->GetSensorCollection().GetQuadraturePosition()*-1) +
 							m_rightMotor->GetSensorCollection().GetQuadraturePosition()) / 2.0;
 	return ave_ticks / ENCODER_TICKS_PER_INCH;
 

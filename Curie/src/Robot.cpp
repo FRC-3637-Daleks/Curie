@@ -36,7 +36,6 @@ public:
 	Lifter     *lift;
 	IMU		   *imu;
 	AHRS       *ahrs;
-	Elevator   *elev;
 
 	void
 	RobotInit()
@@ -75,7 +74,6 @@ public:
 		drive         = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
 		lift          = new Lifter(liftMaster, liftSlave, shifter, brace, lock,
 								LiftLowerLimit, LiftUpperLimit, UltrasonicClimb);
-		elev          = new Elevator(lift, LiftLowerLimit, LiftUpperLimit);
 #endif
 		autoLocation.AddDefault("Left", LEFT_POSITION);
 		autoLocation.AddObject("Center", CENTER_POSITION);
@@ -216,8 +214,9 @@ public:
 			lift->Stop();
 		}
 
-		if (elev->AtBottom()) {
-			lift->ZeroPosition();
+		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kRightHand)) {
+			lift->SetTalonMode(Lifter::POSITION);
+			lift->Set(5500);
 		}
 
 		if(leftJoystick->GetTrigger())
@@ -261,6 +260,9 @@ public:
 				lift->AtBottom());
 		frc::SmartDashboard::PutNumber("AtTop",
 				lift->AtTop());
+
+		frc::SmartDashboard::PutNumber("Distance",
+				drive->GetDistance());
 
 	}
 
