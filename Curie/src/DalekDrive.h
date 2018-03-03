@@ -50,6 +50,7 @@ class DalekDrive {
 	bool Turn(double degrees);
 	bool Travel(double distance);
 	int  GetPosition(MotorType_t motor);
+	double GetDistance();
 	int  GetVelocity(MotorType_t motor);
 	void SetPrecisionMode(bool v);
 	bool DriveOk();

@@ -30,7 +30,8 @@ AutonState_t
 Step::ExecuteStep(DalekDrive *d, IMU *imu) {
 	AutonState_t state = AutonExecuting;
 	//TODO: how to figure out how far we've traveled?
-	double distanceTraveled = 0.0;
+	// What kind of measurement is this giving us?
+	double distanceTraveled = d->GetPosition(LeftDriveMotor);
 	double currAngle, diff, newdiff = 0.0;
 	double motorPower = 0.5;
 	switch (command) {

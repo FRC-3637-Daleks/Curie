@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <cstddef>
+#include <Curie.h>
 #include <Step.h>
 
 enum TargetType {

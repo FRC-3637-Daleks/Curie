@@ -15,6 +15,12 @@ SimplePath::SimplePath(size_t len) {
 SimplePath::SimplePath(StartPositions_t start, TargetType_t target){
 	state=AutonWaiting;
 	switch(target) {
+	case BaseLine :
+		steps.reserve(1);
+		//Baseline is 120 inches from driver station wall, so give 10 inch allowance to make sure we cross it
+		//but have to subtract robot depth as only front of robot needs to cross
+		AddStep(Step(DriveIt,130.0 - ROBOT_BASE_DEPTH));
+		break;
 	case LeftSwitch :
 		switch(start) {
 		case(Left) :
@@ -29,21 +35,21 @@ SimplePath::SimplePath(StartPositions_t start, TargetType_t target){
 			break;
 		}
 		break;
-		case RightSwitch :
-			switch(start) {
-			case(Right) :
-				steps.reserve(3);
-				//Distance to travel = distance to fence + 1/2 depth of switch
-				//distance = 140" + 1/2(56") = 168"
-				AddStep(Step(DriveIt,168.0));
-				AddStep(Step(TurnIt, 270.0));
-				AddStep(Step(DriveItSlow,12.0));
-				break;
-			default:
-				break;
-			}
-			break;	default:
-		break;
+	case RightSwitch :
+		switch(start) {
+		case(Right) :
+			steps.reserve(3);
+			//Distance to travel = distance to fence + 1/2 depth of switch
+			//distance = 140" + 1/2(56") = 168"
+			AddStep(Step(DriveIt,168.0));
+			AddStep(Step(TurnIt, 270.0));
+			AddStep(Step(DriveItSlow,12.0));
+			break;
+		default:
+			break;
+		}
+		break;	default:
+	break;
 	}
 }
 
