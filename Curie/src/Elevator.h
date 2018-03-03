@@ -39,12 +39,3 @@ private:
 };
 
 #endif /* SRC_ELEVATOR_H_ */
-
-
-
-
-
-
-
-
-

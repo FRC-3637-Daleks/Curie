@@ -229,6 +229,7 @@ Lifter::GetPosition()
 {
 	//Abs value of encoder position becuase motor is inverted
 	return abs(m_master->GetSensorCollection().GetQuadraturePosition());
+	//return m_master->GetSensorCollection().GetQuadraturePosition();
 }
 
 double
