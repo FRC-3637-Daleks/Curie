@@ -11,8 +11,6 @@
 #include <Curie.h>
 #include <Lifter.h>
 #include <Intake.h>
-#include <Climber.h>
-#include <Elevator.h>
 #include <Amcrest.h>
 #include <IMU.h>
 
