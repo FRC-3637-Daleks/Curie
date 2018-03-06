@@ -31,13 +31,17 @@ Step::ExecuteStep(DalekDrive *d, IMU *imu) {
 	AutonState_t state = AutonExecuting;
 	//TODO: how to figure out how far we've traveled?
 	// What kind of measurement is this giving us?
-	double distanceTraveled = d->GetPosition(LeftDriveMotor);
+	double distanceTraveled = d->GetDistance();
 	double currAngle, diff, newdiff = 0.0;
 	double motorPower = 0.5;
 	switch (command) {
 	case DriveItSlow:
 		motorPower = 0.25;
 	case DriveIt:
+		frc::SmartDashboard::PutNumber("Driveit: dist trav",
+						distanceTraveled);
+		frc::SmartDashboard::PutNumber("Driveit: dist targ",
+						distance);
 		//TODO: how to figure out how far we've traveled?
 		// distanceTraveled = ??;
 		//check if we've reached target distance for this step
@@ -48,9 +52,10 @@ Step::ExecuteStep(DalekDrive *d, IMU *imu) {
 			if (distance - distanceTraveled > 12.0) {
 				motorPower = 0.5;
 			}
-			d->SetLeftRightMotorOutputs(motorPower, motorPower);
+			d->TankDrive(-1 * motorPower * AUTON_DRIFT_CORRECTION, -1 * motorPower);
 		} else {
 			state = AutonComplete;
+			d->TankDrive(0.0, 0.0);
 		}
 		break;
 	case TurnIt:
@@ -71,9 +76,9 @@ Step::ExecuteStep(DalekDrive *d, IMU *imu) {
 			if (diff > 0) {
 			//TODO is this the right power?  do we need to check for obstacle while turning?
 			//     Decrease power if diff is close to 0???
-				d->SetLeftRightMotorOutputs(motorPower, -motorPower);
+				d->TankDrive(-1 * motorPower, motorPower);
 			} else {
-				d->SetLeftRightMotorOutputs(-motorPower, motorPower);
+				d->TankDrive(motorPower, -1 * motorPower);
 			}
 		}
 		break;
@@ -100,4 +105,3 @@ Step::Turn (double angle){
 Step::~Step() {
 	// TODO Auto-generated destructor stub
 }
-

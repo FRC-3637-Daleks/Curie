@@ -10,7 +10,6 @@
 
 #define PCMID 12
 #define IP_CAMERA "10.36.37.34"
-#define ENCODER_TICKS_PER_INCH 215
 #define INCHES_PER_VOLTS 40.33
 
 enum Motors {
@@ -84,12 +83,15 @@ enum CANConstants {
 #define ENCODER_TICKS_PER_REV 4096
 #define WHEEL_DIAMETER_INCHES 6.0
 #define AT_WHEEL_RATIO (26.0/22.0)
+#define ENCODER_TICKS_PER_INCH 205
+#define AUTON_DRIFT_CORRECTION 1.07
+
 
 #define RPM_THRESHOLD 300
 #define RAMP_RATE 0.2
 
 //Depth front to back of robot base (in inches)
-#define ROBOT_BASE_DEPTH 36.0
+#define ROBOT_BASE_DEPTH 32.0
 
 
 #endif /* _CURIE_H_ */

@@ -19,7 +19,7 @@ SimplePath::SimplePath(StartPositions_t start, TargetType_t target){
 		steps.reserve(1);
 		//Baseline is 120 inches from driver station wall, so give 10 inch allowance to make sure we cross it
 		//but have to subtract robot depth as only front of robot needs to cross
-		AddStep(Step(DriveIt,130.0 - ROBOT_BASE_DEPTH));
+		AddStep(Step(DriveIt,125.0 - ROBOT_BASE_DEPTH));
 		break;
 	case LeftSwitch :
 		switch(start) {
@@ -48,8 +48,9 @@ SimplePath::SimplePath(StartPositions_t start, TargetType_t target){
 		default:
 			break;
 		}
-		break;	default:
-	break;
+		break;
+	default:
+		break;
 	}
 }
 
@@ -96,4 +97,3 @@ SimplePath::RunPath(DalekDrive *d, IMU *imu)
 SimplePath::~SimplePath() {
 	// TODO Auto-generated destructor stub
 }
-
