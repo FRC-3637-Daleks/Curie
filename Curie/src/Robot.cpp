@@ -38,17 +38,12 @@ public:
 	void
 	RobotInit()
 	{
-#ifdef PRACTICE_BOT
-		leftMotor     = new WPI_TalonSRX(LeftDriveMotor);
-		rightMotor    = new WPI_TalonSRX(RightDriveMotor);
-#else
 		leftMotor     = new WPI_TalonSRX(LeftDriveMotor);
 		leftSlave     = new WPI_TalonSRX(LeftSlaveMotor);
 		rightMotor    = new WPI_TalonSRX(RightDriveMotor);
 		rightSlave    = new WPI_TalonSRX(RightSlaveMotor);
 		liftMaster    = new WPI_TalonSRX(LiftMasterMotor);
 		liftSlave     = new WPI_TalonSRX(LiftSlaveMotor);
-#endif
 		wristMotor    = new WPI_TalonSRX(WristMotor);
 		rollerMotor   = new WPI_TalonSRX(RollerMotor);
 
@@ -63,16 +58,13 @@ public:
 		ultraLeft     = new AnalogInput(UltrasonicLeft);
 		ultraRight    = new AnalogInput(UltrasonicRight);
 		cam           = new AmcrestIPCAM(IP_CAMERA, 0, 1);
-#ifdef PRACTICE_BOT
-		drive         = new DalekDrive(leftMotor, rightMotor);
-#else
 		shifter       = new Solenoid(PCMID, Shifter);
 		brace         = new Solenoid(PCMID, Brace);
 		lock          = new Solenoid(PCMID, Lock);
 		drive         = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
 		lift          = new Lifter(liftMaster, liftSlave, shifter, brace, lock,
 								LiftLowerLimit, LiftUpperLimit, UltrasonicClimb);
-#endif
+
 		autoLocation.AddDefault("Left", LEFT_POSITION);
 		autoLocation.AddObject("Center", CENTER_POSITION);
 		autoLocation.AddObject("Right", RIGHT_POSITION);
@@ -87,8 +79,6 @@ public:
 
 		intake->Start();
 		imu->Start();
-		if(!lift->AtBottom())
-			lift->MoveToBottom();
 	}
 
 	void
@@ -154,7 +144,8 @@ public:
 	void
 	TeleopInit()
 	{
-
+		if(!lift->AtBottom())
+			lift->MoveToBottom();
 	}
 
 	void TeleopPeriodic()

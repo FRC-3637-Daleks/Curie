@@ -228,7 +228,7 @@ Lifter::GetTalonMode()
 int
 Lifter::GetPosition()
 {
-	//Abs value of encoder position becuase motor is inverted
+	//Abs value of encoder position because motor is inverted
 	return abs(m_master->GetSensorCollection().GetQuadraturePosition());
 	//return m_master->GetSensorCollection().GetQuadraturePosition();
 }
