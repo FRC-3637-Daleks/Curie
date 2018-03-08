@@ -9,7 +9,7 @@
 #define _CURIE_H_
 
 #define PCMID 12
-#define IP_CAMERA "10.36.37.34"
+#define IP_CAMERA "10.36.37.11"
 #define INCHES_PER_VOLTS 40.33
 
 enum Motors {
