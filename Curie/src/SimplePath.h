@@ -11,6 +11,7 @@
 #include <vector>
 #include <cstddef>
 #include <Curie.h>
+#include <AHRS.h>
 #include <Step.h>
 
 enum TargetType {
@@ -42,7 +43,8 @@ public:
 	virtual ~SimplePath();
 	void AddStep(Step newStep);
 	//TODO need to add proximity sensor!
-	AutonState_t RunPath(DalekDrive *d, IMU *imu);
+	AutonState_t RunPath(DalekDrive *d, AHRS *ahrs);
+
 private:
 	std::vector<Step> steps;
 	AutonState_t state;

@@ -8,7 +8,7 @@
 #ifndef STEP_H_
 #define STEP_H_
 
-#include <IMU.h>
+#include <AHRS.h>
 #include <DalekDrive.h>
 #include <math.h>
 
@@ -40,7 +40,7 @@ public:
 	Step();
 	Step(Commands_t com, double howFar);
 	//TODO need to add proximity sensor!
-	AutonState_t ExecuteStep(DalekDrive *d, IMU *imu);
+	AutonState_t ExecuteStep(DalekDrive *d, AHRS *ahrs);
 	virtual ~Step();
 private:
 	Commands_t command;

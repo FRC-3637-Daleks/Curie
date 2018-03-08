@@ -4,16 +4,19 @@
  *  Created on: Feb 8, 2018
  *      Author: FLL2
  */
-
+#include "WPILib.h"
+#include "SimplePath.h"
 #include "Step.h"
 
-Step::Step() {
+Step::Step()
+{
 	command = DoNothing;
 	distance = 0.0;
 	angle = 0.0;
 }
 
-Step::Step(Commands_t com, double howFar) {
+Step::Step(Commands_t com, double howFar)
+{
 	command = com;
 	if (command == DriveIt) {
 		distance = howFar;
@@ -27,13 +30,15 @@ Step::Step(Commands_t com, double howFar) {
 //     do we need the motors passed so can do like we did in Brahe?
 //       or use DalekDrive->GetPosition? but even that needs one of the motors
 AutonState_t
-Step::ExecuteStep(DalekDrive *d, IMU *imu) {
+Step::ExecuteStep(DalekDrive *d, AHRS *ahrs)
+{
 	AutonState_t state = AutonExecuting;
 	//TODO: how to figure out how far we've traveled?
 	// What kind of measurement is this giving us?
 	double distanceTraveled = d->GetDistance();
 	double currAngle, diff, newdiff = 0.0;
 	double motorPower = 0.5;
+
 	switch (command) {
 	case DriveItSlow:
 		motorPower = 0.25;
@@ -52,7 +57,7 @@ Step::ExecuteStep(DalekDrive *d, IMU *imu) {
 			if (distance - distanceTraveled > 12.0) {
 				motorPower = 0.5;
 			}
-			d->TankDrive(-1 * motorPower * AUTON_DRIFT_CORRECTION, -1 * motorPower);
+			d->TankDrive(-1 * motorPower, -1 * motorPower);
 		} else {
 			state = AutonComplete;
 			d->TankDrive(0.0, 0.0);
@@ -61,7 +66,7 @@ Step::ExecuteStep(DalekDrive *d, IMU *imu) {
 	case TurnIt:
 		motorPower = 0.25;
 		//TODO what kind of measurement does this give? 0-360? what if turn more than 360? did we start at 0?
-		currAngle = fmod(imu->GetYaw(), 360.0);
+		currAngle = fmod(ahrs->GetYaw(), 360.0);
 		diff = angle - currAngle;
 		// We are within tolerance to turn is considered complete
 		if (fabs(diff) < angleDiffLimit) {
@@ -91,17 +96,20 @@ Step::ExecuteStep(DalekDrive *d, IMU *imu) {
 }
 
 bool
-Step::Travel(double dist) {
+Step::Travel(double dist)
+{
 	bool success = true;
 	return success;
 }
 
 bool
-Step::Turn (double angle){
+Step::Turn (double angle)
+{
 	bool success = true;
 	return success;
 }
 
-Step::~Step() {
+Step::~Step()
+{
 	// TODO Auto-generated destructor stub
 }

@@ -6,15 +6,13 @@
 #include <SmartDashboard/SendableChooser.h>
 #include <SmartDashboard/SmartDashboard.h>
 #include <TimedRobot.h>
+#include <AHRS.h>
 #include <ctre/Phoenix.h>
 #include <DalekDrive.h>
 #include <Curie.h>
 #include <Lifter.h>
 #include <Intake.h>
-#include <Climber.h>
-#include <Elevator.h>
 #include <Amcrest.h>
-#include <IMU.h>
 #include <SimplePath.h>
 
 using namespace std;
@@ -35,7 +33,6 @@ public:
 	DalekDrive *drive;
 	Intake     *intake;
 	Lifter     *lift;
-	IMU		   *imu;
 	AHRS       *ahrs;
 	SimplePath *autonPath;
 
@@ -58,7 +55,6 @@ public:
 		intake        = new Intake(WristMotor, RollerMotor, IntakeLowerLimit,
 								   IntakeUpperLimit);
 		ahrs          = new AHRS(SPI::Port::kMXP);
-		imu           = new IMU(ahrs);
 		ultraLeft     = new AnalogInput(UltrasonicLeft);
 		ultraRight    = new AnalogInput(UltrasonicRight);
 		cam           = new AmcrestIPCAM(IP_CAMERA, 0, 1);
@@ -82,7 +78,6 @@ public:
 				&autoTarget);
 
 		intake->Start();
-		imu->Start();
 	}
 
 	void
@@ -120,37 +115,17 @@ public:
 			autotgt = BaseLine;
 		autonPath = new SimplePath(autoloc, autotgt);
 		autoCount = 0;
-
-
-
 	}
 
 	void
 	AutonomousPeriodic()
 	{
-		//bool ObjectDetected;
-		//double ld, rd;
-
-		//ld = ultraLeft->GetVoltage()*INCHES_PER_VOLTS;
-		//rd = ultraRight->GetVoltage()*INCHES_PER_VOLTS;
-		//ObjectDetected = (ld < 10.0 || rd < 10.0);
-
-
-		autonPath->RunPath(drive,imu);
-
-		/*
-		frc::SmartDashboard::PutNumber("Left Drive Velocity",
-				drive->GetVelocity(Motors::LeftDriveMotor));
-		frc::SmartDashboard::PutNumber("Right Drive Velocity",
-				drive->GetVelocity(Motors::RightDriveMotor));
-		*/
+		autonPath->RunPath(drive, ahrs);
 		frc::SmartDashboard::PutNumber("Drive Distance",
 				drive->GetDistance());
 		frc::SmartDashboard::PutNumber("autoCount",
 				autoCount);
 		autoCount++;
-		//frc::SmartDashboard::PutBoolean("Object in Path", ObjectDetected);
-		//frc::SmartDashboard::PutNumber("Heading", ahrs->GetFusedHeading());
 	}
 
 	void
@@ -246,10 +221,8 @@ public:
 				drive->GetVelocity(Motors::RightDriveMotor));
 
 		frc::SmartDashboard::PutNumber("Left Distance",
-		//		ultraLeft->GetVoltage()*INCHES_PER_VOLTS);
 				drive->GetPosition(LeftDriveMotor));
 		frc::SmartDashboard::PutNumber("Right Distance",
-		//		ultraRight->GetVoltage()*INCHES_PER_VOLTS);
 				drive->GetPosition(RightDriveMotor));
 
 		frc::SmartDashboard::PutNumber("ElevUpSpeed",

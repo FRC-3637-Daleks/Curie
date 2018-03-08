@@ -7,12 +7,14 @@
 
 #include "SimplePath.h"
 
-SimplePath::SimplePath(size_t len) {
+SimplePath::SimplePath(size_t len)
+{
 	steps.reserve(len);
 	state=AutonWaiting;
 }
 
-SimplePath::SimplePath(StartPositions_t start, TargetType_t target){
+SimplePath::SimplePath(StartPositions_t start, TargetType_t target)
+{
 	state=AutonWaiting;
 	switch(target) {
 	case BaseLine :
@@ -63,7 +65,7 @@ SimplePath::AddStep(Step newStep)
 //TODO need to add proximity sensor!
 
 AutonState_t
-SimplePath::RunPath(DalekDrive *d, IMU *imu)
+SimplePath::RunPath(DalekDrive *d, AHRS *ahrs)
 {
 	switch (state) {
 	case AutonWaiting:
@@ -75,7 +77,7 @@ SimplePath::RunPath(DalekDrive *d, IMU *imu)
 		break;
 	case AutonExecuting:
 		//Need to pass distance
-		state = steps.at(currentStepNumber).ExecuteStep(d, imu);
+		state = steps.at(currentStepNumber).ExecuteStep(d, ahrs);
 		if (state == AutonComplete) {
 			currentStepNumber++;
 			//Check if any more steps to execute
@@ -94,6 +96,7 @@ SimplePath::RunPath(DalekDrive *d, IMU *imu)
 	return state;
 }
 
-SimplePath::~SimplePath() {
+SimplePath::~SimplePath()
+{
 	// TODO Auto-generated destructor stub
 }
