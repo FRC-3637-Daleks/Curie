@@ -52,7 +52,7 @@ public:
 		rightJoystick = new Joystick(RightJoystick);
 		xbox          = new XboxController(XboxControls);
 
-		intake        = new Intake(WristMotor, RollerMotor, IntakeLowerLimit,
+		intake        = new Intake(wristMotor, rollerMotor, IntakeLowerLimit,
 								   IntakeUpperLimit);
 		ahrs          = new AHRS(SPI::Port::kMXP);
 		ultraLeft     = new AnalogInput(UltrasonicLeft);

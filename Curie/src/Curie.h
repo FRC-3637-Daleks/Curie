@@ -43,8 +43,8 @@ enum Solenoids {
 enum DigitalIO {
 	LiftLowerLimit   = 1,
 	LiftUpperLimit   = 0,
-	IntakeLowerLimit = 2,
-	IntakeUpperLimit = 3,
+	IntakeLowerLimit = 3,
+	IntakeUpperLimit = 2,
 };
 
 enum AnalogIO {
@@ -72,9 +72,9 @@ enum CANConstants {
 	CANTimeoutMs = 10,
 };
 
-#define LEFT_POSITION	"1"
-#define CENTER_POSITION	"2"
-#define RIGHT_POSITION	"3"
+#define LEFT_POSITION	 "1"
+#define CENTER_POSITION	 "2"
+#define RIGHT_POSITION	 "3"
 
 #define TARGET_SWITCH    "1"
 #define TARGET_SCALE     "2"

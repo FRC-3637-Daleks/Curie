@@ -97,7 +97,7 @@ Lifter::initLifter()
 	m_master->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
 	m_master->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder,
 				PIDLoopIdx, CANTimeoutMs);
-	m_master->SetInverted(true);
+	m_master->SetInverted(false);
 	m_master->SetSensorPhase(true);
 	m_master->SelectProfileSlot(PIDSlotIdx, PIDLoopIdx);
 	m_master->Config_kF(PIDSlotIdx, LIFTER_DEFAULT_F, CANTimeoutMs);
@@ -105,7 +105,8 @@ Lifter::initLifter()
 	m_master->Config_kI(PIDSlotIdx, LIFTER_DEFAULT_I, CANTimeoutMs);
 	m_master->Config_kD(PIDSlotIdx, LIFTER_DEFAULT_D, CANTimeoutMs);
 	m_slave->Set(ControlMode::Follower, m_master->GetDeviceID());
-	m_slave->SetInverted(true);
+	m_slave->SetInverted(false);
+	m_slave->SetSensorPhase(true);
 	m_slave->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
 	m_shifter->Set(ELEVATOR_MODE);
 	if(AtBottom())
@@ -262,7 +263,11 @@ Lifter::SetD(double d)
 bool
 Lifter::AtBottom()
 {
-	return (m_lower->Get() == 0);
+	if(m_lower->Get() == 0) {
+		// ZeroPosition();
+		return true;
+	}
+	return false;
 }
 
 bool

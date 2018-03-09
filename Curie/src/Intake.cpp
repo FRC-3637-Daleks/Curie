@@ -152,10 +152,8 @@ Intake::InitIntake()
 	m_rollerMotor->ConfigPeakOutputForward(1.0, CANTimeoutMs);
 	m_rollerMotor->ConfigPeakOutputReverse(-1.0, CANTimeoutMs);
 
-	m_wristMotor->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, PIDSlotIdx, CANTimeoutMs);
+	m_wristMotor->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, PIDLoopIdx, CANTimeoutMs);
 	m_wristMotor->SetSensorPhase(true);
-
-	m_wristMotor->SetSelectedSensorPosition(PIDSlotIdx, PIDLoopIdx, CANTimeoutMs);
 
 	m_wristMotor->SetInverted(false);
 	m_rollerMotor->SetInverted(false);
