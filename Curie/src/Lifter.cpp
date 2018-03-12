@@ -334,9 +334,9 @@ Lifter::InitiateClimb(void)
 void
 Lifter::HoldPosition(void)
 {
-	if(m_state == CLIMBING) {
+	//if(m_state == CLIMBING) {
 		m_state = HOLDING;
 		m_lock->Set(true);
 		Set(0.0);
-	}
+	//}
 }

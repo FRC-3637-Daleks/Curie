@@ -71,9 +71,9 @@ public:
 		frc::SmartDashboard::PutData("Autonomous Starting Location",
 				&autoLocation);
 
-		autoTarget.AddDefault("Switch", TARGET_SWITCH);
+		autoTarget.AddDefault("AutoLine", TARGET_AUTOLINE);
 		autoTarget.AddObject("Scale", TARGET_SCALE);
-		autoTarget.AddObject("AutoLine", TARGET_AUTOLINE);
+		autoTarget.AddObject("Switch", TARGET_SWITCH);
 		frc::SmartDashboard::PutData("Autonomous Target",
 				&autoTarget);
 
@@ -176,6 +176,7 @@ public:
 
 		if (xbox->GetBumperPressed(frc::GenericHID::JoystickHand::kLeftHand)) {
 			lift->SetOperatingMode(Lifter::ELEVATOR_MODE);
+
 		} else if (xbox->GetBumperPressed(frc::GenericHID::JoystickHand::kRightHand)) {
 			lift->SetOperatingMode(Lifter::CLIMBING_MODE);
 		}
@@ -183,9 +184,13 @@ public:
 		// manual control of elevator & climber
 		//Switched Right and left hand, this was only for testing
 		if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand) > 0.05) {
-			lift->ManualUp();
+			if (intake->WristUpperLimit() == true) {
+				lift->ManualUp();
+			}
 		} else if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand) > 0.05) {
-			lift->ManualDown();
+			if (intake->WristUpperLimit() == true) {
+				lift->ManualDown();
+			}
 		} else  {
 			lift->Stop();
 		}
