@@ -8,6 +8,8 @@
 #ifndef _CURIE_H_
 #define _CURIE_H_
 
+#define PRACTICE_BOT
+
 #define PCMID 12
 #define IP_CAMERA "10.36.37.11"
 #define INCHES_PER_VOLTS 40.33
@@ -43,8 +45,13 @@ enum Solenoids {
 enum DigitalIO {
 	LiftLowerLimit   = 1,
 	LiftUpperLimit   = 0,
+#ifdef PRACTICE_BOT
+	IntakeLowerLimit = 2,
+	IntakeUpperLimit = 3,
+#else
 	IntakeLowerLimit = 3,
 	IntakeUpperLimit = 2,
+#endif
 };
 
 enum AnalogIO {
