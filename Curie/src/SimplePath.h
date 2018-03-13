@@ -46,6 +46,10 @@ public:
 	AutonState_t RunPath(DalekDrive *d, AHRS *ahrs);
 
 private:
+	void CreateSameSideSwitchPath(StartPositions_t start);
+	void CreateSameSideScalePath(StartPositions_t start);
+	void CreateOppSideSwitchPath(StartPositions_t start);
+	void CreateOppSideScalePath(StartPositions_t start);
 	std::vector<Step> steps;
 	AutonState_t state;
 	int currentStepNumber = 0;

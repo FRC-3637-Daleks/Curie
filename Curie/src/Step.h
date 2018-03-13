@@ -32,6 +32,8 @@ enum Commands {
 	DriveIt,
 	DriveItSlow,
 	TurnIt,
+	LiftIt,
+	DeliverIt,
 };
 
 class Step {
@@ -50,6 +52,8 @@ private:
 	float angle;
 	bool Travel(double dist);
 	bool Turn (double angle);
+	bool Lift (double height);
+	bool Deliver();
 };
 
 #endif /* STEP_H_ */

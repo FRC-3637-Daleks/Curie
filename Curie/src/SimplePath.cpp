@@ -13,49 +13,96 @@ SimplePath::SimplePath(size_t len)
 	state=AutonWaiting;
 }
 
-SimplePath::SimplePath(StartPositions_t start, TargetType_t target)
+SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 {
 	state=AutonWaiting;
 	switch(target) {
 	case BaseLine :
 		steps.reserve(1);
-		//Baseline is 120 inches from driver station wall, so give 10 inch allowance to make sure we cross it
-		//but have to subtract robot depth as only front of robot needs to cross
-		AddStep(Step(DriveIt,125.0 - ROBOT_BASE_DEPTH));
+		//Have to subtract robot depth as only front of robot needs to cross baseline
+		AddStep(Step(DriveIt,BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
 		break;
 	case LeftSwitch :
-		switch(start) {
+		switch(startPos) {
 		case(Left) :
-			steps.reserve(3);
-			//Distance to travel = distance to fence + 1/2 depth of switch
-			//distance = 140" + 1/2(56") = 168"
-			AddStep(Step(DriveIt,168.0));
-			AddStep(Step(TurnIt, 90.0));
-			AddStep(Step(DriveItSlow,12.0));
+			CreateSameSideSwitchPath(startPos);
+			break;
+		case(Right) :
+			//TODO: Need to develop path for traveling from left start position to the switch on the right
+			steps.reserve(10);
 			break;
 		default:
 			break;
 		}
 		break;
 	case RightSwitch :
-		switch(start) {
+		switch(startPos) {
 		case(Right) :
-			steps.reserve(3);
-			//Distance to travel = distance to fence + 1/2 depth of switch
-			//distance = 140" + 1/2(56") = 168"
-			AddStep(Step(DriveIt,168.0));
-			AddStep(Step(TurnIt, 270.0));
-			AddStep(Step(DriveItSlow,12.0));
+			CreateSameSideSwitchPath(startPos);
+			break;
+		case(Left) :
+			//TODO: Need to develop path for traveling from right start position to the switch on the left
+			steps.reserve(10);
 			break;
 		default:
 			break;
 		}
 		break;
+	case LeftScale :
+		switch(startPos) {
+		case(Left) :
+			steps.reserve(10);
+			break;
+		}
 	default:
 		break;
 	}
 }
 
+//This will create the path to the switch when the robot is starting on same side of field as assigned switch side
+void
+SimplePath::CreateSameSideSwitchPath(StartPositions_t startPos)
+{
+	steps.reserve(5);
+	//Distance to travel = distance to fence + 1/2 depth of switch
+	//distance = 140" + 1/2(56") = 168"
+	AddStep(Step(DriveIt,168.0));
+	if (startPos == Left) {
+		AddStep(Step(TurnIt, 90.0));
+	} else {
+		AddStep(Step(TurnIt, 270.0));
+	}
+	AddStep(Step(LiftIt,SWITCH_DELIVERY_HEIGHT));
+	AddStep(Step(DriveItSlow,12.0));
+	AddStep(Step(DeliverIt,DELIVERY_POWER));
+}
+
+//This will create the path to the switch when the robot is starting on opposite side of field as assigned switch side
+void
+SimplePath::CreateOppSideSwitchPath(StartPositions_t startPos)
+{
+	//TODO - Path needs to be developed, for now this is just crossing the baseline
+	steps.reserve(10);
+	AddStep(Step(DriveIt,BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
+}
+
+//This will create the path to the scale when the robot is starting on same side of field as assigned scale side
+void
+SimplePath::CreateSameSideScalePath(StartPositions_t startPos)
+{
+	//TODO - Path needs to be developed, for now this is just crossing the baseline
+	steps.reserve(10);
+	AddStep(Step(DriveIt,BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
+}
+
+//This will create the path to the scale when the robot is starting on opposite side of field as assigned scale side
+void
+SimplePath::CreateOppSideScalePath(StartPositions_t startPos)
+{
+	//TODO - Path needs to be developed, for now this is just crossing the baseline
+	steps.reserve(10);
+	AddStep(Step(DriveIt,BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
+}
 void
 SimplePath::AddStep(Step newStep)
 {

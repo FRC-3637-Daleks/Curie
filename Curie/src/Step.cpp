@@ -47,8 +47,6 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs)
 						distanceTraveled);
 		frc::SmartDashboard::PutNumber("Driveit: dist targ",
 						distance);
-		//TODO: how to figure out how far we've traveled?
-		// distanceTraveled = ??;
 		//check if we've reached target distance for this step
 		if (distanceTraveled < distance) {
 			//if (sensor indicates obstacle) {
@@ -66,7 +64,9 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs)
 	case TurnIt:
 		motorPower = 0.25;
 		//TODO what kind of measurement does this give? 0-360? what if turn more than 360? did we start at 0?
-		currAngle = fmod(ahrs->GetYaw(), 360.0);
+		frc::SmartDashboard::PutNumber("Driveit: Heading",
+				ahrs->GetCompassHeading());
+		currAngle = fmod(ahrs->GetCompassHeading(), 360.0);
 		diff = angle - currAngle;
 		// We are within tolerance to turn is considered complete
 		if (fabs(diff) < angleDiffLimit) {
@@ -86,6 +86,10 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs)
 				d->TankDrive(motorPower, -1 * motorPower);
 			}
 		}
+		break;
+	case LiftIt:
+		break;
+	case DeliverIt:
 		break;
 	case DoNothing:
 		break;
