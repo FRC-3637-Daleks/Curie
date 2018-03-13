@@ -183,23 +183,24 @@ public:
 
 		// manual control of elevator & climber
 		//Switched Right and left hand, this was only for testing
-		if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand) > 0.05) {
-			if (intake->WristUpperLimit() == true) {
-				lift->ManualUp();
+		if(lift->GetTalonMode() != Lifter::POSITION) {
+			if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand) > 0.05) {
+				if (intake->WristUpperLimit() == true) {
+					lift->ManualUp();
+				}
+			} else if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand) > 0.05) {
+				if (intake->WristUpperLimit() == true) {
+					lift->ManualDown();
+				}
+			} else  {
+				lift->Stop();
 			}
-		} else if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand) > 0.05) {
-			if (intake->WristUpperLimit() == true) {
-				lift->ManualDown();
-			}
-		} else  {
-			lift->Stop();
 		}
 
 		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kRightHand)) {
 			lift->SetTalonMode(Lifter::POSITION);
-			lift->Set(5500);
+			lift->Set(1000);
 		}
-
 		if(leftJoystick->GetTrigger())
 			drive->SetPrecisionMode(true);
 		if(rightJoystick->GetTrigger())

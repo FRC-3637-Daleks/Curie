@@ -98,7 +98,7 @@ Lifter::initLifter()
 	m_master->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder,
 				PIDLoopIdx, CANTimeoutMs);
 	m_master->SetInverted(false);
-	m_master->SetSensorPhase(true);
+	m_master->SetSensorPhase(false);
 	m_master->SelectProfileSlot(PIDSlotIdx, PIDLoopIdx);
 	m_master->Config_kF(PIDSlotIdx, LIFTER_DEFAULT_F, CANTimeoutMs);
 	m_master->Config_kP(PIDSlotIdx, LIFTER_DEFAULT_P, CANTimeoutMs);
@@ -106,7 +106,7 @@ Lifter::initLifter()
 	m_master->Config_kD(PIDSlotIdx, LIFTER_DEFAULT_D, CANTimeoutMs);
 	m_slave->Set(ControlMode::Follower, m_master->GetDeviceID());
 	m_slave->SetInverted(false);
-	m_slave->SetSensorPhase(true);
+	m_slave->SetSensorPhase(false);
 	m_slave->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
 	m_shifter->Set(ELEVATOR_MODE);
 	if(AtBottom())
