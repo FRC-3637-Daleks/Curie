@@ -67,14 +67,14 @@ SimplePath::CreateSameSideSwitchPath(StartPositions_t startPos)
 	//Distance to travel = distance to fence + 1/2 depth of switch
 	//distance = 140" + 1/2(56") = 168"
 	AddStep(Step(DriveIt,168.0));
-	if (startPos == Left) {
-		AddStep(Step(TurnIt, 90.0));
-	} else {
-		AddStep(Step(TurnIt, 270.0));
-	}
-	AddStep(Step(LiftIt,SWITCH_DELIVERY_HEIGHT));
-	AddStep(Step(DriveItSlow,12.0));
-	AddStep(Step(DeliverIt,DELIVERY_POWER));
+//	if (startPos == Left) {
+//		AddStep(Step(TurnIt, 90.0));
+//	} else {
+//		AddStep(Step(TurnIt, 270.0));
+//	}
+//	AddStep(Step(LiftIt,SWITCH_DELIVERY_HEIGHT));
+//	AddStep(Step(DriveItSlow,12.0));
+//	AddStep(Step(DeliverIt,DELIVERY_POWER));
 }
 
 //This will create the path to the switch when the robot is starting on opposite side of field as assigned switch side

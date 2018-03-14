@@ -78,6 +78,7 @@ public:
 				&autoTarget);
 
 		intake->Start();
+		ahrs->Reset();
 	}
 
 	void

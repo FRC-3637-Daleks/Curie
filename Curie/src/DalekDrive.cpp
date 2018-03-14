@@ -312,6 +312,9 @@ DalekDrive::InitDalekDrive(void)
 	m_rightMotor->SetSelectedSensorPosition(PIDSlotIdx, PIDLoopIdx, CANTimeoutMs);
 	m_leftMotor->SetInverted(false);
 	m_rightMotor->SetInverted(false);
+	m_leftMotor->GetSensorCollection().SetQuadraturePosition(0,0);
+	m_rightMotor->GetSensorCollection().SetQuadraturePosition(0,0);
+
 	if(m_leftSlaveMotor) {
 		m_leftSlaveMotor->Set(ControlMode::Follower, m_leftMotor->GetDeviceID());
 		m_leftSlaveMotor->SetInverted(false);
