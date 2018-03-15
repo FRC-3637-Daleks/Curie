@@ -66,12 +66,12 @@ SimplePath::CreateSameSideSwitchPath(StartPositions_t startPos)
 	steps.reserve(5);
 	//Distance to travel = distance to fence + 1/2 depth of switch
 	//distance = 140" + 1/2(56") = 168"
-	AddStep(Step(DriveIt,168.0));
-//	if (startPos == Left) {
-//		AddStep(Step(TurnIt, 90.0));
-//	} else {
-//		AddStep(Step(TurnIt, 270.0));
-//	}
+	AddStep(Step(DriveIt,80.0));
+	if (startPos == Left) {
+		AddStep(Step(TurnIt, 90.0));
+	} else {
+		AddStep(Step(TurnIt, 270.0));
+	}
 //	AddStep(Step(LiftIt,SWITCH_DELIVERY_HEIGHT));
 //	AddStep(Step(DriveItSlow,12.0));
 //	AddStep(Step(DeliverIt,DELIVERY_POWER));
@@ -114,6 +114,9 @@ SimplePath::AddStep(Step newStep)
 AutonState_t
 SimplePath::RunPath(DalekDrive *d, AHRS *ahrs)
 {
+
+	frc::SmartDashboard::PutNumber("SimplePath: Heading",
+			ahrs->GetCompassHeading());
 	switch (state) {
 	case AutonWaiting:
 		//initialize stuff to start path execution
@@ -124,6 +127,8 @@ SimplePath::RunPath(DalekDrive *d, AHRS *ahrs)
 		break;
 	case AutonExecuting:
 		//Need to pass distance
+		frc::SmartDashboard::PutNumber("Current Step Executing:",
+				currentStepNumber);
 		state = steps.at(currentStepNumber).ExecuteStep(d, ahrs);
 		if (state == AutonComplete) {
 			currentStepNumber++;

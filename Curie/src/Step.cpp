@@ -55,22 +55,25 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs)
 			if (distance - distanceTraveled > 12.0) {
 				motorPower = 0.5;
 			}
-			d->TankDrive(-1 * motorPower, -1 * motorPower);
+			d->TankDrive(-1 * motorPower * AUTON_DRIFT_CORRECTION, -1 * motorPower);
 		} else {
 			state = AutonComplete;
 			d->TankDrive(0.0, 0.0);
 		}
 		break;
 	case TurnIt:
-		motorPower = 0.25;
+		motorPower = 0.50;
 		//TODO what kind of measurement does this give? 0-360? what if turn more than 360? did we start at 0?
 		frc::SmartDashboard::PutNumber("Driveit: Heading",
-				ahrs->GetCompassHeading());
-		currAngle = fmod(ahrs->GetCompassHeading(), 360.0);
+				ahrs->GetFusedHeading());
+		currAngle = fmod(ahrs->GetFusedHeading(), 360.0);
+		frc::SmartDashboard::PutNumber("Driveit: Yaw",
+				ahrs->GetYaw());
 		diff = angle - currAngle;
 		// We are within tolerance to turn is considered complete
 		if (fabs(diff) < angleDiffLimit) {
 			state = AutonComplete;
+			d->TankDrive(0.0, 0.0);
 		} else {
 			if (fabs(diff) > 180) {
 				newdiff = fabs(diff) - 180;

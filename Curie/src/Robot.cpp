@@ -78,7 +78,7 @@ public:
 				&autoTarget);
 
 		intake->Start();
-		ahrs->Reset();
+		ahrs->ZeroYaw();
 	}
 
 	void

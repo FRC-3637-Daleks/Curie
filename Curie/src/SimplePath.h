@@ -13,6 +13,7 @@
 #include <Curie.h>
 #include <AHRS.h>
 #include <Step.h>
+#include "WPILib.h"
 
 enum TargetType {
 	/* Target Types
