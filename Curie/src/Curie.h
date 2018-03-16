@@ -96,6 +96,7 @@ enum CANConstants {
 #define AUTON_DRIFT_CORRECTION 1.05
 #define BASELINE_TARGET_DISTANCE 125.0
 #define SWITCH_DELIVERY_HEIGHT 24.0
+//Scale has a max height at 72 in. + 3.5 in. barrier = 75.5 in. so if robot can go to 76, that's preferable.
 #define SCALE_DELIVERY_HEIGHT 70.0
 #define DELIVERY_POWER 0.5
 #define RPM_THRESHOLD 300

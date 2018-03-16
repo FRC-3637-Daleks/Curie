@@ -29,7 +29,7 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 			break;
 		case(Right) :
 			//TODO: Need to develop path for traveling from left start position to the switch on the right
-			steps.reserve(10);
+			CreateOppSideSwitchPath(startPos);
 			break;
 		default:
 			break;
@@ -42,7 +42,7 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 			break;
 		case(Left) :
 			//TODO: Need to develop path for traveling from right start position to the switch on the left
-			steps.reserve(10);
+			CreateOppSideSwitchPath(startPos);
 			break;
 		default:
 			break;
@@ -51,9 +51,27 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 	case LeftScale :
 		switch(startPos) {
 		case(Left) :
-			steps.reserve(10);
+			CreateSameSideScalePath(startPos);
+			break;
+		case(Right) :
+			CreateOppSideScalePath(startPos);
+			break;
+		default:
 			break;
 		}
+		break;
+	case RightScale :
+		switch(startPos) {
+		case(Right) :
+			CreateSameSideScalePath(startPos);
+			break;
+		case(Left) :
+			CreateOppSideScalePath(startPos);
+			break;
+		default:
+			break;
+		}
+		break;
 	default:
 		break;
 	}
@@ -63,15 +81,20 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 void
 SimplePath::CreateSameSideSwitchPath(StartPositions_t startPos)
 {
-	steps.reserve(5);
+	steps.reserve(6);
 	//Distance to travel = distance to fence + 1/2 depth of switch
 	//distance = 140" + 1/2(56") = 168"
-	AddStep(Step(DriveIt,80.0));
+
+	//Value for AddStep was set to 80 for practice
+	AddStep(Step(DriveIt,168.0));
 	if (startPos == Left) {
 		AddStep(Step(TurnIt, 90.0));
 	} else {
 		AddStep(Step(TurnIt, 270.0));
 	}
+//  TODO In Step, need a rotatewrist function and to figure out what distance is going to be.
+//  AddStep(Step(RotateWrist, 90);
+
 //	AddStep(Step(LiftIt,SWITCH_DELIVERY_HEIGHT));
 //	AddStep(Step(DriveItSlow,12.0));
 //	AddStep(Step(DeliverIt,DELIVERY_POWER));
@@ -81,27 +104,86 @@ SimplePath::CreateSameSideSwitchPath(StartPositions_t startPos)
 void
 SimplePath::CreateOppSideSwitchPath(StartPositions_t startPos)
 {
-	//TODO - Path needs to be developed, for now this is just crossing the baseline
-	steps.reserve(10);
-	AddStep(Step(DriveIt,BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
+	//Path is through area between starting positions and switch, assuming robot starts at center of player station.
+	//End position is perpendicular to switch.
+	//Distance from start to switch not accounting for robot base is 140 in.
+	steps.reserve(9);
+
+	AddStep(Step(DriveIt, 70.0));
+	if (startPos == Left) {
+		AddStep(Step(TurnIt, 90.0));
+	} else {
+		AddStep(Step(TurnIt, 270.0));
+	}
+	//Range goes from 98.5 in. to 170.5 in. depending on how far you start from the side wall.
+	AddStep(Step(DriveIt, 134.5));
+	if (startPos == Left) {
+		AddStep(Step(TurnIt, 270.0));
+	} else {
+		AddStep(Step(TurnIt, 90.0));
+	}
+	AddStep(Step(DriveIt, 26.0));
+//	AddStep(Step(RotateWrist, 90);
+	AddStep(Step(LiftIt,SWITCH_DELIVERY_HEIGHT));
+	AddStep(Step(DriveItSlow, 12.0));
+	AddStep(Step(DeliverIt,DELIVERY_POWER));
+
 }
 
 //This will create the path to the scale when the robot is starting on same side of field as assigned scale side
 void
 SimplePath::CreateSameSideScalePath(StartPositions_t startPos)
 {
-	//TODO - Path needs to be developed, for now this is just crossing the baseline
-	steps.reserve(10);
-	AddStep(Step(DriveIt,BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
+	//Path is straight until reaches scale, turns, moves forward, places cube.
+	//Assumes robot is placed at center.
+	//Halfway mark is 324 in., not accounting for robot base.
+
+	steps.reserve(6);
+	AddStep(Step(DriveIt, 324.0));
+	if (startPos == Left) {
+		AddStep(Step(TurnIt, 90.0));
+	} else {
+		AddStep(Step(TurnIt, 270.0));
+	}
+//  AddStep(Step(RotateWrist, 90);
+	AddStep(Step(LiftIt,SCALE_DELIVERY_HEIGHT));
+	//Value for DriveItSlow determined by where robot starts. Should range from 0-72.
+	AddStep(Step(DriveItSlow,30.0));
+	AddStep(Step(DeliverIt,DELIVERY_POWER));
+
 }
 
 //This will create the path to the scale when the robot is starting on opposite side of field as assigned scale side
 void
 SimplePath::CreateOppSideScalePath(StartPositions_t startPos)
 {
-	//TODO - Path needs to be developed, for now this is just crossing the baseline
-	steps.reserve(10);
-	AddStep(Step(DriveIt,BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
+	//Path goes between switch and scale, drives to other end, turns appropriately, and drops off directly facing the end of the scale.
+	steps.reserve(9);
+
+	AddStep(Step(DriveIt, 248.0));
+	if (startPos == Left) {
+		AddStep(Step(TurnIt, 90.0));
+	} else {
+		AddStep(Step(TurnIt, 270.0));
+	}
+	//Range goes from 216 in. to 288 in. depending on how far you start from the side wall.
+	//Expected position should be halfway between scale end and side wall.
+	AddStep(Step(DriveIt, 252));
+	if (startPos == Left) {
+		AddStep(Step(TurnIt, 270.0));
+	} else {
+		AddStep(Step(TurnIt, 90.0));
+	}
+	AddStep(Step(DriveIt, 76.0));
+	if (startPos == Left) {
+		AddStep(Step(TurnIt, 270.0));
+	} else {
+		AddStep(Step(TurnIt, 90.0));
+	}
+//	AddStep(Step(RotateWrist, 90);
+	AddStep(Step(LiftIt,SWITCH_DELIVERY_HEIGHT));
+	AddStep(Step(DriveItSlow, 30.0));
+	AddStep(Step(DeliverIt,DELIVERY_POWER));
 }
 void
 SimplePath::AddStep(Step newStep)

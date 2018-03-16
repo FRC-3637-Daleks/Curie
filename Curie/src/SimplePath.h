@@ -14,6 +14,8 @@
 #include <AHRS.h>
 #include <Step.h>
 #include "WPILib.h"
+#include <SmartDashboard/SendableChooser.h>
+#include <SmartDashboard/SmartDashboard.h>
 
 enum TargetType {
 	/* Target Types
