@@ -90,7 +90,7 @@ enum CANConstants {
 #define ENCODER_TICKS_PER_REV 4096
 #define WHEEL_DIAMETER_INCHES 6.0
 #define AT_WHEEL_RATIO (26.0/22.0)
-#define ENCODER_TICKS_PER_INCH 205
+#define ENCODER_TICKS_PER_INCH 215
 
 //Constants for Auton
 #define AUTON_DRIFT_CORRECTION 1.05
@@ -101,6 +101,7 @@ enum CANConstants {
 #define DELIVERY_POWER 0.5
 #define RPM_THRESHOLD 300
 #define RAMP_RATE 0.2
+#define ANGLE_DIFF_LIMIT 0.5
 
 //Depth front to back of robot base (in inches)
 #define ROBOT_BASE_DEPTH 32.0

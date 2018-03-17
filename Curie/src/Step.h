@@ -12,8 +12,6 @@
 #include <DalekDrive.h>
 #include <math.h>
 
-#define angleDiffLimit 0.5
-
 enum AutonState {
 	/* Auton States
 	 */

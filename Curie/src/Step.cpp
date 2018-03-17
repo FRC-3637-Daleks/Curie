@@ -1,122 +1,262 @@
-/*
- * Step.cpp
- *
- *  Created on: Feb 8, 2018
- *      Author: FLL2
- */
-#include "WPILib.h"
-#include "SimplePath.h"
-#include "Step.h"
+#include <iostream>
+#include <string>
 
-Step::Step()
-{
-	command = DoNothing;
-	distance = 0.0;
-	angle = 0.0;
-}
+#include <WPILib.h>
+#include <LiveWindow/LiveWindow.h>
+#include <SmartDashboard/SendableChooser.h>
+#include <SmartDashboard/SmartDashboard.h>
+#include <TimedRobot.h>
+#include <AHRS.h>
+#include <ctre/Phoenix.h>
+#include <DalekDrive.h>
+#include <Curie.h>
+#include <Lifter.h>
+#include <Intake.h>
+#include <Amcrest.h>
+#include <SimplePath.h>
 
-Step::Step(Commands_t com, double howFar)
+using namespace std;
+using namespace frc;
+
+class Robot : public frc::TimedRobot
 {
-	command = com;
-	if (command == DriveIt) {
-		distance = howFar;
-	} else {
-		angle = howFar;
+public:
+	WPI_TalonSRX *leftMotor,  *rightMotor;
+ 	WPI_TalonSRX *leftSlave,  *rightSlave;
+	WPI_TalonSRX *wristMotor, *rollerMotor;
+	WPI_TalonSRX *liftMaster, *liftSlave;
+	AnalogInput	 *ultraLeft,  *ultraRight;
+	Solenoid     *shifter, *brace, *lock;
+	AmcrestIPCAM *cam;
+	Joystick     *leftJoystick, *rightJoystick;
+	XboxController *xbox;
+	DalekDrive *drive;
+	Intake     *intake;
+	Lifter     *lift;
+	AHRS       *ahrs;
+	SimplePath *autonPath;
+
+	void
+	RobotInit()
+	{
+		leftMotor     = new WPI_TalonSRX(LeftDriveMotor);
+		leftSlave     = new WPI_TalonSRX(LeftSlaveMotor);
+		rightMotor    = new WPI_TalonSRX(RightDriveMotor);
+		rightSlave    = new WPI_TalonSRX(RightSlaveMotor);
+		liftMaster    = new WPI_TalonSRX(LiftMasterMotor);
+		liftSlave     = new WPI_TalonSRX(LiftSlaveMotor);
+		wristMotor    = new WPI_TalonSRX(WristMotor);
+		rollerMotor   = new WPI_TalonSRX(RollerMotor);
+
+		leftJoystick  = new Joystick(LeftJoystick);
+		rightJoystick = new Joystick(RightJoystick);
+		xbox          = new XboxController(XboxControls);
+
+		intake        = new Intake(wristMotor, rollerMotor, IntakeLowerLimit,
+								   IntakeUpperLimit);
+		ahrs          = new AHRS(SPI::Port::kMXP);
+		ultraLeft     = new AnalogInput(UltrasonicLeft);
+		ultraRight    = new AnalogInput(UltrasonicRight);
+		cam           = new AmcrestIPCAM(IP_CAMERA, 0, 1);
+		shifter       = new Solenoid(PCMID, Shifter);
+		brace         = new Solenoid(PCMID, Brace);
+		lock          = new Solenoid(PCMID, Lock);
+		drive         = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
+		lift          = new Lifter(liftMaster, liftSlave, shifter, brace, lock,
+								LiftLowerLimit, LiftUpperLimit, UltrasonicClimb);
+
+		autoLocation.AddDefault("Left", LEFT_POSITION);
+		autoLocation.AddObject("Center", CENTER_POSITION);
+		autoLocation.AddObject("Right", RIGHT_POSITION);
+		frc::SmartDashboard::PutData("Autonomous Starting Location",
+				&autoLocation);
+
+		autoTarget.AddDefault("AutoLine", TARGET_AUTOLINE);
+		autoTarget.AddObject("Scale", TARGET_SCALE);
+		autoTarget.AddObject("Switch", TARGET_SWITCH);
+		frc::SmartDashboard::PutData("Autonomous Target",
+				&autoTarget);
+
+		intake->Start();
+		ahrs->ZeroYaw();
+
+
 	}
-}
 
-//TODO need to add proximity sensor and check it!
-//     for  traveling, how are we determining distance traveled????  IMU, encoders???
-//     do we need the motors passed so can do like we did in Brahe?
-//       or use DalekDrive->GetPosition? but even that needs one of the motors
-AutonState_t
-Step::ExecuteStep(DalekDrive *d, AHRS *ahrs)
-{
-	AutonState_t state = AutonExecuting;
-	//TODO: how to figure out how far we've traveled?
-	// What kind of measurement is this giving us?
-	double distanceTraveled = d->GetDistance();
-	double currAngle, diff, newdiff = 0.0;
-	double motorPower = 0.5;
+	void
+	AutonomousInit() override
+	{
+		std::string loc = autoLocation.GetSelected();
+		std::string tgt = autoTarget.GetSelected();
 
-	switch (command) {
-	case DriveItSlow:
-		motorPower = 0.25;
-	case DriveIt:
-		frc::SmartDashboard::PutNumber("Driveit: dist trav",
-						distanceTraveled);
-		frc::SmartDashboard::PutNumber("Driveit: dist targ",
-						distance);
-		//check if we've reached target distance for this step
-		if (distanceTraveled < distance) {
-			//if (sensor indicates obstacle) {
-			// state = AutonBlocked;
-			//else
-			if (distance - distanceTraveled > 12.0) {
-				motorPower = 0.5;
-			}
-			d->TankDrive(-1 * motorPower * AUTON_DRIFT_CORRECTION, -1 * motorPower);
-		} else {
-			state = AutonComplete;
-			d->TankDrive(0.0, 0.0);
+		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+
+		// get our starting position
+		if(loc.compare(LEFT_POSITION) == 0)
+			autoloc = Left;
+		else if (loc.compare(CENTER_POSITION) == 0)
+			autoloc = Center;
+		else if (loc.compare(RIGHT_POSITION) == 0)
+			autoloc = Right;
+		else
+			autoloc = Center;
+
+		// compute autonomous objective, based on GameSpecificMessage
+		if(tgt.compare(TARGET_SWITCH) == 0) {
+			if(gameData[0] == 'L')
+				autotgt = LeftSwitch;
+			else
+				autotgt = RightSwitch;
 		}
-		break;
-	case TurnIt:
-		motorPower = 0.50;
-		//TODO what kind of measurement does this give? 0-360? what if turn more than 360? did we start at 0?
-		frc::SmartDashboard::PutNumber("Driveit: Heading",
-				ahrs->GetFusedHeading());
-		currAngle = fmod(ahrs->GetFusedHeading(), 360.0);
+		else if (tgt.compare(TARGET_SCALE) == 0) {
+			if(gameData[1] == 'L')
+				autotgt = LeftScale;
+			else
+				autotgt = RightScale;
+		}
+		else
+			autotgt = BaseLine;
+		autonPath = new SimplePath(autoloc, autotgt);
+		autoCount = 0;
+	}
+
+	void
+	AutonomousPeriodic()
+	{
+		autonPath->RunPath(drive, ahrs);
+		frc::SmartDashboard::PutNumber("Driveit: Drive Distance",
+				drive->GetDistance());
+		frc::SmartDashboard::PutNumber("autoCount",
+				autoCount);
 		frc::SmartDashboard::PutNumber("Driveit: Yaw",
 				ahrs->GetYaw());
-		diff = angle - currAngle;
-		// We are within tolerance to turn is considered complete
-		if (fabs(diff) < angleDiffLimit) {
-			state = AutonComplete;
-			d->TankDrive(0.0, 0.0);
-		} else {
-			if (fabs(diff) > 180) {
-				newdiff = fabs(diff) - 180;
-				if (diff > 0) {
-					diff = newdiff * -1;
+		autoCount++;
+	}
+
+	void
+	TeleopInit()
+	{
+		if(!lift->AtBottom())
+			lift->MoveToBottom();
+	}
+
+	void TeleopPeriodic()
+	{
+		bool useArcade;
+
+		useArcade = (leftJoystick->GetZ() == -1.0);
+
+		// Drive controls
+		if (useArcade)
+			drive->ArcadeDrive(leftJoystick);
+		else
+			drive->TankDrive(leftJoystick, rightJoystick);
+
+		// Wrist Movement A/B button
+		if(xbox->GetAButtonPressed()) {
+			intake->Lower();
+		} else if (xbox->GetBButtonPressed()) {
+			intake->Raise();
+		} else if ((xbox->GetAButtonReleased()) || (xbox->GetBButtonReleased())) {
+			intake->StopWrist();
+		}
+
+		// Roller Movement X/Y button
+		if(xbox->GetXButtonPressed()) {
+			intake->Pull();
+		} else if (xbox->GetYButtonPressed()) {
+			intake->Push();
+		} else if ((xbox->GetXButtonReleased()) || (xbox->GetYButtonReleased())) {
+			intake->StopRoller();
+		}
+
+		//Climber Controls (Start:Climb, Back:Hold, LeftStick:Hook, RightStick:Wing)
+		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kLeftHand)) {
+			lift->DeployBrace();
+		} else if (xbox->GetStartButtonPressed()) {
+			lift->InitiateClimb();
+		} else if (xbox->GetBackButtonPressed()) {
+			lift->HoldPosition();
+		}
+
+		if (xbox->GetBumperPressed(frc::GenericHID::JoystickHand::kLeftHand)) {
+			lift->SetOperatingMode(Lifter::ELEVATOR_MODE);
+
+		} else if (xbox->GetBumperPressed(frc::GenericHID::JoystickHand::kRightHand)) {
+			lift->SetOperatingMode(Lifter::CLIMBING_MODE);
+		}
+
+		// manual control of elevator & climber
+		//Switched Right and left hand, this was only for testing
+		if(lift->GetTalonMode() != Lifter::POSITION) {
+			if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand) > 0.05) {
+				if (intake->WristUpperLimit() == true) {
+					lift->ManualUp();
 				}
-			}
-			if (diff > 0) {
-			//TODO is this the right power?  do we need to check for obstacle while turning?
-			//     Decrease power if diff is close to 0???
-				d->TankDrive(-1 * motorPower, motorPower);
-			} else {
-				d->TankDrive(motorPower, -1 * motorPower);
+			} else if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kLeftHand) > 0.05) {
+				if (intake->WristUpperLimit() == true) {
+					lift->ManualDown();
+				}
+			} else  {
+				lift->Stop();
 			}
 		}
-		break;
-	case LiftIt:
-		break;
-	case DeliverIt:
-		break;
-	case DoNothing:
-		break;
-	default:
-		break;
+
+		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kRightHand)) {
+			lift->SetTalonMode(Lifter::POSITION);
+			lift->Set(1000);
+		}
+		if(leftJoystick->GetTrigger())
+			drive->SetPrecisionMode(true);
+		if(rightJoystick->GetTrigger())
+			drive->SetPrecisionMode(false);
+
+		UpdateDashboard();
 	}
-	return state;
-}
 
-bool
-Step::Travel(double dist)
-{
-	bool success = true;
-	return success;
-}
+	void TestPeriodic()
+	{
 
-bool
-Step::Turn (double angle)
-{
-	bool success = true;
-	return success;
-}
+	}
 
-Step::~Step()
-{
-	// TODO Auto-generated destructor stub
-}
+	void UpdateDashboard()
+	{
+		frc::SmartDashboard::PutNumber("Elevator Position",
+				lift->GetPosition());
+		frc::SmartDashboard::PutNumber("Elevator Velocity",
+				lift->GetVelocity());
+
+		frc::SmartDashboard::PutNumber("Left Drive Velocity",
+				drive->GetVelocity(Motors::LeftDriveMotor));
+		frc::SmartDashboard::PutNumber("Right Drive Velocity",
+				drive->GetVelocity(Motors::RightDriveMotor));
+
+		frc::SmartDashboard::PutNumber("Left Distance",
+				drive->GetPosition(LeftDriveMotor));
+		frc::SmartDashboard::PutNumber("Right Distance",
+				drive->GetPosition(RightDriveMotor));
+
+		frc::SmartDashboard::PutNumber("AtBottom",
+				lift->AtBottom());
+		frc::SmartDashboard::PutNumber("AtTop",
+				lift->AtTop());
+
+		frc::SmartDashboard::PutNumber("Distance",
+				drive->GetDistance());
+		frc::SmartDashboard::PutNumber("Driveit: Heading",
+				ahrs->GetFusedHeading());
+
+	}
+
+private:
+	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
+
+	frc::SendableChooser<std::string> autoLocation;
+	frc::SendableChooser<std::string> autoTarget;
+	std::string gameData;
+	StartPositions_t autoloc;
+	TargetType_t autotgt;
+	int autoCount;
+};
+
+START_ROBOT_CLASS(Robot)

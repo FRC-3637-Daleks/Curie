@@ -79,6 +79,8 @@ public:
 
 		intake->Start();
 		ahrs->ZeroYaw();
+
+
 	}
 
 	void
@@ -122,10 +124,12 @@ public:
 	AutonomousPeriodic()
 	{
 		autonPath->RunPath(drive, ahrs);
-		frc::SmartDashboard::PutNumber("Drive Distance",
+		frc::SmartDashboard::PutNumber("Driveit: Drive Distance",
 				drive->GetDistance());
 		frc::SmartDashboard::PutNumber("autoCount",
 				autoCount);
+		frc::SmartDashboard::PutNumber("Driveit: Yaw",
+				ahrs->GetYaw());
 		autoCount++;
 	}
 
@@ -232,11 +236,6 @@ public:
 		frc::SmartDashboard::PutNumber("Right Distance",
 				drive->GetPosition(RightDriveMotor));
 
-		frc::SmartDashboard::PutNumber("ElevUpSpeed",
-				ELEVATOR_UP_SPEED);
-		frc::SmartDashboard::PutNumber("ElevDownSpeed",
-				ELEVATOR_DOWN_SPEED);
-
 		frc::SmartDashboard::PutNumber("AtBottom",
 				lift->AtBottom());
 		frc::SmartDashboard::PutNumber("AtTop",
@@ -244,6 +243,8 @@ public:
 
 		frc::SmartDashboard::PutNumber("Distance",
 				drive->GetDistance());
+		frc::SmartDashboard::PutNumber("Driveit: Heading",
+				ahrs->GetFusedHeading());
 
 	}
 
