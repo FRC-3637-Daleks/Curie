@@ -123,7 +123,7 @@ public:
 	void
 	AutonomousPeriodic()
 	{
-		autonPath->RunPath(drive, ahrs);
+		autonPath->RunPath(drive, ahrs, intake, lift);
 		frc::SmartDashboard::PutNumber("Driveit: Drive Distance",
 				drive->GetDistance());
 		frc::SmartDashboard::PutNumber("autoCount",

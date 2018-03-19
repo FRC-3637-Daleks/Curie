@@ -14,6 +14,8 @@
 #include <AHRS.h>
 #include <Step.h>
 #include "WPILib.h"
+#include <Intake.h>
+#include <Lifter.h>
 #include <SmartDashboard/SendableChooser.h>
 #include <SmartDashboard/SmartDashboard.h>
 
@@ -46,7 +48,7 @@ public:
 	virtual ~SimplePath();
 	void AddStep(Step newStep);
 	//TODO need to add proximity sensor!
-	AutonState_t RunPath(DalekDrive *d, AHRS *ahrs);
+	AutonState_t RunPath(DalekDrive *d, AHRS *ahrs, Intake *i, Lifter *l);
 
 private:
 	void CreateSameSideSwitchPath(StartPositions_t start);

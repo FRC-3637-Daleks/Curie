@@ -47,6 +47,7 @@ class Lifter {
 		tMode_t GetTalonMode();
 		void ManualUp();
 		void ManualDown();
+		void AutonUp(int position);
 		bool MoveToBottom();
 		void Stop();
 		bool AtTop();

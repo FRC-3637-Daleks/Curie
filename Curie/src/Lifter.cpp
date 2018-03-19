@@ -166,6 +166,30 @@ Lifter::ManualUp(void)
 }
 
 void
+Lifter::AutonUp(int position)
+{
+	double speed;
+
+	//Has to be in PERCENT_VBUS during Auton.
+	if(GetTalonMode() != PERCENT_VBUS)
+		return;
+
+	//Has to be in Elevator mode during Auton.
+	if(GetOperatingMode() == ELEVATOR_MODE)
+		speed = (AtTop() ? 0.0 : ELEVATOR_UP_SPEED);
+	else
+		return;
+
+	if (position > GetPosition()) {
+		Set(speed);
+	} else  {
+		SetTalonMode(POSITION);
+		HoldPosition();
+	}
+	return;
+}
+
+void
 Lifter::Stop(void)
 {
 	if(GetTalonMode() != PERCENT_VBUS)

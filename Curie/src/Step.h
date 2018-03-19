@@ -11,6 +11,8 @@
 #include <AHRS.h>
 #include <DalekDrive.h>
 #include <math.h>
+#include <Intake.h>
+#include <Lifter.h>
 
 enum AutonState {
 	/* Auton States
@@ -32,6 +34,7 @@ enum Commands {
 	TurnIt,
 	LiftIt,
 	DeliverIt,
+	LowerWrist,
 };
 
 class Step {
@@ -40,7 +43,7 @@ public:
 	Step();
 	Step(Commands_t com, double howFar);
 	//TODO need to add proximity sensor!
-	AutonState_t ExecuteStep(DalekDrive *d, AHRS *ahrs);
+	AutonState_t ExecuteStep(DalekDrive *d, AHRS *ahrs, Intake *i, Lifter *l );
 	virtual ~Step();
 private:
 	Commands_t command;
@@ -48,6 +51,8 @@ private:
 	float distance;
 	//In degrees, relative
 	float angle;
+	//In Inches??(or should it be in encoder terms?)
+	float position;
 	bool Travel(double dist);
 	bool Turn (double angle);
 	bool Lift (double height);

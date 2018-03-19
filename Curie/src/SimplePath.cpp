@@ -92,12 +92,10 @@ SimplePath::CreateSameSideSwitchPath(StartPositions_t startPos)
 	} else {
 		AddStep(Step(TurnIt, 270.0));
 	}
-//  TODO In Step, need a rotatewrist function and to figure out what distance is going to be.
-//  AddStep(Step(RotateWrist, 90);
-
-//	AddStep(Step(LiftIt,SWITCH_DELIVERY_HEIGHT));
-//	AddStep(Step(DriveItSlow,12.0));
-//	AddStep(Step(DeliverIt,DELIVERY_POWER));
+    AddStep(Step(LowerWrist,90));
+	AddStep(Step(LiftIt,SWITCH_DELIVERY_HEIGHT));
+	AddStep(Step(DriveItSlow,12.0));
+	AddStep(Step(DeliverIt,DELIVERY_POWER));
 }
 
 //This will create the path to the switch when the robot is starting on opposite side of field as assigned switch side
@@ -123,7 +121,7 @@ SimplePath::CreateOppSideSwitchPath(StartPositions_t startPos)
 		AddStep(Step(TurnIt, 90.0));
 	}
 	AddStep(Step(DriveIt, 26.0));
-//	AddStep(Step(RotateWrist, 90);
+	AddStep(Step(LowerWrist,90));
 	AddStep(Step(LiftIt,SWITCH_DELIVERY_HEIGHT));
 	AddStep(Step(DriveItSlow, 12.0));
 	AddStep(Step(DeliverIt,DELIVERY_POWER));
@@ -145,7 +143,7 @@ SimplePath::CreateSameSideScalePath(StartPositions_t startPos)
 	} else {
 		AddStep(Step(TurnIt, 270.0));
 	}
-//  AddStep(Step(RotateWrist, 90);
+	AddStep(Step(LowerWrist,90));
 	AddStep(Step(LiftIt,SCALE_DELIVERY_HEIGHT));
 	//Value for DriveItSlow determined by where robot starts. Should range from 0-72.
 	AddStep(Step(DriveItSlow,30.0));
@@ -180,7 +178,7 @@ SimplePath::CreateOppSideScalePath(StartPositions_t startPos)
 	} else {
 		AddStep(Step(TurnIt, 90.0));
 	}
-//	AddStep(Step(RotateWrist, 90);
+	AddStep(Step(LowerWrist,90));
 	AddStep(Step(LiftIt,SWITCH_DELIVERY_HEIGHT));
 	AddStep(Step(DriveItSlow, 30.0));
 	AddStep(Step(DeliverIt,DELIVERY_POWER));
@@ -194,7 +192,7 @@ SimplePath::AddStep(Step newStep)
 //TODO need to add proximity sensor!
 
 AutonState_t
-SimplePath::RunPath(DalekDrive *d, AHRS *ahrs)
+SimplePath::RunPath(DalekDrive *d, AHRS *ahrs, Intake *i, Lifter *l)
 {
 
 	frc::SmartDashboard::PutNumber("SimplePath: Heading",
@@ -211,7 +209,7 @@ SimplePath::RunPath(DalekDrive *d, AHRS *ahrs)
 		//Need to pass distance
 		frc::SmartDashboard::PutNumber("Current Step Executing:",
 				currentStepNumber);
-		state = steps.at(currentStepNumber).ExecuteStep(d, ahrs);
+		state = steps.at(currentStepNumber).ExecuteStep(d, ahrs, i, l);
 		if (state == AutonComplete) {
 			currentStepNumber++;
 			//Check if any more steps to execute
