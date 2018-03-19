@@ -8,11 +8,17 @@
 #include "SimplePath.h"
 #include "Step.h"
 
+
+
 Step::Step()
 {
 	command = DoNothing;
 	distance = 0.0;
 	angle = 0.0;
+	//What is the initial position value??
+	//Should this be in encoder terms and not inches??
+	//Set to zero for now.
+	position = 0.0;
 }
 
 Step::Step(Commands_t com, double howFar)
@@ -20,6 +26,8 @@ Step::Step(Commands_t com, double howFar)
 	command = com;
 	if (command == DriveIt) {
 		distance = howFar;
+	} else if (command == LiftIt) {
+		position = howFar;
 	} else {
 		angle = howFar;
 	}
@@ -30,7 +38,7 @@ Step::Step(Commands_t com, double howFar)
 //     do we need the motors passed so can do like we did in Brahe?
 //       or use DalekDrive->GetPosition? but even that needs one of the motors
 AutonState_t
-Step::ExecuteStep(DalekDrive *d, AHRS *ahrs)
+Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 {
 	AutonState_t state = AutonExecuting;
 	//TODO: how to figure out how far we've traveled?
@@ -91,8 +99,25 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs)
 		}
 		break;
 	case LiftIt:
+		if ( l->GetPosition() < position)
+			l->AutonUp(position);
+		else
+			state = AutonComplete;
 		break;
 	case DeliverIt:
+		i->Push();
+		//How long do we let the roller run in Auton?
+		//is 0.5 seconds too little?
+		Wait(1.0);
+		i->StopRoller();
+		state = AutonComplete;
+		break;
+	case LowerWrist:
+		//If not at lower limit, lower the wrist.
+		if ( (i->WristLowerLimit()) != 1)
+			i->Lower();
+		else
+			state = AutonComplete;
 		break;
 	case DoNothing:
 		break;
