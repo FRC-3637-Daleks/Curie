@@ -86,7 +86,7 @@ SimplePath::CreateSameSideSwitchPath(StartPositions_t startPos)
 	//distance = 140" + 1/2(56") = 168"
 
 	//Value for AddStep was set to 80 for practice
-	AddStep(Step(DriveIt,168.0));
+	AddStep(Step(DriveIt,158.0));
 	if (startPos == Left) {
 		AddStep(Step(TurnIt, 90.0));
 	} else {
@@ -94,7 +94,7 @@ SimplePath::CreateSameSideSwitchPath(StartPositions_t startPos)
 	}
     AddStep(Step(LowerWrist,90));
 	AddStep(Step(LiftIt,SWITCH_DELIVERY_HEIGHT));
-	AddStep(Step(DriveItSlow,12.0));
+	AddStep(Step(DriveItSlow,20.0));
 	AddStep(Step(DeliverIt,DELIVERY_POWER));
 }
 

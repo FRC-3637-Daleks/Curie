@@ -118,6 +118,8 @@ public:
 			autotgt = BaseLine;
 		autonPath = new SimplePath(autoloc, autotgt);
 		autoCount = 0;
+
+		lift->SetTalonMode(Lifter::POSITION);
 	}
 
 	void
@@ -128,8 +130,10 @@ public:
 				drive->GetDistance());
 		frc::SmartDashboard::PutNumber("autoCount",
 				autoCount);
-		frc::SmartDashboard::PutNumber("Driveit: Yaw",
-				ahrs->GetYaw());
+		frc::SmartDashboard::PutNumber("Driveit: encoder ticks",
+				leftMotor->GetSensorCollection().GetQuadraturePosition());
+		frc::SmartDashboard::PutNumber("Driveit: Heading",
+				ahrs->GetFusedHeading());
 		autoCount++;
 	}
 
@@ -204,7 +208,7 @@ public:
 
 		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kRightHand)) {
 			lift->SetTalonMode(Lifter::POSITION);
-			lift->Set(1000);
+			lift->Set(5000);
 		}
 		if(leftJoystick->GetTrigger())
 			drive->SetPrecisionMode(true);
@@ -221,7 +225,7 @@ public:
 
 	void UpdateDashboard()
 	{
-		frc::SmartDashboard::PutNumber("Elevator Position",
+		/*frc::SmartDashboard::PutNumber("Elevator Position",
 				lift->GetPosition());
 		frc::SmartDashboard::PutNumber("Elevator Velocity",
 				lift->GetVelocity());
@@ -240,11 +244,8 @@ public:
 				lift->AtBottom());
 		frc::SmartDashboard::PutNumber("AtTop",
 				lift->AtTop());
+		*/
 
-		frc::SmartDashboard::PutNumber("Distance",
-				drive->GetDistance());
-		frc::SmartDashboard::PutNumber("Driveit: Heading",
-				ahrs->GetFusedHeading());
 
 	}
 

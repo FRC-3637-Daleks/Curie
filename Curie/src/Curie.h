@@ -93,15 +93,15 @@ enum CANConstants {
 #define ENCODER_TICKS_PER_INCH 215
 
 //Constants for Auton
-#define AUTON_DRIFT_CORRECTION 1.05
+#define AUTON_DRIFT_CORRECTION 1.055
 #define BASELINE_TARGET_DISTANCE 125.0
-#define SWITCH_DELIVERY_HEIGHT 24.0
-//Scale has a max height at 72 in. + 3.5 in. barrier = 75.5 in. so if robot can go to 76, that's preferable.
-#define SCALE_DELIVERY_HEIGHT 70.0
+#define SWITCH_DELIVERY_HEIGHT 5750
+//Need to find values in encoder values
+#define SCALE_DELIVERY_HEIGHT 5750
 #define DELIVERY_POWER 0.5
 #define RPM_THRESHOLD 300
 #define RAMP_RATE 0.2
-#define ANGLE_DIFF_LIMIT 0.5
+#define ANGLE_DIFF_LIMIT 1.0
 
 //Depth front to back of robot base (in inches)
 #define ROBOT_BASE_DEPTH 32.0

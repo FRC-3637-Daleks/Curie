@@ -49,18 +49,14 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 
 	switch (command) {
 	case DriveItSlow:
-		motorPower = 0.25;
+		motorPower = 0.4;
 	case DriveIt:
-		frc::SmartDashboard::PutNumber("Driveit: dist trav",
-						distanceTraveled);
-		frc::SmartDashboard::PutNumber("Driveit: dist targ",
-						distance);
 		//check if we've reached target distance for this step
 		if (distanceTraveled < distance) {
 			//if (sensor indicates obstacle) {
 			// state = AutonBlocked;
 			//else
-			if (distance - distanceTraveled > 12.0) {
+			if (distance - distanceTraveled > 24.0) {
 				motorPower = 0.5;
 			}
 			d->TankDrive(-1 * motorPower * AUTON_DRIFT_CORRECTION, -1 * motorPower);
@@ -70,13 +66,9 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 		}
 		break;
 	case TurnIt:
-		motorPower = 0.50;
+		motorPower = 0.475;
 		//TODO what kind of measurement does this give? 0-360? what if turn more than 360? did we start at 0?
-		frc::SmartDashboard::PutNumber("Driveit: Heading",
-				ahrs->GetFusedHeading());
 		currAngle = fmod(ahrs->GetFusedHeading(), 360.0);
-		frc::SmartDashboard::PutNumber("Driveit: Yaw",
-				ahrs->GetYaw());
 		diff = angle - currAngle;
 		// We are within tolerance to turn is considered complete
 		if (fabs(diff) < ANGLE_DIFF_LIMIT) {
@@ -114,7 +106,7 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 		break;
 	case LowerWrist:
 		//If not at lower limit, lower the wrist.
-		if ( (i->WristLowerLimit()) != 1)
+		if (i->WristLowerLimit() == true)
 			i->Lower();
 		else
 			state = AutonComplete;
