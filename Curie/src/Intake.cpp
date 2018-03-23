@@ -122,6 +122,12 @@ Intake::WristLowerLimit()
 	return (m_lowerLimit->Get() == 1);
 }
 
+double
+Intake::WristPosition()
+{
+	return m_wristMotor->GetSensorCollection().GetQuadraturePosition();
+}
+
 Intake::~Intake()
 {
 	if(m_needFree) {
@@ -154,7 +160,7 @@ Intake::InitIntake()
 
 	m_wristMotor->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, PIDLoopIdx, CANTimeoutMs);
 	m_wristMotor->SetSensorPhase(true);
-
+	m_wristMotor->GetSensorCollection().SetQuadraturePosition(0,0);
 	m_wristMotor->SetInverted(false);
 	m_rollerMotor->SetInverted(false);
 }

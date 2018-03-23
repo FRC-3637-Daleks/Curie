@@ -12,7 +12,6 @@
 #include <Curie.h>
 #include <Lifter.h>
 #include <Intake.h>
-#include <Amcrest.h>
 #include <SimplePath.h>
 
 using namespace std;
@@ -25,9 +24,8 @@ public:
  	WPI_TalonSRX *leftSlave,  *rightSlave;
 	WPI_TalonSRX *wristMotor, *rollerMotor;
 	WPI_TalonSRX *liftMaster, *liftSlave;
-	AnalogInput	 *ultraLeft,  *ultraRight;
+	Ultrasonic	 *ultraLeft,  *ultraRight;
 	Solenoid     *shifter, *brace, *lock;
-	AmcrestIPCAM *cam;
 	Joystick     *leftJoystick, *rightJoystick;
 	XboxController *xbox;
 	DalekDrive *drive;
@@ -55,13 +53,13 @@ public:
 		intake        = new Intake(wristMotor, rollerMotor, IntakeLowerLimit,
 								   IntakeUpperLimit);
 		ahrs          = new AHRS(SPI::Port::kMXP);
-		ultraLeft     = new AnalogInput(UltrasonicLeft);
-		ultraRight    = new AnalogInput(UltrasonicRight);
-		cam           = new AmcrestIPCAM(IP_CAMERA, 0, 1);
+		ultraLeft     = new Ultrasonic(UltrasonicLeft+1, UltrasonicLeft);
+		ultraRight    = new Ultrasonic(UltrasonicRight+1, UltrasonicRight);
 		shifter       = new Solenoid(PCMID, Shifter);
 		brace         = new Solenoid(PCMID, Brace);
 		lock          = new Solenoid(PCMID, Lock);
-		drive         = new DalekDrive(leftMotor, leftSlave, rightMotor, rightSlave);
+		drive         = new DalekDrive(leftMotor, leftSlave,
+										rightMotor, rightSlave, ahrs);
 		lift          = new Lifter(liftMaster, liftSlave, shifter, brace, lock,
 								LiftLowerLimit, LiftUpperLimit, UltrasonicClimb);
 
@@ -80,7 +78,11 @@ public:
 		intake->Start();
 		ahrs->ZeroYaw();
 
-
+		// setup ultrasonic sensors to run automatically
+		ultraLeft->SetAutomaticMode(true);
+		ultraRight->SetAutomaticMode(true);
+		ultraLeft->SetEnabled(true);
+		ultraRight->SetEnabled(true);
 	}
 
 	void
@@ -125,7 +127,7 @@ public:
 	void
 	AutonomousPeriodic()
 	{
-		autonPath->RunPath(drive, ahrs, intake, lift);
+		autonPath->RunPath(drive, ahrs, intake, lift, ultraLeft, ultraRight);
 		frc::SmartDashboard::PutNumber("Driveit: Drive Distance",
 				drive->GetDistance());
 		frc::SmartDashboard::PutNumber("autoCount",
@@ -185,13 +187,12 @@ public:
 
 		if (xbox->GetBumperPressed(frc::GenericHID::JoystickHand::kLeftHand)) {
 			lift->SetOperatingMode(Lifter::ELEVATOR_MODE);
-
 		} else if (xbox->GetBumperPressed(frc::GenericHID::JoystickHand::kRightHand)) {
 			lift->SetOperatingMode(Lifter::CLIMBING_MODE);
 		}
 
 		// manual control of elevator & climber
-		//Switched Right and left hand, this was only for testing
+		// Switched Right and left hand, this was only for testing
 		if(lift->GetTalonMode() != Lifter::POSITION) {
 			if (xbox->GetTriggerAxis(frc::GenericHID::JoystickHand::kRightHand) > 0.05) {
 				if (intake->WristUpperLimit() == true) {
@@ -208,7 +209,7 @@ public:
 
 		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kRightHand)) {
 			lift->SetTalonMode(Lifter::POSITION);
-			lift->Set(5000);
+			lift->Set(4096);
 		}
 		if(leftJoystick->GetTrigger())
 			drive->SetPrecisionMode(true);
@@ -245,8 +246,10 @@ public:
 		frc::SmartDashboard::PutNumber("AtTop",
 				lift->AtTop());
 		*/
-
-
+		frc::SmartDashboard::PutNumber("UL", ultraLeft->GetRangeInches());
+		frc::SmartDashboard::PutNumber("UR", ultraRight->GetRangeInches());
+		frc::SmartDashboard::PutNumber("Wrist Position",
+				intake->WristPosition());
 	}
 
 private:

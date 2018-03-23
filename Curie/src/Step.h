@@ -40,18 +40,22 @@ enum Commands {
 class Step {
 public:
 	typedef enum Commands Commands_t;
+	float start;
+	Commands_t command;
+
 	Step();
 	Step(Commands_t com, double howFar);
-	//TODO need to add proximity sensor!
+	// TODO need to add proximity sensor!
 	AutonState_t ExecuteStep(DalekDrive *d, AHRS *ahrs, Intake *i, Lifter *l );
 	virtual ~Step();
 private:
-	Commands_t command;
-	//In inches
+	//Commands_t command;
+	// In inches
 	float distance;
-	//In degrees, relative
+
+	// In degrees, relative
 	float angle;
-	//In Inches??(or should it be in encoder terms?)
+	// In encoder ticks
 	float position;
 	bool Travel(double dist);
 	bool Turn (double angle);

@@ -9,9 +9,10 @@
 
 #include <WPILib.h>
 #include <ctre/Phoenix.h>
+#include <AHRS.h>
 #include <DalekDrive.h>
 
-DalekDrive::DalekDrive(int leftMotorChannel, int rightMotorChannel)
+DalekDrive::DalekDrive(int leftMotorChannel, int rightMotorChannel, AHRS *a)
 {
 	m_leftMotor       = new WPI_TalonSRX(leftMotorChannel);
 	m_rightMotor      = new WPI_TalonSRX(rightMotorChannel);
@@ -19,12 +20,15 @@ DalekDrive::DalekDrive(int leftMotorChannel, int rightMotorChannel)
 	m_rightSlaveMotor = NULL;
 	m_drive           = new DifferentialDrive(*m_leftMotor, *m_rightMotor);
 	m_mode            = Normal;
+	m_ahrs            = a;
+    m_turnController  = new PIDController(kP, kI, kD, kF, m_ahrs, this);
 	InitDalekDrive();
 
 	m_needFree = true;
 }
 
-DalekDrive::DalekDrive(int leftMotorChannel, int leftSlaveMotorChannel, int rightMotorChannel, int rightSlaveMotorChannel)
+DalekDrive::DalekDrive(int leftMotorChannel, int leftSlaveMotorChannel,
+			int rightMotorChannel, int rightSlaveMotorChannel, AHRS *a)
 {
 	m_leftMotor       = new WPI_TalonSRX(leftMotorChannel);
 	m_rightMotor      = new WPI_TalonSRX(rightMotorChannel);
@@ -32,12 +36,15 @@ DalekDrive::DalekDrive(int leftMotorChannel, int leftSlaveMotorChannel, int righ
 	m_rightSlaveMotor = new WPI_TalonSRX(rightSlaveMotorChannel);
 	m_drive           = new DifferentialDrive(*m_leftMotor, *m_rightMotor);
 	m_mode            = Normal;
+	m_ahrs            = a;
+	m_turnController  = new PIDController(kP, kI, kD, kF, m_ahrs, this);
 	InitDalekDrive();
 
 	m_needFree = true;
 }
 
-DalekDrive::DalekDrive(WPI_TalonSRX* leftMotor, WPI_TalonSRX* rightMotor)
+DalekDrive::DalekDrive(WPI_TalonSRX* leftMotor, WPI_TalonSRX* rightMotor,
+		AHRS *a)
 {
 	m_leftMotor       = leftMotor;
 	m_rightMotor      = rightMotor;
@@ -45,12 +52,15 @@ DalekDrive::DalekDrive(WPI_TalonSRX* leftMotor, WPI_TalonSRX* rightMotor)
 	m_rightSlaveMotor = NULL;
 	m_drive           = new DifferentialDrive(*m_leftMotor, *m_rightMotor);
 	m_mode            = Normal;
+	m_ahrs            = a;
+	m_turnController  = new PIDController(kP, kI, kD, kF, m_ahrs, this);
 	InitDalekDrive();
 
 	m_needFree = false;
 }
 
-DalekDrive::DalekDrive(WPI_TalonSRX& leftMotor, WPI_TalonSRX& rightMotor)
+DalekDrive::DalekDrive(WPI_TalonSRX& leftMotor, WPI_TalonSRX& rightMotor,
+		AHRS *a)
 {
 	m_leftMotor       = &leftMotor;
 	m_rightMotor      = &rightMotor;
@@ -58,13 +68,15 @@ DalekDrive::DalekDrive(WPI_TalonSRX& leftMotor, WPI_TalonSRX& rightMotor)
 	m_rightSlaveMotor = NULL;
 	m_drive           = new DifferentialDrive(*m_leftMotor, *m_rightMotor);
 	m_mode            = Normal;
+	m_ahrs            = a;
+	m_turnController  = new PIDController(kP, kI, kD, kF, m_ahrs, this);
 	InitDalekDrive();
 
 	m_needFree = false;
 }
 
 DalekDrive::DalekDrive(WPI_TalonSRX* leftMotor, WPI_TalonSRX* leftSlaveMotor,
-		 WPI_TalonSRX* rightMotor, WPI_TalonSRX* rightSlaveMotor)
+		 WPI_TalonSRX* rightMotor, WPI_TalonSRX* rightSlaveMotor, AHRS *a)
 {
 	m_leftMotor       = leftMotor;
 	m_leftSlaveMotor  = leftSlaveMotor;
@@ -72,13 +84,15 @@ DalekDrive::DalekDrive(WPI_TalonSRX* leftMotor, WPI_TalonSRX* leftSlaveMotor,
 	m_rightSlaveMotor = rightSlaveMotor;
 	m_drive           = new DifferentialDrive(*m_leftMotor, *m_rightMotor);
 	m_mode            = Normal;
+	m_ahrs            = a;
+	m_turnController  = new PIDController(kP, kI, kD, kF, m_ahrs, this);
 	InitDalekDrive();
 
 	m_needFree = false;
 }
 
 DalekDrive::DalekDrive(WPI_TalonSRX& leftMotor, WPI_TalonSRX& leftSlaveMotor,
-		 WPI_TalonSRX& rightMotor, WPI_TalonSRX& rightSlaveMotor)
+		 WPI_TalonSRX& rightMotor, WPI_TalonSRX& rightSlaveMotor, AHRS *a)
 {
 	m_leftMotor       = &leftMotor;
 	m_leftSlaveMotor  = &leftSlaveMotor;
@@ -86,6 +100,8 @@ DalekDrive::DalekDrive(WPI_TalonSRX& leftMotor, WPI_TalonSRX& leftSlaveMotor,
 	m_rightSlaveMotor = &rightSlaveMotor;
 	m_drive           = new DifferentialDrive(*m_leftMotor, *m_rightMotor);
 	m_mode            = Normal;
+	m_ahrs            = a;
+	m_turnController  = new PIDController(kP, kI, kD, kF, m_ahrs, this);
 	InitDalekDrive();
 
 	m_needFree = false;
@@ -102,8 +118,24 @@ DalekDrive::~DalekDrive()
 		if(m_rightSlaveMotor)
 			delete m_rightSlaveMotor;
 	}
+	m_turnController->Disable();
+	delete m_turnController;
+
 	m_needFree = false;
 	return;
+}
+
+void
+DalekDrive::PIDWrite(double output)
+{
+	angleAdj = output;
+	return;
+}
+
+void
+DalekDrive::DisableTurnControl()
+{
+	m_turnController->Disable();
 }
 
 void
@@ -289,6 +321,46 @@ DalekDrive::GetVelocity(MotorType_t motor)
 }
 
 void
+DalekDrive::DriveStraight(double speed)
+{
+	if(!m_turnController->IsEnabled()) {
+		// Acquire current yaw angle, using this as the target angle.
+		m_turnController->SetSetpoint(m_ahrs->GetYaw());
+		angleAdj = 0.0;
+		m_turnController->Enable();
+	}
+	double leftStickValue  = speed + angleAdj;
+	double rightStickValue = speed - angleAdj;
+	TankDrive(-1 * leftStickValue,  -1 * rightStickValue, false);
+	return;
+}
+
+bool
+DalekDrive::isTurnCCW(float h, float c)
+{
+	const float diff = h - c;
+	if(diff > 0.0f)
+		return (diff > 180.0f);
+	return (diff >= -180.0f);
+}
+
+void
+DalekDrive::TurnToHeading(double speed, double heading)
+{
+	float currentHeading = fmod(m_ahrs->GetFusedHeading(), 360.0f);
+
+	// not sure how to get the turnController to help
+	if(m_turnController->IsEnabled())
+		m_turnController->Disable();
+
+	if(isTurnCCW(heading, currentHeading))
+		TankDrive(-1 * speed, speed, false);
+	else
+		TankDrive(speed, -1 * speed, false);
+	return;
+}
+
+void
 DalekDrive::InitDalekDrive(void)
 {
 	// Configure the Talon's as needed
@@ -326,6 +398,13 @@ DalekDrive::InitDalekDrive(void)
 		m_rightSlaveMotor->ConfigOpenloopRamp(RAMP_RATE, CANTimeoutMs);
 	}
 	inMode = ControlMode::PercentOutput;
+
+    angleAdj = 0.0;
+    m_turnController->SetInputRange(-180.0f,  180.0f);
+    m_turnController->SetOutputRange(-1.0, 1.0);
+    m_turnController->SetPercentTolerance(kToleranceDegrees/360.0);
+    m_turnController->SetContinuous(true);
+    m_turnController->Disable();
 }
 
 bool

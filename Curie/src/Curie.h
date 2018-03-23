@@ -52,13 +52,12 @@ enum DigitalIO {
 	IntakeLowerLimit = 3,
 	IntakeUpperLimit = 2,
 #endif
+	UltrasonicLeft  = 4, /* and 5 */
+	UltrasonicRight = 6, /* and 7 */
 };
 
 enum AnalogIO {
-	UltrasonicLeft  = 2,
-	UltrasonicRight = 3,
 	UltrasonicClimb = 0,
-	MagnetoPot      = 1,
 };
 
 enum CANConstants {
@@ -91,20 +90,15 @@ enum CANConstants {
 #define WHEEL_DIAMETER_INCHES 6.0
 #define AT_WHEEL_RATIO (26.0/22.0)
 #define ENCODER_TICKS_PER_INCH 215
+#define RAMP_RATE 0.2
 
-//Constants for Auton
+// Constants for Autonomous Modes
 #define AUTON_DRIFT_CORRECTION 1.055
 #define BASELINE_TARGET_DISTANCE 125.0
-#define SWITCH_DELIVERY_HEIGHT 5750
-//Need to find values in encoder values
-#define SCALE_DELIVERY_HEIGHT 5750
+#define SWITCH_DELIVERY_HEIGHT 4096
+#define SCALE_DELIVERY_HEIGHT 6750
 #define DELIVERY_POWER 0.5
-#define RPM_THRESHOLD 300
-#define RAMP_RATE 0.2
-#define ANGLE_DIFF_LIMIT 1.0
-
-//Depth front to back of robot base (in inches)
+#define ANGLE_DIFF_LIMIT 1.0f
 #define ROBOT_BASE_DEPTH 32.0
-
 
 #endif /* _CURIE_H_ */

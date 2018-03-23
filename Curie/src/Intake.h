@@ -35,6 +35,7 @@ class Intake: public DalekTask {
 	void StopRoller();
 	bool WristUpperLimit();
 	bool WristLowerLimit();
+	double WristPosition();
 
 	~Intake();
 

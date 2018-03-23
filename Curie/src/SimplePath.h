@@ -13,7 +13,7 @@
 #include <Curie.h>
 #include <AHRS.h>
 #include <Step.h>
-#include "WPILib.h"
+#include <WPILib.h>
 #include <Intake.h>
 #include <Lifter.h>
 #include <SmartDashboard/SendableChooser.h>
@@ -47,14 +47,16 @@ public:
 	SimplePath(StartPositions_t start, TargetType_t target);
 	virtual ~SimplePath();
 	void AddStep(Step newStep);
-	//TODO need to add proximity sensor!
-	AutonState_t RunPath(DalekDrive *d, AHRS *ahrs, Intake *i, Lifter *l);
+	// TODO need to add proximity sensor!
+	AutonState_t RunPath(DalekDrive *d, AHRS *ahrs, Intake *i, Lifter *l,
+			Ultrasonic *ul, Ultrasonic *ur);
 
 private:
 	void CreateSameSideSwitchPath(StartPositions_t start);
 	void CreateSameSideScalePath(StartPositions_t start);
 	void CreateOppSideSwitchPath(StartPositions_t start);
 	void CreateOppSideScalePath(StartPositions_t start);
+	double DetermineAngle(StartPositions_t start, double left, double right);
 	std::vector<Step> steps;
 	AutonState_t state;
 	int currentStepNumber = 0;
