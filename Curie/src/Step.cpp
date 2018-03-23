@@ -63,7 +63,8 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 {
 	AutonState_t state = AutonExecuting;
 	double distanceTraveled = d->GetDistance() - start;
-	float currAngle, diff;
+	float currAngle;
+	// float diff;
 	double motorPower = 0.5;
 
 	switch (command) {
@@ -79,16 +80,13 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 				break;
 			}
 			d->DriveStraight(motorPower);
-			// d->TankDrive(-1 * motorPower * AUTON_DRIFT_CORRECTION, -1 * motorPower);
+			// d->TankDrive(-1 * motorPower, -1 * motorPower);
 			break;
 		case TurnIt:
 			motorPower = 0.3;
 			currAngle = fmod(ahrs->GetFusedHeading(), 360.0f);
-			diff = angle - currAngle;
+			// diff = angle - currAngle;
 			// We are within tolerance to turn is considered complete
-			frc::SmartDashboard::PutNumber("Turnit: Difference", diff);
-			frc::SmartDashboard::PutNumber("Turnit: Current", currAngle);
-			frc::SmartDashboard::PutNumber("Turnit: Target", angle);
 			if (fabs(angle - currAngle) < ANGLE_DIFF_LIMIT) {
 				state = AutonComplete;
 				d->TankDrive(0.0, 0.0);
@@ -106,8 +104,6 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 				d->TankDrive(motorPower, -1 * motorPower, false); */
 			break;
 		case LiftIt:
-			frc::SmartDashboard::PutNumber("lifter pos", l->GetPosition());
-			frc::SmartDashboard::PutNumber("req pos", position);
 			d->TankDrive(0.0, 0.0);
 			if ( l->GetPosition() < position)
 				l->AutonUp(position);

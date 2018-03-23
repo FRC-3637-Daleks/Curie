@@ -115,7 +115,7 @@ SimplePath::CreateOppSideSwitchPath(StartPositions_t startPos)
 	AddStep(Step(DriveIt, 134.5));
 	AddStep(Step(TurnIt, DetermineAngle(startPos, 270.0, 90.0)));
 	AddStep(Step(DriveIt, 26.0));
-	AddStep(Step(LowerWrist, 90));
+	AddStep(Step(LowerWrist, 1000));
 	AddStep(Step(LiftIt, SWITCH_DELIVERY_HEIGHT));
 	AddStep(Step(DriveItSlow, 12.0));
 	AddStep(Step(DeliverIt, DELIVERY_POWER));
@@ -133,7 +133,7 @@ SimplePath::CreateSameSideScalePath(StartPositions_t startPos)
 	steps.reserve(6);
 	AddStep(Step(DriveIt, 324.0));
 	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
-	AddStep(Step(LowerWrist, 90));
+	AddStep(Step(LowerWrist, 1000));
 	AddStep(Step(LiftIt, SCALE_DELIVERY_HEIGHT));
 	AddStep(Step(DriveItSlow, 30.0));
 	AddStep(Step(DeliverIt, DELIVERY_POWER));
@@ -155,7 +155,7 @@ SimplePath::CreateOppSideScalePath(StartPositions_t startPos)
 	AddStep(Step(TurnIt, DetermineAngle(startPos, 270.0, 90.0)));
 	AddStep(Step(DriveIt, 76.0));
 	AddStep(Step(TurnIt, DetermineAngle(startPos, 270.0, 90.0)));
-	AddStep(Step(LowerWrist, 90));
+	AddStep(Step(LowerWrist, 1000));
 	AddStep(Step(LiftIt, SWITCH_DELIVERY_HEIGHT));
 	AddStep(Step(DriveItSlow, 30.0));
 	AddStep(Step(DeliverIt, DELIVERY_POWER));
@@ -185,8 +185,6 @@ SimplePath::RunPath(DalekDrive *d, AHRS *ahrs, Intake *i, Lifter *l,
 			// Need to pass distance
 			frc::SmartDashboard::PutNumber("Current Step Executing:",
 					currentStepNumber);
-			frc::SmartDashboard::PutNumber("Current command",
-					steps.at(currentStepNumber).command);
 			state = steps.at(currentStepNumber).ExecuteStep(d, ahrs, i, l);
 			if (state == AutonComplete) {
 				currentStepNumber++;
