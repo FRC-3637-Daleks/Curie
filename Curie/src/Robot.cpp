@@ -136,6 +136,10 @@ public:
 				leftMotor->GetSensorCollection().GetQuadraturePosition());
 		frc::SmartDashboard::PutNumber("Driveit: Heading",
 				ahrs->GetFusedHeading());
+		frc::SmartDashboard::PutNumber("Wrist Position",
+				intake->WristPosition());
+		frc::SmartDashboard::PutNumber("Elevator Position",
+				lift->GetPosition());
 		autoCount++;
 	}
 
@@ -144,6 +148,7 @@ public:
 	{
 		if(!lift->AtBottom())
 			lift->MoveToBottom();
+		lift->SetTalonMode(Lifter::PERCENT_VBUS);
 	}
 
 	void TeleopPeriodic()

@@ -5,7 +5,8 @@
  *      Author: FLL2
  */
 
-#include "SimplePath.h"
+#include <SimplePath.h>
+#include <WPILib.h>
 
 SimplePath::SimplePath(size_t len)
 {
@@ -92,10 +93,10 @@ SimplePath::CreateSameSideSwitchPath(StartPositions_t startPos)
 	// Distance to travel = distance to fence + 1/2 depth of switch
 	// distance = 140" + 1/2(56") = 168"
 
-	AddStep(Step(DriveIt, 158.0));
-	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
-    AddStep(Step(LowerWrist, 1000));
+	AddStep(Step(DriveIt, 140.0));
+    //AddStep(Step(LowerWrist, 1000));
 	AddStep(Step(LiftIt, SWITCH_DELIVERY_HEIGHT));
+	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
 	AddStep(Step(DriveItSlow, 20.0));
 	AddStep(Step(DeliverIt, DELIVERY_POWER));
 }
@@ -107,18 +108,23 @@ SimplePath::CreateOppSideSwitchPath(StartPositions_t startPos)
 	// Path is through area between starting positions and switch, assuming robot starts at center of player station.
 	// End position is perpendicular to switch.
 	// Distance from start to switch not accounting for robot base is 140 in.
-	steps.reserve(9);
+	steps.reserve(1);
+	// Have to subtract robot depth as only front of robot needs to cross baseline
+	AddStep(Step(DriveIt,
+			BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
 
-	AddStep(Step(DriveIt, 70.0));
-	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
-	// Range goes from 98.5 in. to 170.5 in. depending on how far you start from the side wall.
-	AddStep(Step(DriveIt, 134.5));
-	AddStep(Step(TurnIt, DetermineAngle(startPos, 270.0, 90.0)));
-	AddStep(Step(DriveIt, 26.0));
-	AddStep(Step(LowerWrist, 1000));
-	AddStep(Step(LiftIt, SWITCH_DELIVERY_HEIGHT));
-	AddStep(Step(DriveItSlow, 12.0));
-	AddStep(Step(DeliverIt, DELIVERY_POWER));
+//	steps.reserve(9);
+//
+//	AddStep(Step(DriveIt, 70.0));
+//	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
+//	// Range goes from 98.5 in. to 170.5 in. depending on how far you start from the side wall.
+//	AddStep(Step(DriveIt, 134.5));
+//	AddStep(Step(TurnIt, DetermineAngle(startPos, 270.0, 90.0)));
+//	AddStep(Step(DriveIt, 26.0));
+//	AddStep(Step(LowerWrist, 1000));
+//	AddStep(Step(LiftIt, SWITCH_DELIVERY_HEIGHT));
+//	AddStep(Step(DriveItSlow, 12.0));
+//	AddStep(Step(DeliverIt, DELIVERY_POWER));
 
 }
 
@@ -171,6 +177,8 @@ AutonState_t
 SimplePath::RunPath(DalekDrive *d, AHRS *ahrs, Intake *i, Lifter *l,
 		Ultrasonic *ul, Ultrasonic *ur)
 {
+	frc::SmartDashboard::PutNumber("Step",
+			currentStepNumber);
 	frc::SmartDashboard::PutNumber("SimplePath: Heading",
 			ahrs->GetCompassHeading());
 	switch (state) {
@@ -182,7 +190,7 @@ SimplePath::RunPath(DalekDrive *d, AHRS *ahrs, Intake *i, Lifter *l,
 			distanceTraveled = 0.0;
 			break;
 		case AutonExecuting:
-			// Need to pass distance
+			// Need to pass distanc
 			frc::SmartDashboard::PutNumber("Current Step Executing:",
 					currentStepNumber);
 			state = steps.at(currentStepNumber).ExecuteStep(d, ahrs, i, l);
@@ -202,6 +210,7 @@ SimplePath::RunPath(DalekDrive *d, AHRS *ahrs, Intake *i, Lifter *l,
 		default:
 			break;
 	}
+
 	return state;
 }
 
