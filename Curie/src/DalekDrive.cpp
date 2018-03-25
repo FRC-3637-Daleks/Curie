@@ -336,27 +336,44 @@ DalekDrive::DriveStraight(double speed)
 }
 
 bool
-DalekDrive::isTurnCCW(float h, float c)
+DalekDrive::isTurnCCW(float current, float target)
 {
-	const float diff = h - c;
-	if(diff > 0.0f)
-		return (diff > 180.0f);
-	return (diff >= -180.0f);
+	const float diff = current - target;
+	if(diff > 0.0f) {
+		if (diff > 180.0f)
+			return false;
+		return true;
+	}
+	if(diff > -180.0f)
+		return false;
+	return true;
+	// return ((diff > 0.0f) ? (diff > 180.0f) : (diff > -180.0f));
+}
+
+float
+DalekDrive::headingDiff(float current, float target)
+{
+	const float diff = fmod(current - target + 3600, 360);
+	return diff <= 180 ? diff : 360 - diff;
 }
 
 void
 DalekDrive::TurnToHeading(double speed, double heading)
 {
-	float currentHeading = fmod(m_ahrs->GetFusedHeading(), 360.0f);
+	float current = m_ahrs->GetFusedHeading();
+	float hdiff   = headingDiff(current, heading);
 
 	// not sure how to get the turnController to help
 	if(m_turnController->IsEnabled())
 		m_turnController->Disable();
 
-	if(isTurnCCW(heading, currentHeading))
-		TankDrive(-1 * speed, speed, false);
-	else
+	if(hdiff < 10.0f)
+		speed /= 2;
+
+	if(isTurnCCW(current, (float)heading))
 		TankDrive(speed, -1 * speed, false);
+	else
+		TankDrive(-1 * speed, speed, false);
 	return;
 }
 

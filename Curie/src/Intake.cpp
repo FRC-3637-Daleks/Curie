@@ -128,6 +128,12 @@ Intake::WristPosition()
 	return m_wristMotor->GetSensorCollection().GetQuadraturePosition();
 }
 
+void
+Intake::ResetPosition()
+{
+	m_wristMotor->GetSensorCollection().SetQuadraturePosition(0, 0);
+}
+
 Intake::~Intake()
 {
 	if(m_needFree) {

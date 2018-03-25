@@ -57,7 +57,8 @@ class DalekDrive : public PIDOutput {
 	int  GetVelocity(MotorType_t motor);
 	void SetPrecisionMode(bool v);
 	bool DriveOk();
-	bool isTurnCCW(float newHeading, float currentHeading);
+	bool isTurnCCW(float target, float current);
+	float headingDiff(float target, float current);
 	void DisableTurnControl();
 	virtual void PIDWrite(double output);
 

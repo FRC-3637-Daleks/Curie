@@ -36,7 +36,7 @@ class Intake: public DalekTask {
 	bool WristUpperLimit();
 	bool WristLowerLimit();
 	double WristPosition();
-
+	void ResetPosition();
 	~Intake();
 
   private:

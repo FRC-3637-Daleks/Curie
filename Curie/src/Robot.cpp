@@ -122,6 +122,7 @@ public:
 		autoCount = 0;
 
 		lift->SetTalonMode(Lifter::POSITION);
+		intake->ResetPosition();
 	}
 
 	void

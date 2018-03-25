@@ -36,6 +36,10 @@ Step::Step(Commands_t com, double howFar)
 			command = LiftIt;
 			position = howFar;
 			break;
+		case LiftLowerIt:
+			command = LiftLowerIt;
+			position = howFar;
+			break;
 		case TurnIt:
 			command = TurnIt;
 			angle = howFar;
@@ -64,7 +68,6 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 	AutonState_t state = AutonExecuting;
 	double distanceTraveled = d->GetDistance() - start;
 	float currAngle;
-	float diff;
 	double motorPower = 0.5;
 
 	switch (command) {
@@ -82,11 +85,9 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 			d->DriveStraight(motorPower);
 			// d->TankDrive(-1 * motorPower, -1 * motorPower);
 			break;
-		//New Version of TurnIt-> does not work
-		/**case TurnIt:
+		case TurnIt:
 			motorPower = 0.3;
 			currAngle = fmod(ahrs->GetFusedHeading(), 360.0f);
-			// diff = angle - currAngle;
 			// We are within tolerance to turn is considered complete
 			if (fabs(angle - currAngle) < ANGLE_DIFF_LIMIT) {
 				state = AutonComplete;
@@ -94,66 +95,30 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 				break;
 			}
 			d->TurnToHeading(motorPower, angle);
-			if(diff > 180.0) {
-				diff -= 180.0;
-				if(diff > 0)
-					diff *= -1.0;
-			}
-			if (diff > 0.0f)
-				d->TankDrive(-1 * motorPower, motorPower, false);
-			else
-				d->TankDrive(motorPower, -1 * motorPower, false);*/
-		//This version of TurnIt has been restored from March 19th code base.
-		case TurnIt:
-				motorPower = 0.50;
-				motorPower = 0.475;
-		 		//TODO what kind of measurement does this give? 0-360? what if turn more than 360? did we start at 0?
-				frc::SmartDashboard::PutNumber("Driveit: Heading",
-						ahrs->GetFusedHeading());
-		 		currAngle = fmod(ahrs->GetFusedHeading(), 360.0);
-		 		diff = angle - currAngle;
-		 		// We are within tolerance to turn is considered complete
-		 		if (fabs(diff) < ANGLE_DIFF_LIMIT) {
-		 			state = AutonComplete;
-		 		 			d->TankDrive(0.0, 0.0);
-		 		 		} else {
-//		 		 			if (fabs(diff) > 180) {
-//		 		 				newdiff = fabs(diff) - 180;
-//		 		 				if (diff > 0) {
-//		 		 					diff = newdiff * -1;
-//		 		 				}
-//		 		 			frc::SmartDashboard::PutNumber("Driveit: Diff",
-//		 		 					diff);
-//		 		 			}
-//		 		 			if (diff > 0) {
-		 		 			if (d->isTurnCCW(angle, currAngle)) {
-		 		 			//TODO is this the right power?  do we need to check for obstacle while turning?
-		 		 			//     Decrease power if diff is close to 0???
-		 		 				d->TankDrive(-1 * motorPower, motorPower);
-		 		 			} else {
-		 		 				d->TankDrive(motorPower, -1 * motorPower);
-		 		 			}
-		 		 		}
 		 	break;
-
 		case LiftIt:
 			d->TankDrive(0.0, 0.0);
-
-			if ((fabs(i->WristPosition() - WRIST_POSITION) < 100) && ((WRIST_POSITION - l->GetPosition()) < 500)) {
+			if (fabs(l->GetPosition() - position) < 500) {
 				state = AutonComplete;
 				break;
 			}
-			if (fabs(i->WristPosition() - WRIST_POSITION) < 100) {
+			l->AutonUp(position);
+			break;
+		case LiftLowerIt:
+			d->TankDrive(0.0, 0.0);
+			if ((fabs(i->WristPosition() - WRIST_POSITION) < 100)  &&
+				(fabs(l->GetPosition() - position) < 500)) {
+				state = AutonComplete;
+				break;
+			}
+			if (fabs(i->WristPosition() - 1000) < 100) {
 				i->StopWrist();
 			}
 			else {
-	//				if(i->WristUpperLimit() == true)
-						l->AutonUp(position);
-					i->Lower();
+				i->Lower();
 			}
-			;
+			l->AutonUp(position);
 			break;
-
 		case DeliverIt:
 			d->TankDrive(0.0, 0.0);
 			i->Push();

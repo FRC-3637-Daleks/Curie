@@ -33,6 +33,7 @@ enum Commands {
 	DriveItSlow,
 	TurnIt,
 	LiftIt,
+	LiftLowerIt,
 	DeliverIt,
 	LowerWrist,
 };
