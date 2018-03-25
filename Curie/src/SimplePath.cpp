@@ -93,7 +93,7 @@ SimplePath::CreateSameSideSwitchPath(StartPositions_t startPos)
 	// Distance to travel = distance to fence + 1/2 depth of switch
 	// distance = 140" + 1/2(56") = 168"
 
-	AddStep(Step(DriveIt, 140.0));
+	AddStep(Step(DriveIt, 120.0));
 //	AddStep(Step(LowerWrist, 1000));
 	AddStep(Step(LiftLowerIt, SWITCH_DELIVERY_HEIGHT));
 	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
