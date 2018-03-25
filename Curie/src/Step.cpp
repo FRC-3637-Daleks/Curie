@@ -126,7 +126,7 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 //		 		 					diff);
 //		 		 			}
 //		 		 			if (diff > 0) {
-		 		 			if (d->isTurnCW(angle, currAngle)) {
+		 		 			if (d->isTurnCCW(angle, currAngle)) {
 		 		 			//TODO is this the right power?  do we need to check for obstacle while turning?
 		 		 			//     Decrease power if diff is close to 0???
 		 		 				d->TankDrive(-1 * motorPower, motorPower);
