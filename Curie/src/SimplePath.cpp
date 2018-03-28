@@ -137,11 +137,12 @@ SimplePath::CreateSameSideScalePath(StartPositions_t startPos)
 	// Halfway mark is 324 in., not accounting for robot base.
 
 	steps.reserve(6);
-	AddStep(Step(DriveIt, 324.0));
+	AddStep(Step(DriveIt, 300.0 - ROBOT_BASE_DEPTH));
+	AddStep(Step(LiftLowerIt, SCALE_DELIVERY_HEIGHT));
+
 	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
-	AddStep(Step(LowerWrist, 1000));
-	AddStep(Step(LiftIt, SCALE_DELIVERY_HEIGHT));
-	AddStep(Step(DriveItSlow, 30.0));
+	// AddStep(Step(LowerWrist, 1000));
+	AddStep(Step(DriveItSlow, 10.0));
 	AddStep(Step(DeliverIt, DELIVERY_POWER));
 
 }

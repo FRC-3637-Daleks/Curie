@@ -50,7 +50,7 @@ class DalekDrive : public PIDOutput {
 	void SetInvertedMotor(MotorType_t motor, bool isInverted);
 	void SetMaxOutput(double maxOutput);
 	void SetControlMode(ctre::phoenix::motorcontrol::ControlMode mode);
-	void DriveStraight(double speed);
+	void DriveStraight(double speed, double target);
 	void TurnToHeading(double speed, double heading);
 	int  GetPosition(MotorType_t motor);
 	double GetDistance();

@@ -82,7 +82,7 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 				d->TankDrive(0.0, 0.0);
 				break;
 			}
-			d->DriveStraight(motorPower);
+			d->DriveStraight(motorPower, distance+start);
 			// d->TankDrive(-1 * motorPower, -1 * motorPower);
 			break;
 		case TurnIt:

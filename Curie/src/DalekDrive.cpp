@@ -306,8 +306,10 @@ DalekDrive::GetPosition(MotorType_t motor)
 double
 DalekDrive::GetDistance()
 {
-	double ave_ticks = ((m_leftMotor->GetSensorCollection().GetQuadraturePosition()*-1) +
-							m_rightMotor->GetSensorCollection().GetQuadraturePosition()) / 2.0;
+	double left_ticks  = m_leftMotor->GetSensorCollection().GetQuadraturePosition();
+	double right_ticks = m_rightMotor->GetSensorCollection().GetQuadraturePosition();
+	double ave_ticks = (fabs(left_ticks) + fabs(right_ticks))/2.0;
+
 	return ave_ticks / ENCODER_TICKS_PER_INCH;
 
 }
@@ -321,7 +323,7 @@ DalekDrive::GetVelocity(MotorType_t motor)
 }
 
 void
-DalekDrive::DriveStraight(double speed)
+DalekDrive::DriveStraight(double speed, double target)
 {
 	if(!m_turnController->IsEnabled()) {
 		// Acquire current yaw angle, using this as the target angle.
@@ -329,6 +331,9 @@ DalekDrive::DriveStraight(double speed)
 		angleAdj = 0.0;
 		m_turnController->Enable();
 	}
+	// slow down when we get near to our destination
+	if(fabs(target - GetDistance()) < 36)
+		speed /= 2;
 	double leftStickValue  = speed + angleAdj;
 	double rightStickValue = speed - angleAdj;
 	TankDrive(-1 * leftStickValue,  -1 * rightStickValue, false);
