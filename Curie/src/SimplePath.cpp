@@ -33,6 +33,9 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 					// TODO: Need to develop path for traveling from left start position to the switch on the right
 					CreateOppSideSwitchPath(startPos);
 					break;
+				case Center:
+					CreateCenterLeftSwitchPath();
+					break;
 				default:
 					break;
 			}
@@ -45,6 +48,9 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 				case Left:
 					// TODO: Need to develop path for traveling from right start position to the switch on the left
 					CreateOppSideSwitchPath(startPos);
+					break;
+				case Center:
+					CreateCenterRightSwitchPath();
 					break;
 				default:
 					break;
@@ -168,6 +174,39 @@ SimplePath::CreateOppSideScalePath(StartPositions_t startPos)
 	AddStep(Step(DeliverIt, DELIVERY_POWER));
 }
 
+// This will create the path to the right switch when the robot is starting in center
+void
+SimplePath::CreateCenterRightSwitchPath()
+{
+
+	steps.reserve(8);
+	AddStep(Step(DriveIt, 36.0));
+	AddStep(Step(TurnIt, 90.0));
+	AddStep(Step(DriveIt, 44.0));
+	AddStep(Step(TurnIt, 360.0));
+	AddStep(Step(TurnIt, 360.0));
+	AddStep(Step(LiftLowerIt, SWITCH_DELIVERY_HEIGHT));
+	AddStep(Step(DriveItSlow, 48.0));
+	AddStep(Step(DeliverIt, DELIVERY_POWER));
+
+}
+
+// This will create the path to the left switch when the robot is starting in center
+void
+SimplePath::CreateCenterLeftSwitchPath()
+{
+
+	steps.reserve(8);
+	AddStep(Step(DriveIt, 36.0));
+	AddStep(Step(TurnIt, 270.0));
+	AddStep(Step(DriveIt, 46.0));
+	AddStep(Step(TurnIt, 360.0));
+	AddStep(Step(TurnIt, 360.0));
+	AddStep(Step(LiftLowerIt, SWITCH_DELIVERY_HEIGHT));
+	AddStep(Step(DriveItSlow, 48.0));
+	AddStep(Step(DeliverIt, DELIVERY_POWER));
+
+}
 void
 SimplePath::AddStep(Step newStep)
 {

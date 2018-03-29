@@ -99,7 +99,7 @@ enum CANConstants {
 #define SCALE_DELIVERY_HEIGHT 8150
 #define WRIST_POSITION 1000
 #define DELIVERY_POWER 0.5
-#define ANGLE_DIFF_LIMIT 1.0f
+#define ANGLE_DIFF_LIMIT 2.0f
 #define ROBOT_BASE_DEPTH 32.0
 
 #endif /* _CURIE_H_ */
