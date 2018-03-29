@@ -72,6 +72,7 @@ public:
 		autoTarget.AddDefault("AutoLine", TARGET_AUTOLINE);
 		autoTarget.AddObject("Scale", TARGET_SCALE);
 		autoTarget.AddObject("Switch", TARGET_SWITCH);
+		autoTarget.AddObject("Scale or Switch", TARGET_SS);
 		frc::SmartDashboard::PutData("Autonomous Target",
 				&autoTarget);
 
@@ -115,6 +116,29 @@ public:
 				autotgt = LeftScale;
 			else
 				autotgt = RightScale;
+		}
+		else if (tgt.compare(TARGET_SS) == 0) {
+			switch(autoloc) {
+			case Left:
+				if(gameData[1] == 'L')
+					autotgt = LeftScale;
+				else if(gameData[0] == 'L')
+					autotgt = LeftSwitch;
+				else
+					autotgt = BaseLine;
+				break;
+			case Right:
+				if(gameData[1] == 'R')
+					autotgt = RightScale;
+				else if(gameData[0] == 'R')
+					autotgt = RightSwitch;
+				else
+					autotgt = BaseLine;
+				break;
+			case Center:
+				autotgt = BaseLine;
+				break;
+			}
 		}
 		else
 			autotgt = BaseLine;

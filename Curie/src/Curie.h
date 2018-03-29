@@ -85,6 +85,7 @@ enum CANConstants {
 #define TARGET_SWITCH    "1"
 #define TARGET_SCALE     "2"
 #define TARGET_AUTOLINE  "3"
+#define TARGET_SS        "4"
 
 #define ENCODER_TICKS_PER_REV 4096
 #define WHEEL_DIAMETER_INCHES 6.0
@@ -99,7 +100,7 @@ enum CANConstants {
 #define SCALE_DELIVERY_HEIGHT 8150
 #define WRIST_POSITION 1000
 #define DELIVERY_POWER 0.5
-#define ANGLE_DIFF_LIMIT 2.0f
+#define ANGLE_DIFF_LIMIT 1.0f
 #define ROBOT_BASE_DEPTH 32.0
 
 #endif /* _CURIE_H_ */
