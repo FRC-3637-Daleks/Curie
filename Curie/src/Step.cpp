@@ -98,7 +98,7 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 		 	break;
 		case LiftIt:
 			d->TankDrive(0.0, 0.0);
-			if (fabs(l->GetPosition() - position) < 500) {
+			if (fabs(l->GetPosition() - position) < 100) {
 				state = AutonComplete;
 				break;
 			}
@@ -106,17 +106,12 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 			break;
 		case LiftLowerIt:
 			d->TankDrive(0.0, 0.0);
-			if ((fabs(i->WristPosition() - WRIST_POSITION) < 100)  &&
-				(fabs(l->GetPosition() - position) > 0)) {
+			if ((position - l->GetPosition()) < 100) {
+				i->StopWrist();
 				state = AutonComplete;
 				break;
 			}
-			if (fabs(i->WristPosition() - WRIST_POSITION) < 100) {
-				i->StopWrist();
-			}
-			else {
-				i->Lower();
-			}
+			i->Lower();
 			l->AutonUp(position);
 			break;
 		case DeliverIt:

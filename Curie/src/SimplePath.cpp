@@ -30,11 +30,10 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 					CreateSameSideSwitchPath(startPos);
 					break;
 				case Right:
-					// TODO: Need to develop path for traveling from left start position to the switch on the right
 					CreateOppSideSwitchPath(startPos);
 					break;
 				case Center:
-					CreateCenterLeftSwitchPath();
+					CreateCenterSwitchPath(Left);
 					break;
 				default:
 					break;
@@ -46,11 +45,10 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 					CreateSameSideSwitchPath(startPos);
 					break;
 				case Left:
-					// TODO: Need to develop path for traveling from right start position to the switch on the left
 					CreateOppSideSwitchPath(startPos);
 					break;
 				case Center:
-					CreateCenterRightSwitchPath();
+					CreateCenterSwitchPath(Right);
 					break;
 				default:
 					break;
@@ -100,7 +98,6 @@ SimplePath::CreateSameSideSwitchPath(StartPositions_t startPos)
 	// distance = 140" + 1/2(56") = 168"
 
 	AddStep(Step(DriveIt, 120.0));
-//	AddStep(Step(LowerWrist, 1000));
 	AddStep(Step(LiftLowerIt, SWITCH_DELIVERY_HEIGHT));
 	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
 	AddStep(Step(DriveItSlow, 20.0));
@@ -114,24 +111,23 @@ SimplePath::CreateOppSideSwitchPath(StartPositions_t startPos)
 	// Path is through area between starting positions and switch, assuming robot starts at center of player station.
 	// End position is perpendicular to switch.
 	// Distance from start to switch not accounting for robot base is 140 in.
-	steps.reserve(1);
+	//	steps.reserve(1);
 	// Have to subtract robot depth as only front of robot needs to cross baseline
-	AddStep(Step(DriveIt,
-			BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
+	//	AddStep(Step(DriveIt,
+	//			BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
 
-//	steps.reserve(9);
-//
-//	AddStep(Step(DriveIt, 70.0));
-//	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
-//	// Range goes from 98.5 in. to 170.5 in. depending on how far you start from the side wall.
-//	AddStep(Step(DriveIt, 134.5));
-//	AddStep(Step(TurnIt, DetermineAngle(startPos, 270.0, 90.0)));
-//	AddStep(Step(DriveIt, 26.0));
-//	AddStep(Step(LowerWrist, 1000));
-//	AddStep(Step(LiftIt, SWITCH_DELIVERY_HEIGHT));
-//	AddStep(Step(DriveItSlow, 12.0));
-//	AddStep(Step(DeliverIt, DELIVERY_POWER));
+	steps.reserve(8);
 
+	AddStep(Step(DriveIt, 190.0));
+	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
+	// Range goes from 98.5 in. to 170.5 in. depending on how far you start from the side wall.
+	AddStep(Step(DriveIt, 150.0));
+	AddStep(Step(TurnIt, 180.0));
+	AddStep(Step(DriveIt, 26.0));
+	AddStep(Step(LiftLowerIt, SWITCH_DELIVERY_HEIGHT));
+	AddStep(Step(TurnIt, DetermineAngle(startPos, 270.0, 90.0)));
+	AddStep(Step(DriveItSlow, 12.0));
+	AddStep(Step(DeliverIt, DELIVERY_POWER));
 }
 
 // This will create the path to the scale when the robot is starting on same side of field as assigned scale side
@@ -145,9 +141,7 @@ SimplePath::CreateSameSideScalePath(StartPositions_t startPos)
 	steps.reserve(6);
 	AddStep(Step(DriveIt, 300.0 - ROBOT_BASE_DEPTH));
 	AddStep(Step(LiftLowerIt, SCALE_DELIVERY_HEIGHT));
-
 	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
-	// AddStep(Step(LowerWrist, 1000));
 	AddStep(Step(DriveItSlow, 10.0));
 	AddStep(Step(DeliverIt, DELIVERY_POWER));
 
@@ -160,53 +154,33 @@ SimplePath::CreateOppSideScalePath(StartPositions_t startPos)
 	// Path goes between switch and scale, drives to other end, turns appropriately, and drops off directly facing the end of the scale.
 	steps.reserve(9);
 
-	AddStep(Step(DriveIt, 248.0));
+	AddStep(Step(DriveIt, 190.0));
 	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
 	// Range goes from 216 in. to 288 in. depending on how far you start from the side wall.
 	// Expected position should be halfway between scale end and side wall.
-	AddStep(Step(DriveIt, 252));
-	AddStep(Step(TurnIt, DetermineAngle(startPos, 270.0, 90.0)));
-	AddStep(Step(DriveIt, 76.0));
-	AddStep(Step(TurnIt, DetermineAngle(startPos, 270.0, 90.0)));
-	AddStep(Step(LowerWrist, 1000));
-	AddStep(Step(LiftIt, SWITCH_DELIVERY_HEIGHT));
-	AddStep(Step(DriveItSlow, 30.0));
-	AddStep(Step(DeliverIt, DELIVERY_POWER));
+	AddStep(Step(DriveIt, 180.0));
+	AddStep(Step(TurnIt, 0.0));
+	AddStep(Step(LiftLowerIt, SCALE_DELIVERY_HEIGHT));
+	AddStep(Step(DriveIt, 35.0));
+	AddStep(Step(DeliverIt, 0.3));
 }
 
 // This will create the path to the right switch when the robot is starting in center
 void
-SimplePath::CreateCenterRightSwitchPath()
+SimplePath::CreateCenterSwitchPath(StartPositions_t target)
 {
 
 	steps.reserve(8);
 	AddStep(Step(DriveIt, 36.0));
-	AddStep(Step(TurnIt, 90.0));
-	AddStep(Step(DriveIt, 44.0));
-	AddStep(Step(TurnIt, 360.0));
-	AddStep(Step(TurnIt, 360.0));
-	AddStep(Step(LiftLowerIt, SWITCH_DELIVERY_HEIGHT));
-	AddStep(Step(DriveItSlow, 48.0));
-	AddStep(Step(DeliverIt, DELIVERY_POWER));
-
-}
-
-// This will create the path to the left switch when the robot is starting in center
-void
-SimplePath::CreateCenterLeftSwitchPath()
-{
-
-	steps.reserve(8);
-	AddStep(Step(DriveIt, 36.0));
-	AddStep(Step(TurnIt, 270.0));
+	AddStep(Step(TurnIt, DetermineAngle(target, 270.0, 90.0)));
 	AddStep(Step(DriveIt, 46.0));
 	AddStep(Step(TurnIt, 360.0));
-	AddStep(Step(TurnIt, 360.0));
 	AddStep(Step(LiftLowerIt, SWITCH_DELIVERY_HEIGHT));
 	AddStep(Step(DriveItSlow, 48.0));
 	AddStep(Step(DeliverIt, DELIVERY_POWER));
 
 }
+
 void
 SimplePath::AddStep(Step newStep)
 {
@@ -217,8 +191,7 @@ AutonState_t
 SimplePath::RunPath(DalekDrive *d, AHRS *ahrs, Intake *i, Lifter *l,
 		Ultrasonic *ul, Ultrasonic *ur)
 {
-	frc::SmartDashboard::PutNumber("Step",
-			currentStepNumber);
+	frc::SmartDashboard::PutNumber("Step", currentStepNumber);
 	frc::SmartDashboard::PutNumber("SimplePath: Heading",
 			ahrs->GetCompassHeading());
 	switch (state) {

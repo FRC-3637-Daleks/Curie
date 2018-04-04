@@ -310,6 +310,11 @@ DalekDrive::GetDistance()
 	double right_ticks = m_rightMotor->GetSensorCollection().GetQuadraturePosition();
 	double ave_ticks = (fabs(left_ticks) + fabs(right_ticks))/2.0;
 
+	if(left_ticks == 0)
+		ave_ticks = fabs(right_ticks);
+	else if(right_ticks == 0)
+		ave_ticks = fabs(left_ticks);
+
 	return ave_ticks / ENCODER_TICKS_PER_INCH;
 
 }
