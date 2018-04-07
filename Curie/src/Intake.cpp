@@ -68,7 +68,7 @@ Intake::Raise()
 {
 	if (m_state != AtTop) {
 		m_state = MovingUp;
-		m_wristMotor->Set(-0.35);
+		m_wristMotor->Set(-0.75);
 	} else {
 		m_wristMotor->Set(0.0);
 	}
@@ -80,7 +80,7 @@ Intake::Lower()
 {
 	if (m_state != AtBottom) {
 		m_state = MovingDown;
-		m_wristMotor->Set(0.35);
+		m_wristMotor->Set(0.75);
 	} else {
 		m_wristMotor->Set(0.0);
 	}

@@ -242,7 +242,6 @@ void
 DalekDrive::SetLeftRightMotorOutputs(double leftValue, double rightValue)
 {
 	// Set the motor's value using mode
-	m_leftMotor->Set(inMode,  leftValue);
 	m_rightMotor->Set(inMode, rightValue);
 	return;
 }

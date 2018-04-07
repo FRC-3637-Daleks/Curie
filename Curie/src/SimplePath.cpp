@@ -7,6 +7,7 @@
 
 #include <SimplePath.h>
 #include <WPILib.h>
+#include <AHRS.h>
 
 SimplePath::SimplePath(size_t len)
 {
@@ -21,8 +22,7 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 		case BaseLine:
 			steps.reserve(1);
 			// Have to subtract robot depth as only front of robot needs to cross baseline
-			AddStep(Step(DriveIt,
-					BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
+			AddStep(Step(DriveIt, BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
 			break;
 		case LeftSwitch:
 			switch(startPos) {
@@ -30,7 +30,9 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 					CreateSameSideSwitchPath(startPos);
 					break;
 				case Right:
-					CreateOppSideSwitchPath(startPos);
+					steps.reserve(1);
+					AddStep(Step(DriveIt, BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
+					//CreateOppSideSwitchPath(startPos);
 					break;
 				case Center:
 					CreateCenterSwitchPath(Left);
@@ -45,7 +47,9 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 					CreateSameSideSwitchPath(startPos);
 					break;
 				case Left:
-					CreateOppSideSwitchPath(startPos);
+					//CreateOppSideSwitchPath(startPos);
+					steps.reserve(1);
+					AddStep(Step(DriveIt, BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
 					break;
 				case Center:
 					CreateCenterSwitchPath(Right);
@@ -60,7 +64,9 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 					CreateSameSideScalePath(startPos);
 					break;
 				case Right:
-					CreateOppSideScalePath(startPos);
+					//CreateOppSideScalePath(startPos);
+					steps.reserve(1);
+					AddStep(Step(DriveIt, BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
 					break;
 				default:
 					break;
@@ -72,7 +78,9 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 					CreateSameSideScalePath(startPos);
 					break;
 				case Left:
-					CreateOppSideScalePath(startPos);
+					//CreateOppSideScalePath(startPos);
+					steps.reserve(1);
+					AddStep(Step(DriveIt, BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
 					break;
 				default:
 					break;
@@ -97,10 +105,10 @@ SimplePath::CreateSameSideSwitchPath(StartPositions_t startPos)
 	// Distance to travel = distance to fence + 1/2 depth of switch
 	// distance = 140" + 1/2(56") = 168"
 
-	AddStep(Step(DriveIt, 120.0));
+	AddStep(Step(DriveIt, 115.0));
 	AddStep(Step(LiftLowerIt, SWITCH_DELIVERY_HEIGHT));
 	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
-	AddStep(Step(DriveItSlow, 20.0));
+	AddStep(Step(DriveItSlow, 15.0));
 	AddStep(Step(DeliverIt, DELIVERY_POWER));
 }
 
@@ -116,6 +124,7 @@ SimplePath::CreateOppSideSwitchPath(StartPositions_t startPos)
 	//	AddStep(Step(DriveIt,
 	//			BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
 
+
 	steps.reserve(8);
 
 	AddStep(Step(DriveIt, 190.0));
@@ -128,6 +137,7 @@ SimplePath::CreateOppSideSwitchPath(StartPositions_t startPos)
 	AddStep(Step(TurnIt, DetermineAngle(startPos, 270.0, 90.0)));
 	AddStep(Step(DriveItSlow, 12.0));
 	AddStep(Step(DeliverIt, DELIVERY_POWER));
+
 }
 
 // This will create the path to the scale when the robot is starting on same side of field as assigned scale side
@@ -152,6 +162,7 @@ void
 SimplePath::CreateOppSideScalePath(StartPositions_t startPos)
 {
 	// Path goes between switch and scale, drives to other end, turns appropriately, and drops off directly facing the end of the scale.
+
 	steps.reserve(9);
 
 	AddStep(Step(DriveIt, 190.0));
@@ -163,6 +174,7 @@ SimplePath::CreateOppSideScalePath(StartPositions_t startPos)
 	AddStep(Step(LiftLowerIt, SCALE_DELIVERY_HEIGHT));
 	AddStep(Step(DriveIt, 35.0));
 	AddStep(Step(DeliverIt, 0.3));
+
 }
 
 // This will create the path to the right switch when the robot is starting in center
@@ -173,8 +185,8 @@ SimplePath::CreateCenterSwitchPath(StartPositions_t target)
 	steps.reserve(8);
 	AddStep(Step(DriveIt, 36.0));
 	AddStep(Step(TurnIt, DetermineAngle(target, 270.0, 90.0)));
-	AddStep(Step(DriveIt, 46.0));
-	AddStep(Step(TurnIt, 360.0));
+	AddStep(Step(DriveIt, 50.0));
+	AddStep(Step(TurnIt, DetermineAngle(target, 340.0, 20.0)));
 	AddStep(Step(LiftLowerIt, SWITCH_DELIVERY_HEIGHT));
 	AddStep(Step(DriveItSlow, 48.0));
 	AddStep(Step(DeliverIt, DELIVERY_POWER));

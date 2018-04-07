@@ -315,10 +315,10 @@ Lifter::DeployBrace(void)
 {
 	if(m_state != PRECLIMB)
 		return;
-	if(GetOperatingMode() == CLIMBING_MODE) {
+	//if(GetOperatingMode() == CLIMBING_MODE) {
 		m_brace->Set(true);
 		m_state = BRACED;
-	}
+	//}
 }
 
 float
@@ -348,6 +348,7 @@ Lifter::InitiateClimb(void)
 void
 Lifter::HoldPosition(void)
 {
+	//The drivers requested this work before they switch modes on day 1 of Lehigh
 	//if(m_state == CLIMBING) {
 		m_state = HOLDING;
 		m_lock->Set(true);
