@@ -57,6 +57,7 @@ private:
 	void CreateOppSideSwitchPath(StartPositions_t start);
 	void CreateOppSideScalePath(StartPositions_t start);
 	void CreateCenterSwitchPath(StartPositions_t target);
+	void CreateBaselinePath(StartPositions_t start);
 	double DetermineAngle(StartPositions_t start, double left, double right);
 	std::vector<Step> steps;
 	AutonState_t state;

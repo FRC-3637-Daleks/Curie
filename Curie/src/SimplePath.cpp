@@ -20,9 +20,7 @@ SimplePath::SimplePath(StartPositions_t startPos, TargetType_t target)
 	state = AutonWaiting;
 	switch(target) {
 		case BaseLine:
-			steps.reserve(1);
-			// Have to subtract robot depth as only front of robot needs to cross baseline
-			AddStep(Step(DriveIt, BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
+			CreateBaselinePath(startPos);
 			break;
 		case LeftSwitch:
 			switch(startPos) {
@@ -97,6 +95,14 @@ SimplePath::DetermineAngle(StartPositions_t p, double left, double right)
 	return (p == Left) ? left : right;
 }
 
+void
+SimplePath::CreateBaselinePath(StartPositions_t startPos)
+{
+	steps.reserve(1);
+	// Have to subtract robot depth as only front of robot needs to cross baseline
+	AddStep(Step(DriveIt, BASELINE_TARGET_DISTANCE - ROBOT_BASE_DEPTH));
+}
+
 // This will create the path to the switch when the robot is starting on same side of field as assigned switch side
 void
 SimplePath::CreateSameSideSwitchPath(StartPositions_t startPos)
@@ -161,10 +167,10 @@ SimplePath::CreateSameSideScalePath(StartPositions_t startPos)
 void
 SimplePath::CreateOppSideScalePath(StartPositions_t startPos)
 {
-	// Path goes between switch and scale, drives to other end, turns appropriately, and drops off directly facing the end of the scale.
-
+	// Path goes between switch and scale, drives to other end,
+	// turns appropriately, and drops off directly facing the end
+	// of the scale.
 	steps.reserve(9);
-
 	AddStep(Step(DriveIt, 190.0));
 	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
 	// Range goes from 216 in. to 288 in. depending on how far you start from the side wall.
@@ -181,7 +187,6 @@ SimplePath::CreateOppSideScalePath(StartPositions_t startPos)
 void
 SimplePath::CreateCenterSwitchPath(StartPositions_t target)
 {
-
 	steps.reserve(8);
 	AddStep(Step(DriveIt, 36.0));
 	AddStep(Step(TurnIt, DetermineAngle(target, 270.0, 90.0)));
@@ -190,7 +195,6 @@ SimplePath::CreateCenterSwitchPath(StartPositions_t target)
 	AddStep(Step(LiftLowerIt, SWITCH_DELIVERY_HEIGHT));
 	AddStep(Step(DriveItSlow, 48.0));
 	AddStep(Step(DeliverIt, DELIVERY_POWER));
-
 }
 
 void
@@ -211,11 +215,11 @@ SimplePath::RunPath(DalekDrive *d, AHRS *ahrs, Intake *i, Lifter *l,
 			// initialize stuff to start path execution
 			currentStepNumber = 0;
 			state = AutonExecuting;
-			// set curr position/distance???
+			// set current position/distance???
 			distanceTraveled = 0.0;
 			break;
 		case AutonExecuting:
-			// Need to pass distanc
+			// Need to pass distance
 			frc::SmartDashboard::PutNumber("Current Step Executing:",
 					currentStepNumber);
 			state = steps.at(currentStepNumber).ExecuteStep(d, ahrs, i, l);

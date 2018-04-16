@@ -369,15 +369,17 @@ DalekDrive::headingDiff(float current, float target)
 void
 DalekDrive::TurnToHeading(double speed, double heading)
 {
-	float current = m_ahrs->GetFusedHeading();
+	float current = m_ahrs->GetYaw();
+	if(current < 0.0)
+		current += 360.0;
 	float hdiff   = headingDiff(current, heading);
 
 	// not sure how to get the turnController to help
 	if(m_turnController->IsEnabled())
 		m_turnController->Disable();
 
-	if(hdiff < 10.0f)
-		speed /= 2;
+	//if(hdiff < 10.0f)
+	//	speed = 0.3;
 
 	if(isTurnCCW(current, (float)heading))
 		TankDrive(speed, -1 * speed, false);

@@ -86,8 +86,10 @@ Step::ExecuteStep(DalekDrive *d, AHRS *ahrs,  Intake *i, Lifter *l)
 			// d->TankDrive(-1 * motorPower, -1 * motorPower);
 			break;
 		case TurnIt:
-			motorPower = 0.3;
-			currAngle = fmod(ahrs->GetFusedHeading(), 360.0f);
+			motorPower = 0.4;
+			currAngle = fmod(ahrs->GetYaw(), 360.0f);
+			if(currAngle < 0.0)
+				currAngle += 360.0;
 			// We are within tolerance to turn is considered complete
 			if (fabs(angle - currAngle) < ANGLE_DIFF_LIMIT) {
 				state = AutonComplete;

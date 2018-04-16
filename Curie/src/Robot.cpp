@@ -152,7 +152,11 @@ public:
 	void
 	AutonomousPeriodic()
 	{
-		autonPath->RunPath(drive, ahrs, intake, lift, ultraLeft, ultraRight);
+		AutonState_t state;
+
+		state = autonPath->RunPath(drive, ahrs, intake, lift, ultraLeft, ultraRight);
+		if ((state == AutonComplete) || (state = AutonWaiting))
+			drive->TankDrive(0.0, 0.0);
 		frc::SmartDashboard::PutNumber("Driveit: Drive Distance",
 				drive->GetDistance());
 		frc::SmartDashboard::PutNumber("autoCount",
