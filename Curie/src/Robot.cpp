@@ -243,7 +243,7 @@ public:
 
 		if(xbox->GetStickButtonPressed(frc::GenericHID::JoystickHand::kRightHand)) {
 			lift->SetTalonMode(Lifter::POSITION);
-			lift->Set(4096);
+			lift->Set(3096);
 		}
 		if(leftJoystick->GetTrigger())
 			drive->SetPrecisionMode(true);
