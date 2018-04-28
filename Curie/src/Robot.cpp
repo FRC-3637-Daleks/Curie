@@ -284,6 +284,8 @@ public:
 		frc::SmartDashboard::PutNumber("UR", ultraRight->GetRangeInches());
 		frc::SmartDashboard::PutNumber("Wrist Position",
 				intake->WristPosition());
+		frc::SmartDashboard::PutNumber("Elevator Position",
+				lift->GetPosition());
 	}
 
 private:

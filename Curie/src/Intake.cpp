@@ -89,7 +89,7 @@ Intake::Lower()
 void
 Intake::Pull()
 {
-	m_rollerMotor->Set(-0.7);
+	m_rollerMotor->Set(-0.8);
 }
 
 void

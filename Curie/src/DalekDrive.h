@@ -17,7 +17,7 @@
  * Utility class for handling Robot drive based on a definition of the motor
  * configuration.
  */
-#define PRECISION_ADJUSTMENT 0.5
+#define PRECISION_ADJUSTMENT 0.6
 
 class DalekDrive : public PIDOutput {
   public:

@@ -155,11 +155,24 @@ SimplePath::CreateSameSideScalePath(StartPositions_t startPos)
 	// Halfway mark is 324 in., not accounting for robot base.
 
 	steps.reserve(6);
+
+/*
 	AddStep(Step(DriveIt, 300.0 - ROBOT_BASE_DEPTH));
 	AddStep(Step(LiftLowerIt, SCALE_DELIVERY_HEIGHT));
 	AddStep(Step(TurnIt, DetermineAngle(startPos, 90.0, 270.0)));
 	AddStep(Step(DriveItSlow, 10.0));
 	AddStep(Step(DeliverIt, DELIVERY_POWER));
+*/
+
+
+
+	AddStep(Step(DriveIt, 280.0 - ROBOT_BASE_DEPTH));
+	AddStep(Step(LiftLowerIt, SCALE_DELIVERY_HEIGHT));
+	AddStep(Step(TurnIt, DetermineAngle(startPos, 45.0, 315.0)));
+	Wait(0.5);
+	AddStep(Step(DriveItSlow, 5.0));
+	AddStep(Step(DeliverIt, DELIVERY_POWER));
+
 
 }
 
@@ -187,14 +200,28 @@ SimplePath::CreateOppSideScalePath(StartPositions_t startPos)
 void
 SimplePath::CreateCenterSwitchPath(StartPositions_t target)
 {
+/*
 	steps.reserve(8);
 	AddStep(Step(DriveIt, 36.0));
 	AddStep(Step(TurnIt, DetermineAngle(target, 270.0, 90.0)));
-	AddStep(Step(DriveIt, 50.0));
-	AddStep(Step(TurnIt, DetermineAngle(target, 340.0, 20.0)));
+	//Originally was DriveIt, 50.0, changed to 48.0 stay closer to center.
+	AddStep(Step(DriveIt, 48.0));
+	AddStep(Step(TurnIt, DetermineAngle(target, 345.0, 15.0)));
+	AddStep(Step(TurnIt,DetermineAngle(target, 345.0, 15.0)));
 	AddStep(Step(LiftLowerIt, SWITCH_DELIVERY_HEIGHT));
 	AddStep(Step(DriveItSlow, 48.0));
 	AddStep(Step(DeliverIt, DELIVERY_POWER));
+*/
+
+
+	steps.reserve(7);
+	AddStep(Step(LiftLowerIt, SWITCH_DELIVERY_HEIGHT));
+	AddStep(Step(DriveIt, 15.0));
+	AddStep(Step(TurnIt, DetermineAngle(target, 325.0, 35.0)));
+	AddStep(Step(DriveIt, 78.0));
+	AddStep(Step(TurnIt, DetermineAngle(target, 0.0, 0.0)));
+	AddStep(Step(DeliverIt, DELIVERY_POWER));
+
 }
 
 void
